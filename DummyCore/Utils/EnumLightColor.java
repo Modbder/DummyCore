@@ -1,10 +1,13 @@
 package DummyCore.Utils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * 
  * @author Modbder
  * @version From DummyCore 1.1
- * @Description Used to work with multi-colored light system, that will be implemented.
+ * @Description Used to work with multi-colored light system.
  */
 public enum EnumLightColor {
 	BLACK(51,51,51),
@@ -27,6 +30,7 @@ public enum EnumLightColor {
 	private EnumLightColor(int red, int green, int blue)
 	{
 		mainColor = new DummyColor(red, green, blue);
+		colorID = setGlobal();
 	}
 	
 	private DummyColor mainColor;
@@ -35,5 +39,18 @@ public enum EnumLightColor {
 	{
 		return mainColor;
 	}
+	
+	private int setGlobal()
+	{
+		return ++globalID;
+	}
+	
+	public int getLightID()
+	{
+		return colorID;
+	}
+	
+	private int colorID = 0;
+	private static int globalID = -1;
 
 }

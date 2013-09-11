@@ -18,10 +18,15 @@ import DummyCore.Blocks.ItemMultiBlock;
 import DummyCore.Blocks.MultiBlock;
 import DummyCore.Items.ItemRegistry;
 import DummyCore.Items.MultiItem;
+import DummyCore.Utils.ColoredLightHandler;
 import DummyCore.Utils.DummyConfig;
+import DummyCore.Utils.EnumLightColor;
 import DummyCore.Utils.MathUtils;
 import DummyCore.Utils.Notifier;
+import DummyCore.Utils.RendererColoredLight;
+import cpw.mods.fml.client.registry.RenderingRegistry;
 import cpw.mods.fml.common.DummyModContainer;
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.Metadata;
 import cpw.mods.fml.common.ModMetadata;
@@ -29,7 +34,10 @@ import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLInterModComms.IMCEvent;
+import cpw.mods.fml.common.network.NetworkMod;
+import cpw.mods.fml.common.registry.EntityRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
+import cpw.mods.fml.relauncher.Side;
 
 /**
  * Do not change anythig here! This is used to initialise MultiBlocks and MultiItems.
@@ -37,6 +45,7 @@ import cpw.mods.fml.common.registry.GameRegistry;
  * @version From DummyCore 1.0
  */
 @Mod(modid = "DummyCore", name = "DummyCore", version = "1.1dev", useMetadata = true)
+@NetworkMod(clientSideRequired = true, serverSideRequired = false, channels = "DummyCore")
 public class CoreInitialiser extends DummyModContainer{
 	public static final CoreInitialiser instance = new CoreInitialiser();
 	private static DummyConfig cfg = new DummyConfig();
@@ -61,6 +70,10 @@ public class CoreInitialiser extends DummyModContainer{
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent e) throws Exception
 	{
+		for(int i = 0; i < 16; ++i)
+		{
+			Core.lightColors.add(EnumLightColor.values()[i]);
+		}
 		Core.registerModAbsolute(getClass(), "DummyCore", e.getModConfigurationDirectory().getAbsolutePath(),cfg);
 	}
 	
@@ -76,6 +89,12 @@ public class CoreInitialiser extends DummyModContainer{
 		BlocksRegistry.registerMultiBlock("dummyDebugBlock", "Debug Block From Dummy Core", null, null, getClass());
 		GameRegistry.registerBlock(mBlock, ItemMultiBlock.class, Core.getModName(Core.getIdForMod(getClass()))+".block."+mBlock.getUnlocalizedName());
 		BlocksRegistry.blocksList.put(mBlock, Core.getBlockTabForMod(getClass()).getTabLabel());
+		EntityRegistry.registerModEntity(ColoredLightHandler.class, "DummyCore.ColoredLightHandler", 54, this, 64, 1, false);
+		Side s = FMLCommonHandler.instance().getEffectiveSide();
+		if(s == Side.CLIENT)
+		{
+			RenderingRegistry.registerEntityRenderingHandler(ColoredLightHandler.class, new RendererColoredLight());
+		}
 	}
 	public static MultiItem mItem;
 	public static MultiBlock mBlock;

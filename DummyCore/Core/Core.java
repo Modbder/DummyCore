@@ -9,14 +9,18 @@ import java.util.List;
 
 import DummyCore.CreativeTabs.CreativePageBlocks;
 import DummyCore.CreativeTabs.CreativePageItems;
+import DummyCore.Utils.EnumLightColor;
 import DummyCore.Utils.IDummyConfig;
 import DummyCore.Utils.Notifier;
+import net.minecraft.block.Block;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraftforge.common.Configuration;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.registry.LanguageRegistry;
 
 public class Core {
+	public static List lightBlocks = new ArrayList<Block>();
+	public static List<EnumLightColor> lightColors = new ArrayList<EnumLightColor>();
 	private static HashMap modList = new HashMap<Class,Integer>();
 	private static HashMap langFilesList = new HashMap<Integer,Configuration>();
 	private static HashMap configurationList = new HashMap<Integer,Configuration>();
