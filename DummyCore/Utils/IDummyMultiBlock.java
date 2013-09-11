@@ -54,4 +54,6 @@ public interface IDummyMultiBlock {
     public boolean onBlockActivated(Block b, World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer, int par6, float par7, float par8, float par9);
     
     public void setBlockBoundsBasedOnState(Block b, IBlockAccess par1IBlockAccess, int par2, int par3, int par4);
+    
+    public Icon getIcon(int par1, int par2);
 }

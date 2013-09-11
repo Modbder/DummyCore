@@ -82,11 +82,11 @@ public class CoreInitialiser extends DummyModContainer{
 	{
 		mItem = (MultiItem)new MultiItem(cfg.MultiItemUID).setUnlocalizedName("DummyCore.MultiItem");
 		mItem.setCreativeTab(Core.getItemTabForMod(getClass()));
-		ItemRegistry.registerMultiItem("dummyDebugItem", "Debug Item From Dummy Core", null, null, getClass());
+		ItemRegistry.registerMultiItem("dummyDebugItem", "Debug Item From Dummy Core", "cake", null, getClass());
 		ItemRegistry.itemsList.put(mItem, Core.getItemTabForMod(getClass()).getTabLabel());
 		mBlock = (MultiBlock)new MultiBlock(cfg.MultiBlockUID).setHardness(1.0F).setResistance(1.0F).setUnlocalizedName("DummyCore.MultiBlock");
 		mBlock.setCreativeTab(Core.getBlockTabForMod(getClass()));
-		BlocksRegistry.registerMultiBlock("dummyDebugBlock", "Debug Block From Dummy Core", null, null, getClass());
+		BlocksRegistry.registerMultiBlock("dummyDebugBlock", "Debug Block From Dummy Core", "comparator_on", null, getClass());
 		GameRegistry.registerBlock(mBlock, ItemMultiBlock.class, Core.getModName(Core.getIdForMod(getClass()))+".block."+mBlock.getUnlocalizedName());
 		BlocksRegistry.blocksList.put(mBlock, Core.getBlockTabForMod(getClass()).getTabLabel());
 		EntityRegistry.registerModEntity(ColoredLightHandler.class, "DummyCore.ColoredLightHandler", 54, this, 64, 1, false);

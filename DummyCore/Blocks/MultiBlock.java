@@ -162,6 +162,18 @@ public class MultiBlock extends Block{
     
     @SideOnly(Side.CLIENT)
     @Override
+    public Icon getIcon(int par1, int par2)
+    {
+		for(int i = 0; i < 1024; ++i)
+		{
+			if(handler[i] != null)
+				return handler[i].getIcon(par1, par2);
+		}
+        return this.icon[par2];
+    }
+    
+    @SideOnly(Side.CLIENT)
+    @Override
     public AxisAlignedBB getSelectedBoundingBoxFromPool(World par1World, int par2, int par3, int par4)
     {
 		for(int i = 0; i < 1024; ++i)
