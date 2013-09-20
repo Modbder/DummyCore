@@ -73,7 +73,7 @@ public class ColoredLightHandler extends Entity{
 	
 	public float getRenderColorSize()
 	{
-		return this.dataWatcher.func_111145_d(13);
+		return this.dataWatcher.getWatchableObjectFloat(13);
 	}
 	
 	@Override

@@ -32,7 +32,7 @@ public class MiscUtils {
 	public static void bindTexture(String mod, String texture)
 	{
 		ResourceLocation loc = new ResourceLocation(mod,texture);
-		Minecraft.getMinecraft().func_110434_K().func_110577_a(loc);	
+		Minecraft.getMinecraft().getTextureManager().bindTexture(loc);	
 		loc = null;
 	}
 	
@@ -125,7 +125,7 @@ public class MiscUtils {
 	 */
 	public static float getEntityHealth(EntityLivingBase e)
 	{
-		return e.func_110143_aJ();
+		return e.getHealth();
 	}
 	
 	/**

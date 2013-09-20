@@ -28,6 +28,8 @@ public interface IDummyMultiItem {
     public void onUpdate(ItemStack par1ItemStack, World par2World, Entity par3Entity, int par4, boolean par5);
 
     public void addInformation(ItemStack par1ItemStack, EntityPlayer par2EntityPlayer, List par3List, boolean par4);
+
+    public int getColorFromItemStack(ItemStack par1ItemStack, int par2);
     
     public EnumRarity getRarity(ItemStack par1ItemStack);
 }

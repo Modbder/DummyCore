@@ -5,8 +5,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import ViSuCraft.ViSuProject.Mod.ViSuMod;
 import net.minecraft.client.Minecraft;
 
 public class Notifier {

@@ -85,7 +85,7 @@ public class MathUtils {
 	public static float getDifference(float pos1, float pos2)
 	{
 		float diff = pos1-pos2;
-		return (float)(Math.sqrt(diff*diff));
+		return (float)module(diff);
 	}
 	
 	/**
@@ -109,5 +109,16 @@ public class MathUtils {
 	public static int convertToHex(int a)
 	{
 		return Integer.parseInt(Integer.toString(a),16);
+	}
+	
+	/**
+	 * Used to get the always positive value of a double.
+	 * @version From DummyCore 1.2
+	 * @param a - the double to be converted
+	 * @return this double, but positive(>0)
+	 */
+	public static double module(double a)
+	{
+		return Math.sqrt(a*a);
 	}
 }

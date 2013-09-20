@@ -12,10 +12,16 @@ import org.bouncycastle.util.encoders.HexEncoder;
 import org.bouncycastle.util.encoders.HexTranslator;
 
 import net.minecraft.block.Block;
+import net.minecraft.client.particle.EntityDiggingFX;
+import net.minecraft.client.particle.EntityFX;
+import net.minecraft.client.particle.EntitySmokeFX;
 import net.minecraft.client.resources.ResourcePack;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.item.EntityItem;
 import DummyCore.Blocks.BlocksRegistry;
 import DummyCore.Blocks.ItemMultiBlock;
 import DummyCore.Blocks.MultiBlock;
+import DummyCore.Client.Renderer.RendererColoredLight;
 import DummyCore.Items.ItemRegistry;
 import DummyCore.Items.MultiItem;
 import DummyCore.Utils.ColoredLightHandler;
@@ -23,7 +29,6 @@ import DummyCore.Utils.DummyConfig;
 import DummyCore.Utils.EnumLightColor;
 import DummyCore.Utils.MathUtils;
 import DummyCore.Utils.Notifier;
-import DummyCore.Utils.RendererColoredLight;
 import cpw.mods.fml.client.registry.RenderingRegistry;
 import cpw.mods.fml.common.DummyModContainer;
 import cpw.mods.fml.common.FMLCommonHandler;
@@ -32,11 +37,13 @@ import cpw.mods.fml.common.Mod.Metadata;
 import cpw.mods.fml.common.ModMetadata;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
+import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLInterModComms.IMCEvent;
 import cpw.mods.fml.common.network.NetworkMod;
 import cpw.mods.fml.common.registry.EntityRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
+import cpw.mods.fml.common.registry.TickRegistry;
 import cpw.mods.fml.relauncher.Side;
 
 /**
@@ -75,11 +82,6 @@ public class CoreInitialiser extends DummyModContainer{
 			Core.lightColors.add(EnumLightColor.values()[i]);
 		}
 		Core.registerModAbsolute(getClass(), "DummyCore", e.getModConfigurationDirectory().getAbsolutePath(),cfg);
-	}
-	
-	@EventHandler
-	public void init(IMCEvent e)
-	{
 		mItem = (MultiItem)new MultiItem(cfg.MultiItemUID).setUnlocalizedName("DummyCore.MultiItem");
 		mItem.setCreativeTab(Core.getItemTabForMod(getClass()));
 		ItemRegistry.registerMultiItem("dummyDebugItem", "Debug Item From Dummy Core", "cake", null, getClass());
@@ -95,6 +97,13 @@ public class CoreInitialiser extends DummyModContainer{
 		{
 			RenderingRegistry.registerEntityRenderingHandler(ColoredLightHandler.class, new RendererColoredLight());
 		}
+	}
+	
+	@EventHandler
+	public void postInit(FMLPostInitializationEvent e)
+	{
+		Notifier.notifySimple(MultiItem.items+" MultiItems registered.");
+		Notifier.notifySimple(MultiBlock.blocks+" MultiBlocks registered.");
 	}
 	public static MultiItem mItem;
 	public static MultiBlock mBlock;

@@ -1,4 +1,4 @@
-package DummyCore.Utils;
+package DummyCore.Client.Renderer;
 
 import java.util.Random;
 
@@ -6,6 +6,12 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
 import DummyCore.Core.Core;
+import DummyCore.Utils.BlockEmmitsColoredLight;
+import DummyCore.Utils.ColoredLightHandler;
+import DummyCore.Utils.Coord3D;
+import DummyCore.Utils.DummyDistance;
+import DummyCore.Utils.EnumLightColor;
+import DummyCore.Utils.MiscUtils;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAnvil;
 import net.minecraft.block.BlockHopper;
@@ -65,14 +71,15 @@ public class RendererColoredLight extends Render{
 	                for(int z = -8; z < 8; ++z)
 	                {
 	                	Coord3D bPos = new Coord3D(entity.posX+x,entity.posY+y,entity.posZ+z);
-	                	float posX = (bPos.x - ePos.x);
-	                	float posY = (bPos.y - ePos.y);
-	                	float posZ = (bPos.z - ePos.z);
-	                	posX = (float) Math.sqrt(posX*posX);
-	                	posY = (float) Math.sqrt(posY*posY);
-	                	posZ = (float) Math.sqrt(posZ*posZ);
-	                	float distance = (posX+posY+posZ)/3;
-	                	distance = (float) Math.sqrt(distance*distance);
+	                	//float posX = (bPos.x - ePos.x);
+	                	//float posY = (bPos.y - ePos.y);
+	                	//float posZ = (bPos.z - ePos.z);
+	                	//posX = (float) Math.sqrt(posX*posX);
+	                	//posY = (float) Math.sqrt(posY*posY);
+	                	//posZ = (float) Math.sqrt(posZ*posZ);
+	                	//float distance = (posX+posY+posZ)/3;
+	                	float distance = new DummyDistance(bPos,ePos).getDistance();
+	                	//distance = (float) Math.sqrt(distance*distance);
 	                	float brightness = (lightSize/16) - (distance/4);
 	                	if(brightness<0)brightness=0;
 	                	//if(brightness > 0.6F) System.out.println(distance);
@@ -94,7 +101,7 @@ public class RendererColoredLight extends Render{
 	}
 
 	@Override
-	protected ResourceLocation func_110775_a(Entity entity) {
+	protected ResourceLocation getEntityTexture(Entity entity) {
 		// TODO Auto-generated method stub
 		return new ResourceLocation("dummycore","textures/misc/lightmap.png");
 	}
@@ -118,7 +125,8 @@ public class RendererColoredLight extends Render{
         RenderHelper.enableStandardItemLighting();
     }
     
-    public void renderBlockAsItem(Block par1Block, int par2, float par3, EnumLightColor color)
+    @SuppressWarnings("unused")
+	public void renderBlockAsItem(Block par1Block, int par2, float par3, EnumLightColor color)
     {
         Tessellator tessellator = Tessellator.instance;
         boolean flag = false;
@@ -145,7 +153,7 @@ public class RendererColoredLight extends Render{
         blockRenderer.setRenderBoundsFromBlock(par1Block);
         int k;
 
-        if (j != 0 && j != 31 && j != 39 && j != 16 && j != 26)
+        if (false)
         {
             if (j == 1)
             {
@@ -570,7 +578,7 @@ public class RendererColoredLight extends Render{
                 FMLRenderAccessLibrary.renderInventoryBlock(blockRenderer, par1Block, par2, j);
             }
         }
-        else
+        else if(j == 0)
         {
             if (j == 16)
             {

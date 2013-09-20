@@ -34,6 +34,7 @@ public class MultiBlock extends Block{
 	public static int blockuid;
 	protected static Icon[] icon;
 	protected static IDummyMultiBlock[] handler = new IDummyMultiBlock[1024];
+	public static int blocks;
 	public MultiBlock(int par1) {
 		super(par1, Material.circuits);
 		blockuid = par1;
@@ -63,6 +64,7 @@ public class MultiBlock extends Block{
 	{
 		blockNamesUnlocalised.put(s, i);
 		addBlockNameMain(i,s);
+		++blocks;
 	}
 	
 	/**
