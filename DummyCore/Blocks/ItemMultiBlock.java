@@ -24,6 +24,8 @@ public class ItemMultiBlock extends ItemBlock{
 
 	public ItemMultiBlock(int par1) {
 		super(par1);
+        this.setMaxDamage(0);
+        this.setHasSubtypes(true);
 	}
 	
 	@Override
@@ -31,7 +33,7 @@ public class ItemMultiBlock extends ItemBlock{
     {
 		for(int i = 0; i < 1024; ++i)
 		{
-			if(MultiBlock.handler[i] != null)
+			if(MultiBlock.handler[i] != null && i == par7ItemStack.getItemDamage())
 				return MultiBlock.handler[i].canPlaceItemBlockOnSide(par1World, par2, par3, par4, par5, par6EntityPlayer, par7ItemStack);
 		}
     	return super.canPlaceItemBlockOnSide(par1World, par2, par3, par4, par5, par6EntityPlayer, par7ItemStack);
@@ -94,7 +96,7 @@ public class ItemMultiBlock extends ItemBlock{
 	{
 		for(int i = 0; i < 1024; ++i)
 		{
-			if(MultiBlock.handler[i] != null)
+			if(MultiBlock.handler[i] != null && i == par1ItemStack.getItemDamage())
 				MultiBlock.handler[i].onItemBlockUpdate(par1ItemStack, par2World, par3Entity, par4, par5);
 		}
 	}
@@ -102,10 +104,13 @@ public class ItemMultiBlock extends ItemBlock{
 	@Override
 	public void addInformation(ItemStack par1ItemStack, EntityPlayer par2EntityPlayer, List par3List, boolean par4)
 	{
+		
 		for(int i = 0; i < 1024; ++i)
 		{
-			if(MultiBlock.handler[i] != null)
-				MultiBlock.handler[i].addInformation(par1ItemStack, par2EntityPlayer, par3List, par4);
+			if(MultiBlock.handler[i] != null && par1ItemStack.getItemDamage() == i)
+			{
+				par3List = MultiBlock.handler[i].addInformation(par1ItemStack, par2EntityPlayer, par3List, par4);
+			}
 		}
 	}
 	
@@ -114,10 +119,16 @@ public class ItemMultiBlock extends ItemBlock{
 	{
 		for(int i = 0; i < 1024; ++i)
 		{
-			if(MultiBlock.handler[i] != null)
+			if(MultiBlock.handler[i] != null && par1ItemStack.getItemDamage() == i)
 				return MultiBlock.handler[i].getRarity(par1ItemStack);
 		}
         return EnumRarity.common;
 	}
+
+	@Override
+    public int getMetadata(int par1)
+    {
+        return par1;
+    }
 
 }

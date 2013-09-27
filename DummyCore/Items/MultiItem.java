@@ -6,6 +6,8 @@ import java.util.List;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import DummyCore.Core.CoreInitialiser;
+import DummyCore.Utils.IDummyMultiBlock;
 import DummyCore.Utils.IDummyMultiItem;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.texture.IconRegister;
@@ -29,6 +31,7 @@ public class MultiItem extends Item{
 	private static List<String> itemNames = new ArrayList();
 	private static List<String> itemNamesUnlocalisedList = new ArrayList();
 	private static Hashtable<String,Integer> itemNamesUnlocalised = new Hashtable();
+	protected static Hashtable<IDummyMultiItem,Integer> miHandlers = new Hashtable();
 	private static List<String> itemTextures = new ArrayList();
 	private static int id = -1;
 	public static int itemuid;
@@ -99,7 +102,7 @@ public class MultiItem extends Item{
 	 */
 	public static ItemStack getStackByName(String unlocalisedName, int size)
 	{
-		ItemStack s = new ItemStack(itemuid,getMetadataByName(unlocalisedName),size);
+		ItemStack s = new ItemStack(CoreInitialiser.mItem,getMetadataByName(unlocalisedName),size);
 		return s;
 	}
 	
@@ -140,18 +143,19 @@ public class MultiItem extends Item{
 	{
 		registerMultiItem(unlocalisedName,inGameName,texturePath);
 		handler[getMetadataByName(unlocalisedName)] = multiItemHandler;
+		miHandlers.put(multiItemHandler, getMetadataByName(unlocalisedName));
 	}
 
 	@Override
     public boolean onItemUse(ItemStack par1ItemStack, EntityPlayer par2EntityPlayer, World par3World, int par4, int par5, int par6, int par7, float par8, float par9, float par10)
     {
+		int meta = par1ItemStack.getItemDamage();
 		for(int i = 0; i < 1024; ++i)
 		{
-			if(handler[i] != null)
+			if(handler[i] != null && i == meta)
 			{
 				boolean result = handler[i].onItemUse(par1ItemStack, par2EntityPlayer, par3World, par4, par5, par6, par7, par8, par9, par10);
-				if(result = true)
-					return result;
+				return result;
 			}
 		}
         return false;
@@ -160,12 +164,12 @@ public class MultiItem extends Item{
 	@Override
     public ItemStack onItemRightClick(ItemStack par1ItemStack, World par2World, EntityPlayer par3EntityPlayer)
     {
+		int meta = par1ItemStack.getItemDamage();
 		for(int i = 0; i < 1024; ++i)
 		{
-			if(handler[i] != null)
+			if(handler[i] != null && i == meta)
 			{
 				ItemStack result = handler[i].onItemRightClick(par1ItemStack, par2World, par3EntityPlayer);
-				if(result != null)
 					return result;
 			}
 		}
@@ -175,12 +179,12 @@ public class MultiItem extends Item{
 	@Override
     public boolean hitEntity(ItemStack par1ItemStack, EntityLivingBase par2EntityLivingBase, EntityLivingBase par3EntityLivingBase)
     {
+		int meta = par1ItemStack.getItemDamage();
 		for(int i = 0; i < 1024; ++i)
 		{
-			if(handler[i] != null)
+			if(handler[i] != null && i == meta)
 			{
 				boolean result = handler[i].hitEntity(par1ItemStack, par2EntityLivingBase, par3EntityLivingBase);
-				if(result != false)
 					return result;
 			}
 		}
@@ -190,12 +194,12 @@ public class MultiItem extends Item{
 	@Override
     public boolean onBlockDestroyed(ItemStack par1ItemStack, World par2World, int par3, int par4, int par5, int par6, EntityLivingBase par7EntityLivingBase)
     {
+		int meta = par1ItemStack.getItemDamage();
 		for(int i = 0; i < 1024; ++i)
 		{
-			if(handler[i] != null)
+			if(handler[i] != null && i == meta)
 			{
 				boolean result = handler[i].onBlockDestroyed(par1ItemStack, par2World, par3, par4, par5, par6, par7EntityLivingBase);
-				if(result != false)
 					return result;
 			}
 		}
@@ -206,8 +210,9 @@ public class MultiItem extends Item{
 	public void onUpdate(ItemStack par1ItemStack, World par2World, Entity par3Entity, int par4, boolean par5)
 	{
 		{
-		for(int i = 0; i < 1024; ++i)
-			if(handler[i] != null)
+			int meta = par1ItemStack.getItemDamage();
+			for(int i = 0; i < 1024; ++i)
+				if(handler[i] != null && i == meta)
 				handler[i].onUpdate(par1ItemStack, par2World, par3Entity, par4, par5);
 		}
 	}
@@ -216,12 +221,12 @@ public class MultiItem extends Item{
     @SideOnly(Side.CLIENT)
     public int getColorFromItemStack(ItemStack par1ItemStack, int par2)
     {
+		int meta = par1ItemStack.getItemDamage();
 		for(int i = 0; i < 1024; ++i)
 		{
-			if(handler[i] != null)
+			if(handler[i] != null && i == meta)
 			{
 				int result = handler[i].getColorFromItemStack(par1ItemStack, par2);
-				if(result != -1)
 					return result;
 			}
 		}
@@ -231,9 +236,10 @@ public class MultiItem extends Item{
 	@Override
 	public void addInformation(ItemStack par1ItemStack, EntityPlayer par2EntityPlayer, List par3List, boolean par4)
 	{
+		int meta = par1ItemStack.getItemDamage();
 		for(int i = 0; i < 1024; ++i)
 		{
-			if(handler[i] != null)
+			if(handler[i] != null && i == meta)
 				handler[i].addInformation(par1ItemStack, par2EntityPlayer, par3List, par4);
 		}
 	}
@@ -241,12 +247,12 @@ public class MultiItem extends Item{
 	@Override
 	public EnumRarity getRarity(ItemStack par1ItemStack)
 	{
+		int meta = par1ItemStack.getItemDamage();
 		for(int i = 0; i < 1024; ++i)
 		{
-			if(handler[i] != null)
+			if(handler[i] != null && i == meta)
 			{
 				EnumRarity result = handler[i].getRarity(par1ItemStack);
-				if(result != EnumRarity.common)
 					return result;
 			}
 		}

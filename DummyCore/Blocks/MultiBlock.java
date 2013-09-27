@@ -29,14 +29,15 @@ public class MultiBlock extends Block{
 	protected static List<String> blockNames = new ArrayList();
 	protected static List<String> blockNamesUnlocalisedList = new ArrayList();
 	protected static Hashtable<String,Integer> blockNamesUnlocalised = new Hashtable();
+	protected static Hashtable<IDummyMultiBlock,Integer> mbHandlers = new Hashtable();
 	protected static List<String> blockTextures = new ArrayList();
 	protected static int id = -1;
 	public static int blockuid;
-	protected static Icon[] icon;
+	public static Icon[] icon;
 	protected static IDummyMultiBlock[] handler = new IDummyMultiBlock[1024];
 	public static int blocks;
 	public MultiBlock(int par1) {
-		super(par1, Material.circuits);
+		super(par1, Material.web);
 		blockuid = par1;
 	}
 	
@@ -125,42 +126,50 @@ public class MultiBlock extends Block{
 	{
 		registerMultiBlock(unlocalisedName,inGameName,texturePath);
 		handler[getMetadataByName(unlocalisedName)] = multiblockHandler;
+		mbHandlers.put(multiblockHandler, getMetadataByName(unlocalisedName));
 	}
 	
 	@Override
     public float getBlockHardness(World par1World, int par2, int par3, int par4)
     {
+		int meta = par1World.getBlockMetadata(par2, par3, par4);
 		for(int i = 0; i < 1024; ++i)
 		{
-			if(handler[i] != null)
+			if(handler[i] != null && i == meta)
+			{
 				return handler[i].getBlockHardness(MiscUtils.getBlock(par1World, par2, par3, par4),par1World, par2, par3, par4);
+			}
 		}
         return this.blockHardness;
     }
 	
     @SideOnly(Side.CLIENT)
     @Override
-    public float getBlockBrightness(IBlockAccess par1IBlockAccess, int par2, int par3, int par4)
+    public int getLightValue(IBlockAccess par1IBlockAccess, int par2, int par3, int par4)
     {
+    	int meta = par1IBlockAccess.getBlockMetadata(par2, par3, par4);
 		for(int i = 0; i < 1024; ++i)
 		{
-			if(handler[i] != null)
-				return handler[i].getBlockBrightness(MiscUtils.getBlock(par1IBlockAccess, par2, par3, par4),par1IBlockAccess, par2, par3, par4);
+			if(handler[i] != null && i == meta)
+			{
+				return (int)( handler[i].getBlockBrightness(MiscUtils.getBlock(par1IBlockAccess, par2, par3, par4),par1IBlockAccess, par2, par3, par4)*15);
+			}
 		}
-        return super.getBlockBrightness(par1IBlockAccess, par2, par3, par4);
+        return super.getLightValue(par1IBlockAccess, par2, par3, par4);
     }
     
-    @SideOnly(Side.CLIENT)
+    /*@SideOnly(Side.CLIENT)
     @Override
     public Icon getBlockTexture(IBlockAccess par1IBlockAccess, int par2, int par3, int par4, int par5)
     {
+    	int meta = par1IBlockAccess.getBlockMetadata(par2, par3, par4);
 		for(int i = 0; i < 1024; ++i)
 		{
-			if(handler[i] != null)
+			if(handler[i] != null && i == meta)
 				return handler[i].getBlockTexture(MiscUtils.getBlock(par1IBlockAccess, par2, par3, par4), par1IBlockAccess, par2, par3, par4, par5);
 		}
         return icon[par1IBlockAccess.getBlockMetadata(par2,par3,par4)];
-    }
+    }*/
     
     @SideOnly(Side.CLIENT)
     @Override
@@ -168,7 +177,7 @@ public class MultiBlock extends Block{
     {
 		for(int i = 0; i < 1024; ++i)
 		{
-			if(handler[i] != null)
+			if(handler[i] != null && i == par2)
 				return handler[i].getIcon(par1, par2);
 		}
         return this.icon[par2];
@@ -178,9 +187,10 @@ public class MultiBlock extends Block{
     @Override
     public AxisAlignedBB getSelectedBoundingBoxFromPool(World par1World, int par2, int par3, int par4)
     {
+    	int meta = par1World.getBlockMetadata(par2, par3, par4);
 		for(int i = 0; i < 1024; ++i)
 		{
-			if(handler[i] != null)
+			if(handler[i] != null && i == meta)
 				return handler[i].getSelectedBoundingBoxFromPool(MiscUtils.getBlock(par1World, par2, par3, par4), par1World, par2, par3, par4);
 		}
         return super.getSelectedBoundingBoxFromPool(par1World, par2, par3, par4);
@@ -194,9 +204,10 @@ public class MultiBlock extends Block{
     @Override
     public AxisAlignedBB getCollisionBoundingBoxFromPool(World par1World, int par2, int par3, int par4)
     {
+    	int meta = par1World.getBlockMetadata(par2, par3, par4);
 		for(int i = 0; i < 1024; ++i)
 		{
-			if(handler[i] != null)
+			if(handler[i] != null && i == meta)
 				return handler[i].getCollisionBoundingBoxFromPool(MiscUtils.getBlock(par1World, par2, par3, par4), par1World, par2, par3, par4);
 		}
         return super.getCollisionBoundingBoxFromPool(par1World, par2, par3, par4);
@@ -206,9 +217,10 @@ public class MultiBlock extends Block{
     @Override
     public void randomDisplayTick(World par1World, int par2, int par3, int par4, Random par5Random) 
     {
+    	int meta = par1World.getBlockMetadata(par2, par3, par4);
 		for(int i = 0; i < 1024; ++i)
 		{
-			if(handler[i] != null)
+			if(handler[i] != null && i == meta)
 				handler[i].randomDisplayTick(MiscUtils.getBlock(par1World, par2, par3, par4), par1World, par2, par3, par4, par5Random);
 		}
     	super.randomDisplayTick(par1World, par2, par3, par4, par5Random);
@@ -217,9 +229,10 @@ public class MultiBlock extends Block{
     @Override
     public void onBlockDestroyedByPlayer(World par1World, int par2, int par3, int par4, int par5)
     {
+    	int meta = par1World.getBlockMetadata(par2, par3, par4);
 		for(int i = 0; i < 1024; ++i)
 		{
-			if(handler[i] != null)
+			if(handler[i] != null && i == meta)
 				handler[i].onBlockDestroyedByPlayer(MiscUtils.getBlock(par1World, par2, par3, par4), par1World, par2, par3, par4, par5);
 		}
     	super.onBlockDestroyedByPlayer(par1World, par2, par3, par4, par5);
@@ -228,9 +241,10 @@ public class MultiBlock extends Block{
     @Override
     public void onNeighborBlockChange(World par1World, int par2, int par3, int par4, int par5) 
     {
+    	int meta = par1World.getBlockMetadata(par2, par3, par4);
 		for(int i = 0; i < 1024; ++i)
 		{
-			if(handler[i] != null)
+			if(handler[i] != null && i == meta)
 				handler[i].onNeighborBlockChange(MiscUtils.getBlock(par1World, par2, par3, par4), par1World, par2, par3, par4, par5);
 		}
     	super.onNeighborBlockChange(par1World, par2, par3, par4, par5);
@@ -239,9 +253,10 @@ public class MultiBlock extends Block{
     @Override
     public void onBlockAdded(World par1World, int par2, int par3, int par4) 
     {
+    	int meta = par1World.getBlockMetadata(par2, par3, par4);
 		for(int i = 0; i < 1024; ++i)
 		{
-			if(handler[i] != null)
+			if(handler[i] != null && i == meta)
 				handler[i].onBlockAdded(MiscUtils.getBlock(par1World, par2, par3, par4), par1World, par2, par3, par4);
 		}
     	super.onBlockAdded(par1World, par2, par3, par4);
@@ -250,9 +265,10 @@ public class MultiBlock extends Block{
     @Override
     public boolean onBlockActivated(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer, int par6, float par7, float par8, float par9)
     {
+    	int meta = par1World.getBlockMetadata(par2, par3, par4);
 		for(int i = 0; i < 1024; ++i)
 		{
-			if(handler[i] != null)
+			if(handler[i] != null && i == meta)
 				return handler[i].onBlockActivated(MiscUtils.getBlock(par1World, par2, par3, par4), par1World, par2, par3, par4, par5EntityPlayer, par6, par7, par8, par9);
 		}
     	return super.onBlockActivated(par1World, par2, par3, par4, par5EntityPlayer, par6, par7, par8, par9);
@@ -261,12 +277,25 @@ public class MultiBlock extends Block{
     @Override
     public void setBlockBoundsBasedOnState(IBlockAccess par1IBlockAccess, int par2, int par3, int par4) 
     {
+    	int meta = par1IBlockAccess.getBlockMetadata(par2, par3, par4);
 		for(int i = 0; i < 1024; ++i)
 		{
-			if(handler[i] != null)
+			if(handler[i] != null && i == meta)
 				handler[i].setBlockBoundsBasedOnState(MiscUtils.getBlock(par1IBlockAccess, par2, par3, par4), par1IBlockAccess, par2, par3, par4);
 		}
     	super.setBlockBoundsBasedOnState(par1IBlockAccess, par2, par3, par4);
+    }
+    
+    @SideOnly(Side.CLIENT)
+    @Override
+    public int getRenderColor(int par1)
+    {
+		for(int i = 0; i < 1024; ++i)
+		{
+			if(handler[i] != null && i == par1)
+				return handler[i].getRenderColor(par1);
+		}
+        return 16777215;
     }
     
     @Override

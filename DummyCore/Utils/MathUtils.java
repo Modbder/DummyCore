@@ -20,6 +20,8 @@ public class MathUtils {
 	 */
 	public static int pixelatedTextureSize(int current, int max, int textureSize)
 	{
+		if(current > max)
+			current = max;
     	float m = (float)current/max*100;
     	float n = m/100*textureSize;
     	return (int)n;
