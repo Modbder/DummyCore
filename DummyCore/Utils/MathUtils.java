@@ -123,4 +123,50 @@ public class MathUtils {
 	{
 		return Math.sqrt(a*a);
 	}
+	
+	public static boolean arrayContains(Object[] array, Object searched)
+	{
+		for(int i = 0; i < array.length; ++i)
+		{
+			if(array[i].equals(searched))
+				return true;
+		}
+		return false;
+	}
+	
+	public static boolean arrayContains(int[] array, int searched)
+	{
+		for(int i = 0; i < array.length; ++i)
+		{
+			if(array[i] == searched)
+				return true;
+		}
+		return false;
+	}
+	
+	public static int getIntInArray(int[] array, int searched)
+	{
+		for(int i = 0; i < array.length; ++i)
+		{
+			if(array[i] == searched)
+				return i;
+		}
+		return -1;
+	}
+	
+	public static boolean isArrayTheSame(boolean[] array)
+	{
+		boolean previous = array[0];
+		for(int i = 0; i < array.length; ++i)
+		{
+			if(array[i] == previous)
+			{
+				previous = array[i];
+			}else
+			{
+				return false;
+			}
+		}
+		return true;
+	}
 }

@@ -1,5 +1,8 @@
 package DummyCore.Utils;
 
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.EntityLivingBase;
@@ -7,11 +10,14 @@ import net.minecraft.entity.item.EntityItem;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.packet.Packet250CustomPayload;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
+import net.minecraftforge.oredict.OreDictionary;
+import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -146,4 +152,95 @@ public class MiscUtils {
 		return ret;
 	}
 	
+	
+	/**
+	 * Adds the given ItemStack to the given inventory, also updating the inventory.
+	 * @version From DummyCore 1.4
+	 * @param s - the stack to add
+	 * @param i - the inventory for the stack
+	 * @param remote - use world.isRemote here. This function is usually called on both sides, however, you can call it on server only, it will be ok, then put false in this field
+	 * @return true if adding was successful, false if not.
+	 */
+	public static boolean addItemToInventory(ItemStack s, IInventory i, boolean remote)
+	{
+		
+		for(int p = 0; p < i.getSizeInventory();++p)
+		{
+			if(i.getStackInSlot(p) != null && i.getStackInSlot(p).itemID == s.itemID && i.getStackInSlot(p).getItemDamage() == s.getItemDamage() && i.getStackInSlot(p).stackSize+s.stackSize<=64)
+			{
+				ItemStack slot = i.getStackInSlot(p);
+				System.out.println(slot);
+				if(!remote)
+				{
+					i.setInventorySlotContents(p, new ItemStack(slot.itemID,slot.stackSize+s.stackSize,slot.getItemDamage()));
+				}
+				i.onInventoryChanged();
+				return true;
+			}
+		}
+		for(int p = 0; p < i.getSizeInventory();++p)
+		{
+			if(i.getStackInSlot(p) == null && !remote)
+			{
+				i.setInventorySlotContents(p, s);
+				i.onInventoryChanged();
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * Used to check, if the Forge Ore Dictionary contains the given name in it. 
+	 * @version From DummyCore 1.4
+	 * @param oreName - the ore name to search
+	 * @return true if OreDictionary cantains the given ore, false if not.
+	 */
+	public static boolean oreDictionaryContains(String oreName)
+	{
+		String[] names = OreDictionary.getOreNames();
+		boolean ret = false;
+		for(int i = 0; i < names.length; ++i)
+		{
+			if(names[i].contains(oreName) || names[i] == oreName)
+			{
+				ret = true;
+			}
+		}
+		return ret;
+	}
+	
+	/**
+	 * Used to sync the given tile entity with the given side using DummyCore packet handler. 
+	 * @version From DummyCore 1.4
+	 * @param t - the tileentity to sync.
+	 * @param s - the side, that will accept the packet.
+	 */
+	public static void syncTileEntity(ITEHasGameData t, Side s)
+	{
+		String packetname = "DC.Packet.";
+		if(s == Side.CLIENT)packetname += "C";
+		if(s == Side.SERVER)packetname += "S";
+    	Packet250CustomPayload  m = new Packet250CustomPayload();
+    	ByteArrayOutputStream bos = new ByteArrayOutputStream(255);
+    	DataOutputStream outputStream = new DataOutputStream(bos);
+    	try 
+    	{
+    	    outputStream.writeInt((int) t.getPosition().x);
+    	    outputStream.writeInt((int) t.getPosition().y);
+    	    outputStream.writeInt((int) t.getPosition().z);
+    	    outputStream.writeUTF(t.getData());
+    	}catch (Exception ex)
+    	{
+            ex.printStackTrace();
+            return;
+       	}
+    	m.channel = packetname;
+    	m.data = bos.toByteArray();
+    	m.length = bos.size();
+    	if(s == Side.SERVER)
+    		PacketDispatcher.sendPacketToServer(m);;
+    	if(s == Side.CLIENT)
+    		PacketDispatcher.sendPacketToAllPlayers(m);
+	}   
 }

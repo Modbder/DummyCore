@@ -1,5 +1,6 @@
 package DummyCore.Core;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -26,6 +27,8 @@ import DummyCore.Items.ItemRegistry;
 import DummyCore.Items.MultiItem;
 import DummyCore.Utils.ColoredLightHandler;
 import DummyCore.Utils.DummyConfig;
+import DummyCore.Utils.DummyDataUtils;
+import DummyCore.Utils.DummyPacketHandler;
 import DummyCore.Utils.EnumLightColor;
 import DummyCore.Utils.MathUtils;
 import DummyCore.Utils.Notifier;
@@ -40,7 +43,10 @@ import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLInterModComms.IMCEvent;
+import cpw.mods.fml.common.event.FMLServerStartingEvent;
+import cpw.mods.fml.common.event.FMLServerStoppingEvent;
 import cpw.mods.fml.common.network.NetworkMod;
+import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.EntityRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.TickRegistry;
@@ -52,7 +58,7 @@ import cpw.mods.fml.relauncher.Side;
  * @version From DummyCore 1.0
  */
 @Mod(modid = "DummyCore", name = "DummyCore", version = "1.1dev", useMetadata = true)
-@NetworkMod(clientSideRequired = true, serverSideRequired = false, channels = "DummyCore")
+@NetworkMod(clientSideRequired = true, serverSideRequired = false, channels = {"DC.Packet.S","DC.Packet.C"})
 public class CoreInitialiser extends DummyModContainer{
 	public static final CoreInitialiser instance = new CoreInitialiser();
 	private static DummyConfig cfg = new DummyConfig();
@@ -97,6 +103,9 @@ public class CoreInitialiser extends DummyModContainer{
 		{
 			RenderingRegistry.registerEntityRenderingHandler(ColoredLightHandler.class, new RendererColoredLight());
 		}
+		DummyPacketHandler handler = new DummyPacketHandler();
+		NetworkRegistry.instance().registerChannel(handler, "DC.Packet.S");
+		NetworkRegistry.instance().registerChannel(handler, "DC.Packet.C");
 	}
 	
 	@EventHandler
@@ -104,6 +113,18 @@ public class CoreInitialiser extends DummyModContainer{
 	{
 		Notifier.notifySimple(MultiItem.items+" MultiItems registered.");
 		Notifier.notifySimple(MultiBlock.blocks+" MultiBlocks registered.");
+	}
+	
+	@EventHandler
+	public void onServerStart(FMLServerStartingEvent e)
+	{
+		DummyDataUtils.load(e);
+	}
+	
+	@EventHandler
+	public void onServerStop(FMLServerStoppingEvent e)
+	{
+		DummyDataUtils.stop();
 	}
 	public static MultiItem mItem;
 	public static MultiBlock mBlock;
