@@ -1,5 +1,6 @@
 package DummyCore.Utils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -58,4 +59,8 @@ public interface IDummyMultiBlock {
     public Icon getIcon(int par1, int par2);
     
     public int getRenderColor(int par1);
+    
+    public ArrayList<ItemStack> getBlockDropped(World world, int x, int y, int z, int metadata, int fortune);
+    
+    public void updateTick(World par1World, int par2, int par3, int par4, Random par5Random);
 }

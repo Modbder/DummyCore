@@ -22,6 +22,7 @@ public class DummyPacketHandler implements IPacketHandler{
     	int y = 0;
     	int z = 0;
     	String gameData = "data";
+    	System.out.println("data");
     	try {
 			Side s = FMLCommonHandler.instance().getEffectiveSide();
 			if(s == Side.CLIENT)

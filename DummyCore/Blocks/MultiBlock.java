@@ -33,13 +33,19 @@ public class MultiBlock extends Block{
 	protected static List<String> blockTextures = new ArrayList();
 	protected static int id = -1;
 	public static int blockuid;
-	public static Icon[] icon;
+	public static Icon[] icon = new Icon[4096];
 	protected static IDummyMultiBlock[] handler = new IDummyMultiBlock[1024];
 	public static int blocks;
 	public MultiBlock(int par1) {
 		super(par1, Material.web);
 		blockuid = par1;
+		this.setTickRandomly(true);
 	}
+	
+    public int tickRate(World par1World)
+    {
+        return 50;
+    }
 	
 	private static void addBlockName(int i, String name)
 	{
@@ -175,12 +181,18 @@ public class MultiBlock extends Block{
     @Override
     public Icon getIcon(int par1, int par2)
     {
-		for(int i = 0; i < 1024; ++i)
-		{
-			if(handler[i] != null && i == par2)
-				return handler[i].getIcon(par1, par2);
+		try {
+			for(int i = 0; i < 1024; ++i)
+			{
+				if(handler[i] != null && i == par2)
+					return handler[i].getIcon(par1, par2);
+			}
+			return this.icon[par2];
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
 		}
-        return this.icon[par2];
     }
     
     @SideOnly(Side.CLIENT)
@@ -296,6 +308,31 @@ public class MultiBlock extends Block{
 				return handler[i].getRenderColor(par1);
 		}
         return 16777215;
+    }
+    
+    @Override
+    public ArrayList<ItemStack> getBlockDropped(World world, int x, int y, int z, int metadata, int fortune)
+    {
+		for(int i = 0; i < 1024; ++i)
+		{
+			if(handler[i] != null && i == metadata)
+			{
+				ArrayList<ItemStack> ret = handler[i].getBlockDropped(world, x, y, z, metadata, fortune);
+				if(ret != null)
+					return ret;
+			}
+		}
+        return super.getBlockDropped(world, x, y, z, metadata, fortune);
+    }
+    
+    @Override
+    public void updateTick(World par1World, int par2, int par3, int par4, Random par5Random)
+    {
+		for(int i = 0; i < 1024; ++i)
+		{
+			if(handler[i] != null && i == par4)
+				handler[i].updateTick(par1World, par2, par3, par4, par5Random);
+		}
     }
     
     @Override

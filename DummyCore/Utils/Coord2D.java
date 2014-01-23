@@ -22,6 +22,9 @@ public class Coord2D {
 		this(0,0);
 	}
 	
-	
+	public String toString()
+	{
+		return x+","+z;
+	}
 
 }
