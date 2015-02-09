@@ -31,6 +31,18 @@ public class Coord3D {
 		this(0,0,0);
 	}
 	
+	public String toString()
+	{
+		return "||x:"+x+"||y:"+y+"||z:"+z;
+	}
 	
+	public static Coord3D fromString(String data)
+	{
+		DummyData[] dt = DataStorage.parseData(data);
+		float cX = Float.parseFloat(dt[0].fieldValue);
+		float cY = Float.parseFloat(dt[1].fieldValue);
+		float cZ = Float.parseFloat(dt[2].fieldValue);
+		return new Coord3D(cX,cY,cZ);
+	}
 
 }

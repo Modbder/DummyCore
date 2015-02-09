@@ -1,16 +1,24 @@
 package DummyCore.CreativeTabs;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
 import DummyCore.Blocks.BlocksRegistry;
+import DummyCore.Core.CoreInitialiser;
+import DummyCore.Utils.DummyConfig;
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.init.Blocks;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
 
 /**
  * @version From DummyCore 1.0
@@ -18,10 +26,12 @@ import net.minecraft.item.ItemStack;
  * Do not change anything here! Used to work with Blocks. 
  */
 public final class CreativePageBlocks extends CreativeTabs{
-	private int delayTime = 0;
-	private ItemStack displayStack = new ItemStack(Block.workbench,1,0);
+	public int delayTime = 0;
+	public ItemStack displayStack = new ItemStack(Blocks.crafting_table,1,0);
 	private static Random rand = new Random(543643456);
 	private final String tabLabel;
+	public List<ItemStack> blockList = new ArrayList();
+	public int tries = 0;
 	
 	public CreativePageBlocks(String m) {
 		super(m + " Blocks");
@@ -30,57 +40,52 @@ public final class CreativePageBlocks extends CreativeTabs{
 	
     public ItemStack getIconItemStack()
     {
-    	this.chooseRandomStack();
+    	CoreInitialiser.proxy.choseDisplayStack(this);
     	return this.displayStack;
     }
     
     private void chooseRandomStack()
     {
-    	++this.delayTime;
-    	if(this.delayTime >= 40)
-    	{
-    		this.delayTime = 0;
-    		Block[] blockList = initialiseBlocksList();
-    		if(blockList != null && blockList.length >= 1)
-    		{
-    			int random = rand.nextInt(blockList.length);
-    			if(blockList[random] != null)
-    				if(blockList[random].getIcon(0,0) != null)
-    					this.displayStack = new ItemStack(blockList[random],1,0);
-    		}
-    	}
+    	
     }
     
-    private Block[] initialiseBlocksList()
+    public List<ItemStack> initialiseBlocksList()
     {
-    	int i = 0;
-    	for(int t = 0; t < Block.blocksList.length; ++t)
+    	++tries;
+    	if(this.blockList.isEmpty() && tries <= 1)
     	{
-    		Block b = Block.blocksList[t];
-    		if(b != null)
-    		{
-    			if(b.getCreativeTabToDisplayOn() != null && b.getCreativeTabToDisplayOn() instanceof CreativePageBlocks && b.getIcon(0,0) != null && (BlocksRegistry.blocksList.get(b) == this.getTabLabel()))
-    			{
-    				++i;
-    			}
-    		}
-    	}
-    	Block[] blockList = new Block[i];
-    	int r = 0;
-    	for(int t = 0; t < Block.blocksList.length; ++t)
+	    	int i = 0;
+	    	for(int t = 0; t < Block.blockRegistry.getKeys().size(); ++t)
+	    	{
+	    		Block b = Block.getBlockFromName((String) Block.blockRegistry.getKeys().toArray()[t]);
+	    		if(b != null && b.getCreativeTabToDisplayOn() == this)
+	    		{
+	    			Item itm = Item.getItemFromBlock(b);
+	    			if(itm != null)
+	    			{
+	    				List<ItemStack> lst = new ArrayList();
+	    				itm.getSubItems(itm,this,lst);
+	    				if(!lst.isEmpty())
+	    				{
+	    					for(ItemStack stk : lst)
+	    					{
+	    						if(stk != null)
+	    						{
+	    							this.blockList.add(stk);
+	    						}
+	    					}
+	    						
+	    				}
+	    			}
+	    			
+	    		}
+	    	}
+	    	
+	        return blockList;
+    	}else
     	{
-    		Block b = Block.blocksList[t];
-    		if(b != null)
-    		{
-    			if(b.getCreativeTabToDisplayOn() != null && b.getCreativeTabToDisplayOn() instanceof CreativePageBlocks && b.getIcon(0,0) != null && (BlocksRegistry.blocksList.get(b) == this.getTabLabel()))
-    			{
-    				blockList[r] = b;
-    				++r;
-    			}
-    		}
+    		return this.blockList;
     	}
-    	
-        return blockList;
     }
     @SideOnly(Side.CLIENT)
     @Override
@@ -88,4 +93,9 @@ public final class CreativePageBlocks extends CreativeTabs{
     {
         return this.tabLabel;
     }
+
+	@Override
+	public Item getTabIconItem() {
+		return displayStack.getItem();
+	}
 }

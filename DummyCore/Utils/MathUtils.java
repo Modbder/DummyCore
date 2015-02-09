@@ -20,6 +20,8 @@ public class MathUtils {
 	 */
 	public static int pixelatedTextureSize(int current, int max, int textureSize)
 	{
+		if(current > max)
+			current = max;
     	float m = (float)current/max*100;
     	float n = m/100*textureSize;
     	return (int)n;
@@ -85,7 +87,7 @@ public class MathUtils {
 	public static float getDifference(float pos1, float pos2)
 	{
 		float diff = pos1-pos2;
-		return (float)(Math.sqrt(diff*diff));
+		return (float)module(diff);
 	}
 	
 	/**
@@ -95,6 +97,7 @@ public class MathUtils {
 	 * @param b - second int to swap
 	 * @return int[2] with this 2 values swapped.
 	 */
+	@Deprecated
 	public static int[] swap(int a, int b)
 	{
 		return new int[]{b,a};
@@ -109,5 +112,63 @@ public class MathUtils {
 	public static int convertToHex(int a)
 	{
 		return Integer.parseInt(Integer.toString(a),16);
+	}
+	
+	/**
+	 * Used to get the always positive value of a double.
+	 * @version From DummyCore 1.2
+	 * @param a - the double to be converted
+	 * @return this double, but positive(>0)
+	 */
+	public static double module(double a)
+	{
+		if(a < 0) a = -a;
+		return a;
+	}
+	
+	public static boolean arrayContains(Object[] array, Object searched)
+	{
+		for(int i = 0; i < array.length; ++i)
+		{
+			if(array[i].equals(searched))
+				return true;
+		}
+		return false;
+	}
+	
+	public static boolean arrayContains(int[] array, int searched)
+	{
+		for(int i = 0; i < array.length; ++i)
+		{
+			if(array[i] == searched)
+				return true;
+		}
+		return false;
+	}
+	
+	public static int getIntInArray(int[] array, int searched)
+	{
+		for(int i = 0; i < array.length; ++i)
+		{
+			if(array[i] == searched)
+				return i;
+		}
+		return -1;
+	}
+	
+	public static boolean isArrayTheSame(boolean[] array)
+	{
+		boolean previous = array[0];
+		for(int i = 0; i < array.length; ++i)
+		{
+			if(array[i] == previous)
+			{
+				previous = array[i];
+			}else
+			{
+				return false;
+			}
+		}
+		return true;
 	}
 }

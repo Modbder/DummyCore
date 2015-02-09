@@ -22,6 +22,17 @@ public class Coord2D {
 		this(0,0);
 	}
 	
+	public String toString()
+	{
+		return "||x:"+x+"||z:"+z;
+	}
 	
+	public static Coord2D fromString(String data)
+	{
+		DummyData[] dt = DataStorage.parseData(data);
+		float cX = Float.parseFloat(dt[0].fieldValue);
+		float cZ = Float.parseFloat(dt[1].fieldValue);
+		return new Coord2D(cX,cZ);
+	}
 
 }

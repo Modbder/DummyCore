@@ -1,18 +1,26 @@
 package DummyCore.CreativeTabs;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
 import DummyCore.Blocks.BlocksRegistry;
+import DummyCore.Core.CoreInitialiser;
 import DummyCore.Items.ItemRegistry;
+import DummyCore.Utils.DummyConfig;
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
 
 /**
  * @version From DummyCore 1.0
@@ -20,69 +28,62 @@ import net.minecraft.item.ItemStack;
  * Do not change anything here! Used to work with Items. 
  */
 public final class CreativePageItems extends CreativeTabs{
-	private int delayTime = 0;
-	private ItemStack displayStack = new ItemStack(Item.axeIron,1,0);
+	public int delayTime = 0;
+	public ItemStack displayStack = new ItemStack((Item) Items.iron_axe,1,0);
 	private static Random rand = new Random(965448655);
 	private final String tabLabel;
+	public List<ItemStack> itemList = new ArrayList();
+	public int tries = 0;
+	
 	
 	public CreativePageItems(String m) {
 		super(m + " Items");
 		tabLabel = m + " Items";
 	}
 	
+	@Override
     public ItemStack getIconItemStack()
     {
-    	this.chooseRandomStack();
+		CoreInitialiser.proxy.choseDisplayStack(this);
     	return this.displayStack;
     }
     
     private void chooseRandomStack()
     {
-    	++this.delayTime;
-    	if(this.delayTime >= 40)
-    	{
-    		this.delayTime = 0;
-    		Item[] itemList = initialiseItemsList();
-    		if(itemList != null && itemList.length >= 1)
-    		{
-    			int random = rand.nextInt(itemList.length);
-    			if(itemList[random] != null)
-    				if(itemList[random].getIconFromDamage(0) != null)
-    					this.displayStack = new ItemStack(itemList[random],1,0);
-    		}
-    	}
+    	
     }
     
-    private Item[] initialiseItemsList()
+    public List<ItemStack> initialiseItemsList()
     {
-    	int i = 0;
-    	for(int t = 0; t < Item.itemsList.length; ++t)
+    	++tries;
+    	if(this.itemList.isEmpty() && tries <= 1)
     	{
-    		Item b = Item.itemsList[t];
-    		if(b != null)
-    		{
-    			if(b.getCreativeTab() != null && b.getCreativeTab() instanceof CreativePageItems && b.getIconFromDamage(0) != null && (ItemRegistry.itemsList.get(b) == this.getTabLabel()))
-    			{
-    				++i;
-    			}
-    		}
-    	}
-    	Item[] itemsList = new Item[i];
-    	int r = 0;
-    	for(int t = 0; t < Item.itemsList.length; ++t)
+	    	int i = 0;
+	    	for(int t = 0; t < Item.itemRegistry.getKeys().size(); ++t)
+	    	{
+	    		Item itm = (Item) Item.itemRegistry.getObject(Item.itemRegistry.getKeys().toArray()[t]);
+	    		if(itm != null && itm.getCreativeTab() == this)
+	    		{
+	    			List<ItemStack> lst = new ArrayList();
+    				itm.getSubItems(itm,this,lst);
+    				if(!lst.isEmpty())
+    				{
+    					for(ItemStack stk : lst)
+    					{
+    						if(stk != null)
+    						{
+    							this.itemList.add(stk);
+    						}
+    					}
+    				}
+	    		}
+	    	}
+	    	return this.itemList;
+    	}else
     	{
-    		Item b = Item.itemsList[t];
-    		if(b != null)
-    		{
-    			if(b.getCreativeTab() != null && b.getCreativeTab() instanceof CreativePageItems && b.getIconFromDamage(0) != null && (ItemRegistry.itemsList.get(b) == this.getTabLabel()))
-    			{
-    				itemsList[r] = b;
-    				++r;
-    			}
-    		}
+    		return this.itemList;
     	}
     	
-        return itemsList;
     }
     
     @SideOnly(Side.CLIENT)
@@ -91,4 +92,10 @@ public final class CreativePageItems extends CreativeTabs{
     {
         return this.tabLabel;
     }
+
+	@Override
+	public Item getTabIconItem() {
+		// TODO Auto-generated method stub
+		return (Item) Item.itemRegistry.getObject("minecraft:iron_axe");
+	}
 }

@@ -2,11 +2,11 @@ package DummyCore.Utils;
 
 import java.io.PrintStream;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.logging.Handler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-import ViSuCraft.ViSuProject.Mod.ViSuMod;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import net.minecraft.client.Minecraft;
 
 public class Notifier {
@@ -25,6 +25,8 @@ public class Notifier {
 	private static String mod = "[DummyCore]";
 	
 	private static StringBuilder builder = new StringBuilder();
+
+	public static final Logger logger = LogManager.getLogger();
 	
 	public static void notify(String... s)
 	{
@@ -83,7 +85,10 @@ public class Notifier {
 	
 	public static void publish(String s)
 	{
-		System.out.println(s);
+		org.apache.logging.log4j.core.Logger log = (org.apache.logging.log4j.core.Logger) logger;
+		log.setLevel(Level.INFO);
+		if(DummyConfig.enableNotifierLogging)
+			logger.log(Level.INFO, s);
 	}
 
 }
