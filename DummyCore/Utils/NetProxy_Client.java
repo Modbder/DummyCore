@@ -105,7 +105,7 @@ public class NetProxy_Client extends NetProxy_Server{
 	public void choseDisplayStack(CreativePageBlocks blocks)
 	{
 		World w = Minecraft.getMinecraft().theWorld;
-    	if(w.isRemote && w.getWorldTime() % 20 == 0)
+    	if(w.isRemote && w.getWorldTime() % 60 == 0)
     	{
     		blocks.delayTime = 0;
     		blocks.blockList = blocks.initialiseBlocksList();
@@ -128,7 +128,7 @@ public class NetProxy_Client extends NetProxy_Server{
 	public void choseDisplayStack(CreativePageItems items)
 	{
 		World w = Minecraft.getMinecraft().theWorld;
-    	if(w.isRemote && w.getWorldTime() % 20 == 0)
+    	if(w.isRemote && w.getWorldTime() % 60 == 0)
     	{
     		items.delayTime = 0;
     		items.itemList = items.initialiseItemsList();

@@ -44,10 +44,11 @@ public class DummyDataUtils {
 	@SubscribeEvent
 	public void serverWorldLoad(WorldEvent.Load event)
 	{
+
 		try
 		{
 			World w = event.world;
-			if(w != null && !w.isRemote && w.provider != null && w.provider.dimensionId == 0 && w.provider instanceof WorldProviderSurface)
+			if(w != null && !w.isRemote && w.provider != null && w.provider.dimensionId == 0)
 			{
 				File f = event.world.getSaveHandler().getWorldDirectory();
 				if(f != null)
@@ -380,6 +381,8 @@ public class DummyDataUtils {
 	
 	public static void syncGlobalDataToClient(String modid, String dataName)
 	{
+		SyncUtils.addRequiresSync(modid, dataName);
+		/*
 		if(MiscUtils.registeredServerWorldData.containsKey(modid+"|"+dataName))
 		{
 			String dataString = "||mod:DummyCore.InfoSync"+"||"+modid+":"+dataName+"||ddata:"+MiscUtils.registeredServerWorldData.get(modid+"|"+dataName);
@@ -389,10 +392,13 @@ public class DummyDataUtils {
 		{
 			Notifier.notifyCustomMod(modid, "The sync packet for data "+modid+"|"+dataName+" could not be generated - the requested server data does not exist!");
 		}
+		*/
 	}
 	
 	public static void syncGlobalDataToClient(String modid)
 	{
+		SyncUtils.addRequiresSync(modid, modid);
+		/*
 		if(MiscUtils.registeredServerWorldData.containsKey(modid+"|"+modid))
 		{
 			String dataString = "||mod:DummyCore.InfoSync"+"||"+modid+":"+modid+"||ddata:"+MiscUtils.registeredServerWorldData.get(modid+"|"+modid);
@@ -402,10 +408,13 @@ public class DummyDataUtils {
 		{
 			Notifier.notifyCustomMod(modid, "The sync packet for data "+modid+ "could not be generated - the requested server data does not exist!");
 		}
+		*/
 	}
 	
 	public static void syncPlayerDataToClient(String playerName, String modid, String dataName)
 	{
+		SyncUtils.addRequiresSync(playerName, modid, dataName);
+		/*
 		if(MiscUtils.registeredServerData.containsKey(playerName+"_"+modid+"|"+dataName))
 		{
 			String dataString = "||mod:DummyCore.PlayerInfoSync"+"||"+"playerName:"+playerName+"||"+modid+ ":" + dataName+"||ddata:"+MiscUtils.registeredServerData.get(playerName+"_"+modid+"|"+dataName);
@@ -415,6 +424,7 @@ public class DummyDataUtils {
 		{
 			Notifier.notifyCustomMod(modid, "The sync packet for data "+playerName+"_"+modid+ "could not be generated - the requested server data does not exist!");
 		}
+		*/
 	}
 
 }

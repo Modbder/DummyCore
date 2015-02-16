@@ -131,10 +131,13 @@ public class MiscUtils {
 	 * @param texture - path to your thexture.
 	 */
 	@SideOnly(Side.CLIENT)
+	@SuppressWarnings("unchecked")
 	public static void bindTexture(String mod, String texture)
 	{
+		//I hope, that MC does not touches the files upon registering a new one of these.
 		ResourceLocation loc = new ResourceLocation(mod,texture);
 		Minecraft.getMinecraft().getTextureManager().bindTexture(loc);	
+		//Not sure, if this is required due to gc, but removing the possible leak anyway? 
 		loc = null;
 	}
 	
@@ -175,54 +178,64 @@ public class MiscUtils {
 	 */
 	public static void dropItemsOnBlockBreak(World par1World, int par2, int par3, int par4, Block par5, int par6)
 	{
-		IInventory inv = (IInventory)par1World.getTileEntity(par2, par3, par4);
-
-        if (inv != null)
-        {
-            for (int j1 = 0; j1 < inv.getSizeInventory(); ++j1)
-            {
-                ItemStack itemstack = inv.getStackInSlot(j1);
-
-                if (itemstack != null)
-                {
-                    float f = par1World.rand.nextFloat() * 0.8F + 0.1F;
-                    float f1 = par1World.rand.nextFloat() * 0.8F + 0.1F;
-                    float f2 = par1World.rand.nextFloat() * 0.8F + 0.1F;
-
-                    while (itemstack.stackSize > 0)
-                    {
-                        int k1 = par1World.rand.nextInt(21) + 10;
-
-                        if (k1 > itemstack.stackSize)
-                        {
-                            k1 = itemstack.stackSize;
-                        }
-
-                        itemstack.stackSize -= k1;
-                        EntityItem entityitem = new EntityItem(par1World, (double)((float)par2 + f), (double)((float)par3 + f1), (double)((float)par4 + f2), new ItemStack(itemstack.getItem(), k1, itemstack.getItemDamage()));
-
-                        if (itemstack.hasTagCompound())
-                        {
-                            entityitem.getEntityItem().setTagCompound((NBTTagCompound)itemstack.getTagCompound().copy());
-                        }
-
-                        float f3 = 0.05F;
-                        entityitem.motionX = (double)((float)par1World.rand.nextGaussian() * f3);
-                        entityitem.motionY = (double)((float)par1World.rand.nextGaussian() * f3 + 0.2F);
-                        entityitem.motionZ = (double)((float)par1World.rand.nextGaussian() * f3);
-                        par1World.spawnEntityInWorld(entityitem);
-                    }
-                }
-            }
-    	}
+		//Was causing too much issues, had to add a try/catch statement...
+		try
+		{
+			IInventory inv = (IInventory)par1World.getTileEntity(par2, par3, par4);
+	
+	        if (inv != null)
+	        {
+	            for (int j1 = 0; j1 < inv.getSizeInventory(); ++j1)
+	            {
+	                ItemStack itemstack = inv.getStackInSlot(j1);
+	
+	                if (itemstack != null)
+	                {
+	                    float f = par1World.rand.nextFloat() * 0.8F + 0.1F;
+	                    float f1 = par1World.rand.nextFloat() * 0.8F + 0.1F;
+	                    float f2 = par1World.rand.nextFloat() * 0.8F + 0.1F;
+	
+	                    while (itemstack.stackSize > 0)
+	                    {
+	                        int k1 = par1World.rand.nextInt(21) + 10;
+	
+	                        if (k1 > itemstack.stackSize)
+	                        {
+	                            k1 = itemstack.stackSize;
+	                        }
+	
+	                        itemstack.stackSize -= k1;
+	                        EntityItem entityitem = new EntityItem(par1World, (double)((float)par2 + f), (double)((float)par3 + f1), (double)((float)par4 + f2), new ItemStack(itemstack.getItem(), k1, itemstack.getItemDamage()));
+	
+	                        if (itemstack.hasTagCompound())
+	                        {
+	                            entityitem.getEntityItem().setTagCompound((NBTTagCompound)itemstack.getTagCompound().copy());
+	                        }
+	
+	                        float f3 = 0.05F;
+	                        entityitem.motionX = (double)((float)par1World.rand.nextGaussian() * f3);
+	                        entityitem.motionY = (double)((float)par1World.rand.nextGaussian() * f3 + 0.2F);
+	                        entityitem.motionZ = (double)((float)par1World.rand.nextGaussian() * f3);
+	                        par1World.spawnEntityInWorld(entityitem);
+	                    }
+	                }
+	            }
+	    	}
+		}catch(Exception ex)
+		{
+			Notifier.notifyCustomMod("DummyCore", "[ERROR]Trying to drop items upon block breaking, but caught an exception:");
+			ex.printStackTrace();
+			return;
+		}
 	}
 	
 	/**
-	 * More readable way of getting entity's health
+	 * More readable way of getting entity's health(used untill the renaming)
 	 * @version From DummyCore 1.0
 	 * @param e - the Entity itself
 	 * @return The amount of health that entity has.
 	 */
+	@Deprecated
 	public static float getEntityHealth(EntityLivingBase e)
 	{
 		return e.getHealth();
@@ -249,12 +262,14 @@ public class MiscUtils {
 	
 	/**
 	 * Adds the given ItemStack to the given inventory, also updating the inventory.
+	 * Need to re-write the code, something here does not seem right.
 	 * @version From DummyCore 1.4
 	 * @param s - the stack to add
 	 * @param i - the inventory for the stack
 	 * @param remote - use world.isRemote here. This function is usually called on both sides, however, you can call it on server only, it will be ok, then put false in this field
 	 * @return true if adding was successful, false if not.
 	 */
+	@Deprecated
 	public static boolean addItemToInventory(ItemStack s, IInventory i, boolean remote)
 	{
 		
@@ -639,7 +654,7 @@ public class MiscUtils {
     }
     
     /**
-     * Used to check if the given class actually has the named method. Used when working with APIs of different mods
+     * Used to check if the given class actually has the named method. Used when working with APIs of different mods(actually not)
      * @param c - the class
      * @param mName - the name of the method
      * @param classes - actual parameters of the method
@@ -719,9 +734,9 @@ public class MiscUtils {
 	{
 		Chunk chunk = w.getChunkFromBlockCoords(x,z);
 		byte[] b = chunk.getBiomeArray();
-		byte cbiome = b[(z & 0xf) << 4 | x & 0xf];
+		byte cbiome = b[(z & 0xf) << 4 | x & 0xf]; //What is even going on here? Can this code be a little bit more readable?
 		cbiome = (byte)(biome.biomeID & 0xff);
-		b[(z & 0xf) << 4 | x & 0xf] = cbiome;
+		b[(z & 0xf) << 4 | x & 0xf] = cbiome; //Looks like not.
 		chunk.setBiomeArray(b);
 		notifyBiomeChange(x,z,biome.biomeID);
 	}
@@ -803,10 +818,11 @@ public class MiscUtils {
     @SideOnly(Side.CLIENT)
     public static void renderItemStack_Full(ItemStack stk,double posX, double posY, double posZ, double screenPosX, double screenPosY, double screenPosZ, float rotation, float rotationZ, float colorRed, float colorGreen, float colorBlue, float offsetX, float offsetY, float offsetZ)
     {
-    	 ItemStack itemstack = stk;
+    	 ItemStack itemstack = stk.copy();
+    	 itemstack.stackSize = 1; //Doing this so no weird glitches occur.
          final ResourceLocation RES_ITEM_GLINT = new ResourceLocation("textures/misc/enchanted_item_glint.png");
          RenderBlocks renderBlocksRi = new RenderBlocks();
-         Random random = new Random();
+         Random random = new Random(); 
          boolean renderWithColor = true;
          float zLevel;
     	 
@@ -934,6 +950,7 @@ public class MiscUtils {
              Minecraft.getMinecraft().renderEngine.bindTexture(Minecraft.getMinecraft().renderEngine.getResourceLocation(stk.getItemSpriteNumber()));
              TextureUtil.func_147945_b();
          }
+         itemstack = null; //Again, there is a gc for that, but removing possible leaks is never a bad thing to do...
     }
     
     /**
@@ -1240,12 +1257,13 @@ public class MiscUtils {
      * @param value - what you actually want to be set in the variable field
      * @param fieldNames - the names of the field you are changing. Should be both for obfuscated and compiled code.
      */
+    @Deprecated
     public static void setPrivateFinalValue(Class classToAccess, Object instance, Object value, String fieldNames[])
     {
         Field field = ReflectionHelper.findField(classToAccess, ObfuscationReflectionHelper.remapFieldNames(classToAccess.getName(), fieldNames));
         try
         {
-        	ReflectionHelper.setPrivateValue(classToAccess, instance, value, fieldNames);
+        	ReflectionHelper.setPrivateValue(classToAccess, instance, value, fieldNames); //Sooo... Why would I use this method, if there is a ReflectionHelper?
             //Field modifiersField = Field.class.getDeclaredField("modifiers");
             //modifiersField.setAccessible(true);
             //modifiersField.setInt(field, field.getModifiers() & 0xffffffef);
@@ -1345,6 +1363,20 @@ public class MiscUtils {
     @SideOnly(Side.CLIENT)
     public static void handleButtonPress(int buttonID, Class<? extends Gui> parentClass, Class<? extends GuiButton> buttonClass, EntityPlayer presser, int bX, int bY, int bZ)
     {
+    	handleButtonPress(buttonID, parentClass, buttonClass, presser, bX, bY, bZ, "||data:no data");
+    }
+    
+    /**
+     * Sends the packet to the server, that notifies the server about GUI button pressed. This can be actually used for any GUI, not only in world, but why would you like to do it?
+     * @param buttonID - the ID on the button in the code. Can be get via yourGuiButton.id
+     * @param parentClass - the GUI class, that contains the button
+     * @param buttonClass - the GUI class of the button
+     * @param presser - the player, who presses the button. Usually Minecraft.getMinecraft().thePlayer but sometimes you may want to send packets of other SMP players(maybe?)
+     * @param additionalData - Some additional data, that you might want to carry around. Should be a String, representing the DummyData, otherwise will get added tp the Z coordinate and make it unreadable.
+     */
+    @SideOnly(Side.CLIENT)
+    public static void handleButtonPress(int buttonID, Class<? extends Gui> parentClass, Class<? extends GuiButton> buttonClass, EntityPlayer presser, int bX, int bY, int bZ, String additionalData)
+    {
     	String dataString = "||mod:DummyCore.guiButton";
 		DummyData id = new DummyData("id",buttonID);
 		DummyData parent = new DummyData("parent",parentClass.getName());
@@ -1361,7 +1393,7 @@ public class MiscUtils {
 		DataStorage.addDataToString(dy);
 		DataStorage.addDataToString(dz);
 		String newDataString = DataStorage.getDataString();
-		dataString+=newDataString;
+		dataString+=newDataString+additionalData;
 		DummyPacketIMSG simplePacket = new DummyPacketIMSG(dataString);
 		CoreInitialiser.packetHandler.sendToServer(simplePacket);
     }

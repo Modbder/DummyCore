@@ -7,6 +7,8 @@ import java.util.List;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.oredict.OreDictionary;
 
 /**
@@ -18,6 +20,11 @@ import net.minecraftforge.oredict.OreDictionary;
 public class UnformedItemStack {
 	
 	public List<ItemStack> possibleStacks = new ArrayList<ItemStack>();
+	
+	public UnformedItemStack()
+	{
+		
+	}
 	
 	public UnformedItemStack(ItemStack is)
 	{
@@ -119,5 +126,29 @@ public class UnformedItemStack {
 		int size = this.possibleStacks.size();
 		if(size <= 0)return null;
 		return this.possibleStacks.get((int)(((int)(time/30))%size));
+	}
+	
+	public void writeToNBTTagCompound(NBTTagCompound tag)
+	{
+		NBTTagList items = new NBTTagList();
+		for(ItemStack is : this.possibleStacks)
+		{
+			NBTTagCompound itemTag = new NBTTagCompound();
+			is.writeToNBT(itemTag);
+			items.appendTag(itemTag);
+		}
+		tag.setTag("unformedISList", items);
+	}
+	
+	public void readFromNBTTagCompound(NBTTagCompound tag)
+	{
+		NBTTagList items = tag.getTagList("unformedISList", 10);
+		for(int i = 0; i < items.tagCount(); ++i)
+		{
+			NBTTagCompound itemTag = items.getCompoundTagAt(i);
+			ItemStack is = ItemStack.loadItemStackFromNBT(itemTag);
+			this.possibleStacks.add(is);
+		}
+		this.sort();
 	}
 }

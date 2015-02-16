@@ -38,6 +38,7 @@ import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
+import cpw.mods.fml.common.gameevent.TickEvent.Phase;
 import cpw.mods.fml.common.gameevent.TickEvent.PlayerTickEvent;
 import cpw.mods.fml.common.gameevent.TickEvent.RenderTickEvent;
 import cpw.mods.fml.relauncher.Side;
@@ -51,6 +52,7 @@ import cpw.mods.fml.server.FMLServerHandler;
  */
 public class DummyEventHandler {
 	
+	public static int syncTime;
 	public static boolean[] isKeyPressed;
 	
 	public void onBlockBeeingBroken(PlayerEvent.BreakSpeed event)
@@ -228,13 +230,16 @@ public class DummyEventHandler {
 					int x = Integer.parseInt(packetData[5].fieldValue);
 					int y = Integer.parseInt(packetData[6].fieldValue);
 					int z = Integer.parseInt(packetData[7].fieldValue);
+					DummyData[] data = new DummyData[packetData.length-8];
+					for(int i = 8; i < packetData.length; ++i)
+						data[i-8] = packetData[i];
 					Side side = FMLCommonHandler.instance().getEffectiveSide();
 					if(side == Side.SERVER)
 					{
 						MinecraftServer server = MinecraftServer.getServer();
 						ServerConfigurationManager manager = server.getConfigurationManager();
 						EntityPlayer player = manager.func_152612_a(username);
-						MinecraftForge.EVENT_BUS.post(new DummyEvent_OnClientGUIButtonPress(id, pClName, bClName, player,x,y,z));
+						MinecraftForge.EVENT_BUS.post(new DummyEvent_OnClientGUIButtonPress(id, pClName, bClName, player,x,y,z,data));
 					}
 				}
 			} catch (Exception e) {
@@ -438,6 +443,20 @@ public class DummyEventHandler {
 							MiscUtils.applyPlayerModifier(player, ainst.getAttribute(), sub, 1, true, 0, "remove");
 					}
 				}
+			}
+		}
+	}
+	
+	@SubscribeEvent
+	public void onServerTick(TickEvent.ServerTickEvent event)
+	{
+		if(event.phase == Phase.END)
+		{
+			++syncTime;
+			if(syncTime >= DummyConfig.dummyCoreSyncTimer)
+			{
+				syncTime = 0;
+				SyncUtils.makeSync_LotsSmallPackets();
 			}
 		}
 	}

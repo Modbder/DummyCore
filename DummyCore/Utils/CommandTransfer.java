@@ -1,7 +1,5 @@
 package DummyCore.Utils;
 
-import ec3.common.entity.EntityMRUPresence;
-import ec3.utils.common.ECUtils;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
