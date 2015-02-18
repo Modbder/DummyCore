@@ -55,7 +55,7 @@ public class ItemRegistry {
 	@Deprecated
 	public static void registerItem(Item i, Class modClass)
 	{
-		Notifier.notifyCustomMod("DummyCore", "[Warning] Mod "+Core.getModName(Core.getIdForMod(modClass))+" tries to register items in an outdated way, may cause errors!");
+		//Notifier.notifyCustomMod("DummyCore", "[Warning] Mod "+Core.getModName(Core.getIdForMod(modClass))+" tries to register items in an outdated way, may cause errors!");
 		Side s = FMLCommonHandler.instance().getEffectiveSide();
 		if(s == Side.CLIENT)
 		{

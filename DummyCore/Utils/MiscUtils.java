@@ -818,6 +818,8 @@ public class MiscUtils {
     @SideOnly(Side.CLIENT)
     public static void renderItemStack_Full(ItemStack stk,double posX, double posY, double posZ, double screenPosX, double screenPosY, double screenPosZ, float rotation, float rotationZ, float colorRed, float colorGreen, float colorBlue, float offsetX, float offsetY, float offsetZ)
     {
+    	if(stk != null)
+    	{
     	 ItemStack itemstack = stk.copy();
     	 itemstack.stackSize = 1; //Doing this so no weird glitches occur.
          final ResourceLocation RES_ITEM_GLINT = new ResourceLocation("textures/misc/enchanted_item_glint.png");
@@ -951,6 +953,7 @@ public class MiscUtils {
              TextureUtil.func_147945_b();
          }
          itemstack = null; //Again, there is a gc for that, but removing possible leaks is never a bad thing to do...
+    	}
     }
     
     /**
