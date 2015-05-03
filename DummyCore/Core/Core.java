@@ -3,7 +3,6 @@ package DummyCore.Core;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.List;
 
@@ -15,24 +14,20 @@ import DummyCore.Utils.Notifier;
 import net.minecraft.block.Block;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraftforge.common.config.Configuration;
-import cpw.mods.fml.common.Mod;
-import cpw.mods.fml.common.registry.LanguageRegistry;
 
 public class Core {
-	public static List lightBlocks = new ArrayList<Block>();
+	public static List<Block> lightBlocks = new ArrayList<Block>();
 	public static List<EnumLightColor> lightColors = new ArrayList<EnumLightColor>();
-	private static HashMap modList = new HashMap<Class,Integer>();
-	private static HashMap langFilesList = new HashMap<Integer,Configuration>();
-	private static HashMap configurationList = new HashMap<Integer,Configuration>();
-	private static List modNameList = new ArrayList<String>();
+	private static HashMap<Class<?>, Integer> modList = new HashMap<Class<?>,Integer>();
+	private static HashMap<Integer, Configuration> configurationList = new HashMap<Integer,Configuration>();
+	private static List<String> modNameList = new ArrayList<String>();
 	private static CreativeTabs[] blocksTabs = new CreativeTabs[512];
 	private static CreativeTabs[] itemsTabs = new CreativeTabs[512];
 	private static Configuration[] config = new Configuration[512];
 	private static IDummyConfig[] configurationHandlers = new IDummyConfig[512];
-	private static int modID;
 	private static boolean[] isConfigLoaded = new boolean[512];
 	
-	private static void registerMod(Class c, String name) throws RuntimeException
+	private static void registerMod(Class<?> c, String name) throws RuntimeException
 	{
 		if(!modList.containsKey(c))
 		{
@@ -51,25 +46,15 @@ public class Core {
 			throw new RuntimeException("Mod "+name+" is already registered!");
 		}
 	}
-	
-	private static void registerLangFileForMod(Class c, String path) throws IOException
-	{
-		File f = new File(path,getModName(getIdForMod(c))+".lang");
-		if(!f.exists())
-			f.createNewFile();
-		Configuration config = new Configuration(f);
-		langFilesList.put(getIdForMod(c),config);
-		Notifier.notifySimple("Language File for mod "+getModName(getIdForMod(c))+" was successfully created with path "+path+getModName(getIdForMod(c))+".lang");
-	}
-	
-	private static void registerConfigurationFileForMod(Class c, String path) throws IOException
+
+	private static void registerConfigurationFileForMod(Class<?> c, String path) throws IOException
 	{
 		File file = new File(path,getModName(getIdForMod(c))+".cfg");
 		if(!file.exists())
 			file.createNewFile();
 		config[getIdForMod(c)] = new Configuration(file);
 		config[getIdForMod(c)].save();
-		configurationList.put(getIdForMod(c), config);
+		configurationList.put(getIdForMod(c), config[getIdForMod(c)]);
 		Notifier.notifySimple("Configuration File for mod "+getModName(getIdForMod(c))+" was successfully created with path "+path+getModName(getIdForMod(c))+".cfg");
 	}
 	
@@ -85,10 +70,9 @@ public class Core {
 	 * @Warning From DummyCore 1.1 no longer the function registerConfigurationHandler must be called.
 	 * 
 	 */
-	public static void registerModAbsolute(Class c, String modname, String configPath, IDummyConfig config) throws IOException
+	public static void registerModAbsolute(Class<?> c, String modname, String configPath, IDummyConfig config) throws IOException
 	{
 		registerMod(c,modname);
-		registerLangFileForMod(c,configPath);
 		registerConfigurationFileForMod(c,configPath);
 		registerConfigurationHandler(config,c);
 		loadConfigForMod(getIdForMod(c));
@@ -114,7 +98,7 @@ public class Core {
 	 * @return The corresponding ID of the mod.
 	 * @version From DummyCore 1.0
 	 */
-	public static int getIdForMod(Class m)
+	public static int getIdForMod(Class<?> m)
 	{
 		if(modList.containsKey(m))
 		{
@@ -140,20 +124,9 @@ public class Core {
 	 * @return The corresponding config file of the mod.
 	 * @version From DummyCore 1.0
 	 */
-	public static Configuration getConfigFileForMod(Class c)
+	public static Configuration getConfigFileForMod(Class<?> c)
 	{
 		return config[getIdForMod(c)];
-	}
-	
-	/**
-	 * Used to get the lang file of the mod using .class file.
-	 * @param c - the class file of the mod.
-	 * @return The corresponding lang file of the mod.
-	 * @version From DummyCore 1.0
-	 */
-	public static Configuration getLangFileForMod(Class c)
-	{
-		return (Configuration) langFilesList.get(getIdForMod(c));
 	}
 	
 	/**
@@ -163,7 +136,7 @@ public class Core {
 	 * @throws RuntimeException
 	 * @version From DummyCore 1.0
 	 */
-	private static void registerConfigurationHandler(IDummyConfig config, Class c) throws RuntimeException
+	private static void registerConfigurationHandler(IDummyConfig config, Class<?> c) throws RuntimeException
 	{
 		int modId = getIdForMod(c);
 		if(configurationHandlers[modId] == null)
@@ -203,7 +176,7 @@ public class Core {
 	 * @return The corresponding Creative Tab
 	 * @version From DummyCore 1.0
 	 */
-	public static CreativeTabs getItemTabForMod(Class c)
+	public static CreativeTabs getItemTabForMod(Class<?> c)
 	{
 		return itemsTabs[getIdForMod(c)];
 	}
@@ -214,7 +187,7 @@ public class Core {
 	 * @return The corresponding Creative Tab
 	 * @version From DummyCore 1.0
 	 */
-	public static CreativeTabs getBlockTabForMod(Class c)
+	public static CreativeTabs getBlockTabForMod(Class<?> c)
 	{
 		return blocksTabs[getIdForMod(c)];
 	}

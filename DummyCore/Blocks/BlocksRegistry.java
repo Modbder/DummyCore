@@ -3,15 +3,10 @@ package DummyCore.Blocks;
 import java.util.Hashtable;
 
 import net.minecraft.block.Block;
-import net.minecraft.item.Item;
-import net.minecraftforge.common.config.Configuration;
+import net.minecraft.item.ItemBlock;
 import DummyCore.Core.Core;
-import DummyCore.Core.CoreInitialiser;
-import DummyCore.Utils.IDummyMultiBlock;
-import DummyCore.Utils.IDummyMultiItem;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.registry.GameRegistry;
-import cpw.mods.fml.common.registry.LanguageRegistry;
 import cpw.mods.fml.relauncher.Side;
 
 /**
@@ -26,7 +21,7 @@ public class BlocksRegistry {
 	/**
 	 * Used to check the creative tab block belongs to
 	 */
-	public static Hashtable<Block,String> blocksList = new Hashtable();
+	public static Hashtable<Block,String> blocksList = new Hashtable<Block, String>();
 	
 	/**
 	 * Use this to register new simple blocks.
@@ -36,13 +31,8 @@ public class BlocksRegistry {
 	 * @param modClass - class file of your mod. If registered from the mod itself, use getClass(), else just put in this field something like YourModClassName.class
 	 * @param blockClass - used, if you want to register a block, that has an ItemBlock. Can be null.
 	 */
-	public static void registerBlock(Block b, String name, Class modClass, Class blockClass)
+	public static void registerBlock(Block b, String name, Class<?> modClass, Class<? extends ItemBlock> blockClass)
 	{
-		String blockName = name;
-		Configuration conf = Core.getLangFileForMod(modClass);
-		conf.load();
-		blockName = conf.get("Blocks Names", b.getUnlocalizedName(), name).getString();
-		conf.save();
 		if(blockClass == null)
 		{
 			GameRegistry.registerBlock(b, name);

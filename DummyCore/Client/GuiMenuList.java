@@ -1,49 +1,23 @@
 package DummyCore.Client;
 
-import java.awt.Dimension;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-
-import javax.imageio.ImageIO;
-
-import org.apache.logging.log4j.Level;
 import org.lwjgl.opengl.GL11;
 
 import DummyCore.Utils.DummyConfig;
 import DummyCore.Utils.DummyData;
 
-import com.google.common.base.Strings;
-
-import cpw.mods.fml.client.FMLClientHandler;
-import cpw.mods.fml.client.GuiSlotModList;
-import cpw.mods.fml.client.IModGuiFactory;
-import cpw.mods.fml.common.FMLLog;
-import cpw.mods.fml.common.Loader;
-import cpw.mods.fml.common.ModContainer;
-import cpw.mods.fml.common.ModContainer.Disableable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.texture.DynamicTexture;
-import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.client.resources.IResourcePack;
-import net.minecraft.util.ResourceLocation;
 
 public class GuiMenuList extends GuiScreen{
 	
     private GuiScreen mainMenu;
     private GuiSlotMenuList modList;
     private int selected = -1;
-    private Class selectedMod;
+    private Class<?> selectedMod;
     private int listWidth;
-    private ResourceLocation cachedLogo;
-    private Dimension cachedLogoDimensions;
-    
     public GuiMenuList(GuiScreen mainMenu)
     {
         this.mainMenu=mainMenu;
@@ -133,7 +107,6 @@ public class GuiMenuList extends GuiScreen{
             this.selectedMod=null;
         }
         DummyConfig.setMainMenu(selected);
-        cachedLogo = null;
     }
 
     public boolean indexSelected(int var1)

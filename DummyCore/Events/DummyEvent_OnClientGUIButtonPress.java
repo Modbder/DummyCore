@@ -1,6 +1,5 @@
 package DummyCore.Events;
 
-import DummyCore.Utils.DataStorage;
 import DummyCore.Utils.DummyData;
 import cpw.mods.fml.common.eventhandler.Event;
 import net.minecraft.entity.player.EntityPlayer;

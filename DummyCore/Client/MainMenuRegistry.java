@@ -13,15 +13,15 @@ import DummyCore.Utils.Notifier;
 
 public class MainMenuRegistry {
 	
-	public static List<Class<? extends GuiScreen>> menuList = new ArrayList();
+	public static List<Class<? extends GuiScreen>> menuList = new ArrayList<Class<? extends GuiScreen>>();
 	
-	public static List<DummyData> menuInfoLst = new ArrayList();
+	public static List<DummyData> menuInfoLst = new ArrayList<DummyData>();
 	
 	public static boolean isGuiDisplayed;
 	
 	public static GuiScreen currentScreen;
 	
-	public static void registerNewGui(Class menu)
+	public static void registerNewGui(Class<? extends GuiScreen> menu)
 	{
 		if(IMainMenu.class.isAssignableFrom(menu))
 		{
@@ -33,7 +33,7 @@ public class MainMenuRegistry {
 		}
 	}
 	
-	public static void registerNewGui(Class menu, String name, String description)
+	public static void registerNewGui(Class<? extends GuiScreen> menu, String name, String description)
 	{
 		if(IMainMenu.class.isAssignableFrom(menu))
 		{

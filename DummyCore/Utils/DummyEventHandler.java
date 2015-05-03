@@ -6,31 +6,25 @@ import java.util.List;
 
 import org.lwjgl.input.Keyboard;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiMainMenu;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.IAttribute;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.ServerConfigurationManager;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
-import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraft.world.chunk.Chunk;
-import net.minecraftforge.client.event.GuiScreenEvent.DrawScreenEvent;
 import net.minecraftforge.client.event.GuiScreenEvent.InitGuiEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import DummyCore.Client.GuiButton_ChangeGUI;
-import DummyCore.Client.GuiMainMenuVanilla;
-import DummyCore.Client.MainMenuGUIRenderer;
 import DummyCore.Client.MainMenuRegistry;
-import DummyCore.Core.CoreInitialiser;
 import DummyCore.Events.DummyEvent_OnClientGUIButtonPress;
 import DummyCore.Events.DummyEvent_OnKeyboardKeyPressed_Server;
 import DummyCore.Events.DummyEvent_OnPacketRecieved;
@@ -43,7 +37,6 @@ import cpw.mods.fml.common.gameevent.TickEvent.PlayerTickEvent;
 import cpw.mods.fml.common.gameevent.TickEvent.RenderTickEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import cpw.mods.fml.server.FMLServerHandler;
 
 /**
  * @author Modbder
@@ -82,8 +75,12 @@ public class DummyEventHandler {
 		}
 	}
 	
+	/**
+	 * Totally going to get removed!
+	 * @param event
+	 */
+	@Deprecated
 	@SideOnly(Side.CLIENT)
-	@SubscribeEvent
 	public void onClientTick(RenderTickEvent event)
 	{
 		try
@@ -108,7 +105,7 @@ public class DummyEventHandler {
 					DataStorage.addDataToString(aad);
 					String dataString = DataStorage.getDataString();
 					DummyPacketIMSG packet = new DummyPacketIMSG("||mod:DummyCore.ButtonPress"+dataString);
-					CoreInitialiser.packetHandler.sendToServer(packet);
+					DummyPacketHandler.sendToServer(packet);
 				}
 				if(!Keyboard.isKeyDown(Keyboard.getKeyIndex(Keyboard.getKeyName(i))) && isKeyPressed[i])
 				{
@@ -126,7 +123,7 @@ public class DummyEventHandler {
 					DataStorage.addDataToString(aad);
 					String dataString = DataStorage.getDataString();
 					DummyPacketIMSG packet = new DummyPacketIMSG("||mod:DummyCore.ButtonPress"+dataString);
-					CoreInitialiser.packetHandler.sendToServer(packet);
+					DummyPacketHandler.sendToServer(packet);
 				}
 			}
 		}catch(Exception e)
@@ -136,6 +133,7 @@ public class DummyEventHandler {
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
 	public void onMainMenuGUISetup(InitGuiEvent.Post event)
@@ -260,7 +258,8 @@ public class DummyEventHandler {
 			event.toolTip.add(MiscUtils.descriptionCTable.get(unlocName)+MiscUtils.descriptionTable.get(unlocName));
 		}else
 		{
-			List list = Arrays.asList(stack.getItem().itemRegistry.getNameForObject(stack.getItem()),stack.getItemDamage());
+			stack.getItem();
+			List<? extends Object> list = Arrays.asList(Item.itemRegistry.getNameForObject(stack.getItem()),stack.getItemDamage());
 			if(MiscUtils.descriptionNTable.containsKey(list))
 			{
 				event.toolTip.add(MiscUtils.descriptionNCTable.get(list)+MiscUtils.descriptionNTable.get(list));
@@ -311,7 +310,7 @@ public class DummyEventHandler {
 					}
 				}else
 				{
-					List l = Arrays.asList(s.getItem().getUnlocalizedName(),Integer.toString(s.getItemDamage()));
+					List<String> l = Arrays.asList(s.getItem().getUnlocalizedName(),Integer.toString(s.getItemDamage()));
 					if(MiscUtils.shouldIgnoreDamage.contains(s.getItem()))
 						l = Arrays.asList(s.getItem().getUnlocalizedName(),Integer.toString(-1));
 					if(MiscUtils.modifierType.containsKey(l))
@@ -353,7 +352,7 @@ public class DummyEventHandler {
 		for(int i1 = 0; i1 < player.getAttributeMap().getAllAttributes().size(); ++i1)
 		{
 			IAttributeInstance ainst = (IAttributeInstance) player.getAttributeMap().getAllAttributes().toArray()[i1];
-			Collection coll = ainst.func_111122_c();
+			Collection<?> coll = ainst.func_111122_c();
 			for(int j = 0; j < coll.size(); ++j)
 			{
 				if(coll.toArray()[j] instanceof AttributeModifier)
@@ -375,7 +374,7 @@ public class DummyEventHandler {
 									if(uuid.equals(sub))
 										remove = false;
 								}
-								List l = Arrays.asList(s.getItem().getUnlocalizedName(),Integer.toString(s.getItemDamage()));
+								List<String> l = Arrays.asList(s.getItem().getUnlocalizedName(),Integer.toString(s.getItemDamage()));
 								if(MiscUtils.shouldIgnoreDamage.contains(s.getItem()))
 									l = Arrays.asList(s.getItem().getUnlocalizedName(),Integer.toString(-1));
 								if(MiscUtils.modifierUUID.containsKey(l))
@@ -400,7 +399,7 @@ public class DummyEventHandler {
 										if(uuid.equals(sub))
 											remove = false;
 									}
-									List l = Arrays.asList(s.getItem().getUnlocalizedName(),Integer.toString(s.getItemDamage()));
+									List<String> l = Arrays.asList(s.getItem().getUnlocalizedName(),Integer.toString(s.getItemDamage()));
 									if(MiscUtils.shouldIgnoreDamage.contains(s.getItem()))
 										l = Arrays.asList(s.getItem().getUnlocalizedName(),Integer.toString(-1));
 									if(MiscUtils.modifierUUID.containsKey(l))
@@ -427,7 +426,7 @@ public class DummyEventHandler {
 										if(uuid.equals(sub))
 											remove = false;
 									}
-									List l = Arrays.asList(s.getItem().getUnlocalizedName(),Integer.toString(s.getItemDamage()));
+									List<String> l = Arrays.asList(s.getItem().getUnlocalizedName(),Integer.toString(s.getItemDamage()));
 									if(MiscUtils.shouldIgnoreDamage.contains(s.getItem()))
 										l = Arrays.asList(s.getItem().getUnlocalizedName(),Integer.toString(-1));
 									if(MiscUtils.modifierUUID.containsKey(l))

@@ -4,22 +4,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Hashtable;
 
-import javax.naming.spi.DirectoryManager;
-
 import net.minecraft.world.World;
-import net.minecraft.world.WorldProviderSurface;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.event.world.WorldEvent;
 
-import org.apache.commons.io.DirectoryWalker;
-import org.apache.commons.io.filefilter.DirectoryFileFilter;
-
-import DummyCore.Core.CoreInitialiser;
 import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.discovery.DirectoryDiscoverer;
-import cpw.mods.fml.common.event.FMLLoadEvent;
 import cpw.mods.fml.common.event.FMLServerAboutToStartEvent;
-import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.relauncher.Side;
 
@@ -30,7 +20,6 @@ import cpw.mods.fml.relauncher.Side;
  * @Description used to store any String for players/worlds in the world save folder and get it.
  */
 public class DummyDataUtils {
-	private static File mainWorldFile;
 	private static Configuration globalConfig;
 	private static Hashtable<String,File> playerFiles = new Hashtable<String,File>();
 	private static Hashtable<String,Configuration> playerConfigs = new Hashtable<String,Configuration>();
@@ -62,7 +51,6 @@ public class DummyDataUtils {
 					File f1 = new File(directory+"//PlayerData//");
 					f1.mkdirs();
 					getPath = dDataPath;
-					mainWorldFile = globalDataDat;
 					globalConfig = new Configuration(globalDataDat);
 					isWorking = true;
 				}
@@ -111,14 +99,12 @@ public class DummyDataUtils {
 		File f1 = new File(print+"/PlayerData/");
 		f1.mkdirs();
 		getPath = print;
-		mainWorldFile = file;
 		globalConfig = new Configuration(file);
 		isWorking = true;
 	}
 	
 	public static void stop()
 	{
-		mainWorldFile = null;
 		globalConfig = null;
 		playerFiles.clear();
 		playerConfigs.clear();

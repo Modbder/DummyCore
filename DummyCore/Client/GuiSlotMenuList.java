@@ -1,16 +1,9 @@
 package DummyCore.Client;
 
-import java.util.ArrayList;
-
 import DummyCore.Utils.DummyData;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.Tessellator;
-import cpw.mods.fml.client.GuiModList;
 import cpw.mods.fml.client.GuiScrollingList;
-import cpw.mods.fml.common.Loader;
-import cpw.mods.fml.common.ModContainer;
-import cpw.mods.fml.common.LoaderState.ModState;
 
 public class GuiSlotMenuList extends GuiScrollingList {
 	

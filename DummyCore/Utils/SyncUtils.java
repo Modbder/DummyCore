@@ -3,12 +3,10 @@ package DummyCore.Utils;
 import java.util.ArrayList;
 import java.util.List;
 
-import DummyCore.Core.CoreInitialiser;
-
 public class SyncUtils {
 	
-	public static List<String> needsSyncing_Global = new ArrayList();
-	public static List<String> needsSyncing_Player = new ArrayList();
+	public static List<String> needsSyncing_Global = new ArrayList<String>();
+	public static List<String> needsSyncing_Player = new ArrayList<String>();
 	
 	public static void addRequiresSync(String playerName, String modid, String dataName)
 	{
@@ -38,7 +36,7 @@ public class SyncUtils {
 				{
 					String dataString = "||mod:DummyCore.InfoSync"+"||"+modid+":"+dataName+"||ddata:"+MiscUtils.registeredServerWorldData.get(modid+"|"+dataName);
 					DummyPacketIMSG simplePacket = new DummyPacketIMSG(dataString);
-					CoreInitialiser.packetHandler.sendToAll(simplePacket);
+					DummyPacketHandler.sendToAll(simplePacket);
 				}else
 				{
 					Notifier.notifyCustomMod(modid, "The sync packet for data "+modid+"|"+dataName+" could not be generated - the requested server data does not exist!");
@@ -59,7 +57,7 @@ public class SyncUtils {
 				{
 					String dataString = "||mod:DummyCore.PlayerInfoSync"+"||"+"playerName:"+playerName+"||"+modid+ ":" + dataName+"||ddata:"+MiscUtils.registeredServerData.get(playerName+"_"+modid+"|"+dataName);
 					DummyPacketIMSG simplePacket = new DummyPacketIMSG(dataString);
-					CoreInitialiser.packetHandler.sendToAll(simplePacket);
+					DummyPacketHandler.sendToAll(simplePacket);
 				}else
 				{
 					Notifier.notifyCustomMod(modid, "The sync packet for data "+playerName+"_"+modid+ "could not be generated - the requested server data does not exist!");

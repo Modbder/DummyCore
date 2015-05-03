@@ -7,9 +7,9 @@ import com.mojang.authlib.GameProfile;
 
 public class DummyFakePlayerFactory {
 	
-	public static Hashtable<Class, GameProfile> fakeProfiles = new Hashtable();
+	public static Hashtable<Class<?>, GameProfile> fakeProfiles = new Hashtable<Class<?>, GameProfile>();
 	
-	public static GameProfile getGameProfile(Class mod)
+	public static GameProfile getGameProfile(Class<?> mod)
 	{
 		if(fakeProfiles.get(mod) == null)
 		{

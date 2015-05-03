@@ -62,6 +62,7 @@ public class UnformedItemStack {
 		sort();
 	}
 	
+	@SuppressWarnings("unchecked")
 	public UnformedItemStack(Object obj)
 	{
 		if(obj instanceof ItemStack)
@@ -110,7 +111,7 @@ public class UnformedItemStack {
 	
 	public void sort()
 	{
-		List<ItemStack> possibleStacksCopy = new ArrayList();
+		List<ItemStack> possibleStacksCopy = new ArrayList<ItemStack>();
 		possibleStacksCopy.addAll(possibleStacks);
 		possibleStacks.clear();
 		for(int i = 0; i < possibleStacksCopy.size();++i)

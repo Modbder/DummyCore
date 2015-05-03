@@ -1,5 +1,5 @@
 package DummyCore.Utils;
 
-public interface IMainMenu {
+public @interface DCASMCheck {
 
 }

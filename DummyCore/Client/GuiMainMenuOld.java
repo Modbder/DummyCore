@@ -19,14 +19,11 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiLabel;
 import net.minecraft.client.gui.GuiMainMenu;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.ForgeHooksClient;
-import DummyCore.Utils.EnumGuiPosition;
 import DummyCore.Utils.IMainMenu;
 
 public class GuiMainMenuOld extends GuiMainMenu implements IMainMenu{
@@ -43,7 +40,7 @@ public class GuiMainMenuOld extends GuiMainMenu implements IMainMenu{
 
 	        try
 	        {
-	            ArrayList arraylist = new ArrayList();
+	            ArrayList<String> arraylist = new ArrayList<String>();
 	            bufferedreader = new BufferedReader(new InputStreamReader(Minecraft.getMinecraft().getResourceManager().getResource(splashTexts).getInputStream(), Charsets.UTF_8));
 	            String s;
 

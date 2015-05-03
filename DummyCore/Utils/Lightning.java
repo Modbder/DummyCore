@@ -3,12 +3,6 @@ package DummyCore.Utils;
 import java.util.Random;
 
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.util.Color;
-
-import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.util.MathHelper;
-import net.minecraft.util.Vec3;
 
 /**
  * 
@@ -45,7 +39,6 @@ public class Lightning {
 	
 	private void curve(float factor)
 	{
-		int mainDivisions = rnd.nextInt(3)+2;
 		float distX = end.x-start.x;
 		float distY = end.y-start.y;
 		float distZ = end.z-start.z;

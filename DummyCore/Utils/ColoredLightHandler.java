@@ -6,27 +6,19 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 
 public class ColoredLightHandler extends Entity{
-	private int renderColor;
-	private float colorSize;
-	
 	public ColoredLightHandler(World par1World) {
 		super(par1World);
 		setSize(0.4F,0.4F);
-		this.renderColor = 0;
-		this.colorSize = 0;
 		this.noClip = true;
 		this.ignoreFrustumCheck = true;
 	}
 	
 	public ColoredLightHandler(World par1World, int par2) {
 		this(par1World);
-		this.renderColor = par2;
 	}
 	
 	public ColoredLightHandler(World par1World, int par2, float par3) {
 		this(par1World);
-		this.renderColor = par2;
-		this.colorSize = par3;
 	}
 
 	@Override
@@ -53,7 +45,6 @@ public class ColoredLightHandler extends Entity{
 		{
 			this.dataWatcher.updateObject(12, i);
 		}
-		this.renderColor = i;
 	}
 	
 	
@@ -63,7 +54,6 @@ public class ColoredLightHandler extends Entity{
 		{
 			this.dataWatcher.updateObject(13, i);
 		}
-		this.colorSize = i;
 	}
 	
 	public int getRenderColor()
@@ -79,6 +69,7 @@ public class ColoredLightHandler extends Entity{
 	@Override
     public void moveEntity(double par1, double par3, double par5){}
 	
+	@SuppressWarnings("deprecation")
 	@Override
     public void onUpdate()
     {

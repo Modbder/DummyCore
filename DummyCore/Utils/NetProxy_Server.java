@@ -38,8 +38,8 @@ public class NetProxy_Server implements IGuiHandler{
 	public Object getServerGuiElement(int ID, EntityPlayer player, World world,int x, int y, int z) {
 		try
 		{
-			Class containerClass = Class.forName(GuiContainerLibrary.containers.get(ID));
-			Constructor constrctr = containerClass.getConstructor(InventoryPlayer.class, TileEntity.class);
+			Class<?> containerClass = Class.forName(GuiContainerLibrary.containers.get(ID));
+			Constructor<?> constrctr = containerClass.getConstructor(InventoryPlayer.class, TileEntity.class);
 			return constrctr.newInstance(player.inventory,world.getTileEntity(x, y, z));
 		}catch(Exception e)
 		{

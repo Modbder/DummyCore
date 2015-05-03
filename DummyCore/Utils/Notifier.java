@@ -1,31 +1,24 @@
 package DummyCore.Utils;
 
-import java.io.PrintStream;
-import java.util.concurrent.CopyOnWriteArrayList;
-
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import net.minecraft.client.Minecraft;
-
 public class Notifier {
 	
 	//======================================String Beginning Indexes===============================================//
-	private static String info = "[INFO]";
-	private static String warning = "[WARNING]";
-	private static String error = "[ERROR]";
-	private static String severe = "[SEVERE]";
+	public static final String info = "[INFO]";
+	public static final String warning = "[WARNING]";
+	public static final String error = "[ERROR]";
+	public static final String severe = "[SEVERE]";
 	//======================================String Second Indexes===============================================//
-	private static String dev = "[DEV]";
-	private static String debug = "[DEBUG]";
-	private static String stdout = "[STDOUT]";
+	public static final String dev = "[DEV]";
+	public static final String debug = "[DEBUG]";
+	public static final String stdout = "[STDOUT]";
 	//======================================String Ending Indexes===============================================//
-	private static String system = "[SYSTEM]";
-	private static String mod = "[DummyCore]";
+	public static final String system = "[SYSTEM]";
+	public static final String mod = "[DummyCore]";
 	
-	private static StringBuilder builder = new StringBuilder();
-
 	public static final Logger logger = LogManager.getLogger();
 	
 	public static void notify(String... s)

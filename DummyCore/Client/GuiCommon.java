@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.lwjgl.opengl.GL11;
 
-import DummyCore.Utils.MiscUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.inventory.Container;
@@ -15,7 +14,7 @@ import net.minecraft.util.ResourceLocation;
 
 public class GuiCommon extends GuiContainer{
 	
-	public List<GuiElement> elementList = new ArrayList();
+	public List<GuiElement> elementList = new ArrayList<GuiElement>();
 	public TileEntity genericTile;
 	public ResourceLocation guiGenLocation = new ResourceLocation("textures/gui/container/dispenser.png");
 	public ResourceLocation slotLocation = new ResourceLocation("textures/gui/container/dispenser.png");;
@@ -31,6 +30,7 @@ public class GuiCommon extends GuiContainer{
 
 	@Override
 	protected void drawGuiContainerBackgroundLayer(float f1,int i1, int i2) {
+		GL11.glColor3f(1, 1, 1);
         int k = (this.width - this.xSize) / 2;
         int l = (this.height - this.ySize) / 2;
         this.mc.renderEngine.bindTexture(guiGenLocation);

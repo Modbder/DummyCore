@@ -3,13 +3,9 @@ package DummyCore.Utils;
 import java.util.ArrayList;
 import java.util.List;
 
-import DummyCore.Client.GuiCommon;
-import net.minecraft.client.gui.Gui;
-import net.minecraft.inventory.Container;
-
 public class GuiContainerLibrary {
-	public static List<String> guis = new ArrayList();
-	public static List<String> containers = new ArrayList();
+	public static List<String> guis = new ArrayList<String>();
+	public static List<String> containers = new ArrayList<String>();
 	
 	/**
 	 * Can be used for easier GUI opening, if you do not want to make a Proxy for that. This method should only be used to open simple GUIs(tile entity ones)

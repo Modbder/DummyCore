@@ -1,12 +1,8 @@
 package DummyCore.Utils;
 
-import io.netty.buffer.ByteBuf;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Hashtable;
@@ -14,16 +10,12 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
-import javax.swing.Icon;
-
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
 import DummyCore.Core.CoreInitialiser;
-import static io.netty.buffer.Unpooled.buffer;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.ItemRenderer;
@@ -39,11 +31,9 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.IAttribute;
 import net.minecraft.entity.item.EntityItem;
-import net.minecraft.entity.monster.EntityZombie;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
@@ -52,22 +42,18 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.Packet;
-import net.minecraft.network.play.client.C17PacketCustomPayload;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.potion.Potion;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.DamageSource;
-import net.minecraft.util.Direction;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IIcon;
-import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.oredict.OreDictionary;
 import cpw.mods.fml.common.ObfuscationReflectionHelper;
@@ -84,21 +70,21 @@ import cpw.mods.fml.relauncher.SideOnly;
  */
 public class MiscUtils {
 	public static final String genUUIDString = "CB3F55A9-6DCC-4FF8-AAC7-9B87A33";
-	public static Hashtable<String, String> descriptionTable = new Hashtable();
-	public static Hashtable<String, EnumChatFormatting> descriptionCTable = new Hashtable();
-	public static Hashtable<List, String> descriptionNTable = new Hashtable();
-	public static Hashtable<List, EnumChatFormatting> descriptionNCTable = new Hashtable();
-	public static Hashtable<List,String> modifierType = new Hashtable();
-	public static Hashtable<List,String> modifierUUID = new Hashtable();
-	public static Hashtable<List,Double> modifierValue = new Hashtable();
-	public static Hashtable<List,IAttribute> modifier = new Hashtable();
-	public static Hashtable<List,Integer> modifierOperation = new Hashtable();
-	public static List<Item> shouldIgnoreDamage = new ArrayList();
-	public static Hashtable<String, String> registeredClientData = new Hashtable();
-	public static Hashtable<String, String> registeredClientWorldData = new Hashtable();
-	public static Hashtable<String, String> registeredServerData = new Hashtable();
-	public static Hashtable<String, String> registeredServerWorldData = new Hashtable();
-	public static List<BlockPosition> unbreakableBlocks = new ArrayList();
+	public static Hashtable<String, String> descriptionTable = new Hashtable<String, String>();
+	public static Hashtable<String, EnumChatFormatting> descriptionCTable = new Hashtable<String, EnumChatFormatting>();
+	public static Hashtable<List<?>, String> descriptionNTable = new Hashtable<List<?>, String>();
+	public static Hashtable<List<?>, EnumChatFormatting> descriptionNCTable = new Hashtable<List<?>, EnumChatFormatting>();
+	public static Hashtable<List<?>,String> modifierType = new Hashtable<List<?>, String>();
+	public static Hashtable<List<?>,String> modifierUUID = new Hashtable<List<?>, String>();
+	public static Hashtable<List<?>,Double> modifierValue = new Hashtable<List<?>, Double>();
+	public static Hashtable<List<?>,IAttribute> modifier = new Hashtable<List<?>, IAttribute>();
+	public static Hashtable<List<?>,Integer> modifierOperation = new Hashtable<List<?>, Integer>();
+	public static List<Item> shouldIgnoreDamage = new ArrayList<Item>();
+	public static Hashtable<String, String> registeredClientData = new Hashtable<String, String>();
+	public static Hashtable<String, String> registeredClientWorldData = new Hashtable<String, String>();
+	public static Hashtable<String, String> registeredServerData = new Hashtable<String, String>();
+	public static Hashtable<String, String> registeredServerWorldData = new Hashtable<String, String>();
+	public static List<BlockPosition> unbreakableBlocks = new ArrayList<BlockPosition>();
 	//ShaderGroups IDs - 
 		//0 - Pixelated
 		//1 -  Smooth
@@ -131,7 +117,6 @@ public class MiscUtils {
 	 * @param texture - path to your thexture.
 	 */
 	@SideOnly(Side.CLIENT)
-	@SuppressWarnings("unchecked")
 	public static void bindTexture(String mod, String texture)
 	{
 		//I hope, that MC does not touches the files upon registering a new one of these.
@@ -275,7 +260,8 @@ public class MiscUtils {
 		
 		for(int p = 0; p < i.getSizeInventory();++p)
 		{
-			if(i.getStackInSlot(p) != null && i.getStackInSlot(p).areItemStacksEqual(s, i.getStackInSlot(p)) && i.getStackInSlot(p).stackSize+s.stackSize<=i.getStackInSlot(p).getMaxStackSize())
+			i.getStackInSlot(p);
+			if(i.getStackInSlot(p) != null && ItemStack.areItemStacksEqual(s, i.getStackInSlot(p)) && i.getStackInSlot(p).stackSize+s.stackSize<=i.getStackInSlot(p).getMaxStackSize())
 			{
 				ItemStack slot = i.getStackInSlot(p);
 				if(!remote)
@@ -330,11 +316,11 @@ public class MiscUtils {
 		DummyPacketIMSG simplePacket = new DummyPacketIMSG(dataString);
 		if(s == Side.CLIENT)
 		{
-			CoreInitialiser.packetHandler.sendToAll(simplePacket);
+			DummyPacketHandler.sendToAll(simplePacket);
 		}
 		if(s == Side.SERVER)
 		{
-			CoreInitialiser.packetHandler.sendToServer(simplePacket);
+			DummyPacketHandler.sendToServer(simplePacket);
 		}
 	}  
 	
@@ -369,7 +355,7 @@ public class MiscUtils {
 	{
 		if(meta == -1)
 			makeItemIgnoreDamage(id);
-		List l = Arrays.asList(id.getUnlocalizedName(),Integer.toString(meta));
+		List<?> l = Arrays.asList(id.getUnlocalizedName(),Integer.toString(meta));
 		modifierType.put(l, type);
 		modifierUUID.put(l, last5ofUUID);
 		modifierValue.put(l, value);
@@ -424,8 +410,8 @@ public class MiscUtils {
 	 */
 	public static void registerDescriptionFor(String id, int meta, String descr, EnumChatFormatting color)
 	{
-		descriptionNTable.put((List) Arrays.asList(id,meta),descr);
-		descriptionNCTable.put((List) Arrays.asList(id,meta),color);
+		descriptionNTable.put((List<?>) Arrays.asList(id,meta),descr);
+		descriptionNCTable.put((List<?>) Arrays.asList(id,meta),color);
 	}
 	
 	/**
@@ -439,6 +425,7 @@ public class MiscUtils {
 	 * @param dimId - the ID of the dimension to look the players. 
 	 * @param distance - the distance at which the players will get found.
 	 */
+	@SuppressWarnings("unchecked")
 	public static void sendPacketToAllAround(World w,Packet pkt, int x, int y, int z, int dimId, double distance)
 	{
 		List<EntityPlayer> playerLst = w.getEntitiesWithinAABB(EntityPlayer.class, AxisAlignedBB.getBoundingBox(x-0.5D, y-0.5D, z-0.5D, x+0.5D, y+0.5D, z+0.5D).expand(distance, distance, distance));
@@ -473,6 +460,7 @@ public class MiscUtils {
 	 * @param w - the worldObj that we are operating in
 	 * @param distance - the distance at which the players will get found.
 	 */
+	@SuppressWarnings("unchecked")
 	public static void sendPacketToAll(World w,Packet pkt)
 	{
 		List<EntityPlayer> playerLst = w.playerEntities;
@@ -499,6 +487,7 @@ public class MiscUtils {
 	 * @param pkt - the packet to send
 	 * @param dimId - the ID of the dimension to look the players. 
 	 */
+	@SuppressWarnings("unchecked")
 	public static void sendPacketToAllInDim(World w,Packet pkt, int dimId)
 	{
 		List<EntityPlayer> playerLst = w.playerEntities;
@@ -660,11 +649,11 @@ public class MiscUtils {
      * @param classes - actual parameters of the method
      * @return true if the given method exist, false if not
      */
-    public static boolean classHasMethod(Class c, String mName, Class... classes)
+    public static boolean classHasMethod(Class<?> c, String mName, Class<?>... classes)
     {
     	try {
 			Method m = c.getMethod(mName, classes);
-			return true;
+			return m != null;
 		} catch (Exception e) {
 			return false;
 		}
@@ -771,7 +760,7 @@ public class MiscUtils {
 		String newDataString = DataStorage.getDataString();
 		dataString+=newDataString;
 		DummyPacketIMSG simplePacket = new DummyPacketIMSG(dataString);
-		CoreInitialiser.packetHandler.sendToAll(simplePacket);
+		DummyPacketHandler.sendToAll(simplePacket);
 	}
 	
 	/**
@@ -822,12 +811,10 @@ public class MiscUtils {
     	{
     	 ItemStack itemstack = stk.copy();
     	 itemstack.stackSize = 1; //Doing this so no weird glitches occur.
-         final ResourceLocation RES_ITEM_GLINT = new ResourceLocation("textures/misc/enchanted_item_glint.png");
+         new ResourceLocation("textures/misc/enchanted_item_glint.png");
          RenderBlocks renderBlocksRi = new RenderBlocks();
          Random random = new Random(); 
          boolean renderWithColor = true;
-         float zLevel;
-    	 
          if (itemstack != null && itemstack.getItem() != null)
          {
              Minecraft.getMinecraft().renderEngine.bindTexture(Minecraft.getMinecraft().renderEngine.getResourceLocation(stk.getItemSpriteNumber()));
@@ -913,15 +900,13 @@ public class MiscUtils {
              }
              else
              {
-                 float f5;
-
                  if (itemstack.getItem().requiresMultipleRenderPasses())
                  {
                      GL11.glScalef(0.5F, 0.5F, 0.5F);
                      for (int j = 0; j < itemstack.getItem().getRenderPasses(itemstack.getItemDamage()); ++j)
                      {
                          random.setSeed(187L);
-                         IIcon iicon1 = itemstack.getItem().getIcon(itemstack, j);
+                         itemstack.getItem().getIcon(itemstack, j);
                          renderItemStack(stk, posX, posY, posZ, screenPosX, screenPosY, screenPosZ, rotation, colorRed, colorGreen, colorBlue, j, stk.stackSize);
                      }
                  }
@@ -934,7 +919,7 @@ public class MiscUtils {
                          OpenGlHelper.glBlendFunc(770, 771, 1, 0);
                      }
                      GL11.glScalef(0.5F, 0.5F, 0.5F);
-                     IIcon iicon = itemstack.getIconIndex();
+                     itemstack.getIconIndex();
 
                      if (renderWithColor)
                      {
@@ -976,10 +961,8 @@ public class MiscUtils {
     public static void renderItemStack(ItemStack stk,double posX, double posY, double posZ, double screenPosX, double screenPosY, double screenPosZ, float rotation, float colorRed, float colorGreen, float colorBlue, int renderPass, int itemsAmount)
     {
         final ResourceLocation RES_ITEM_GLINT = new ResourceLocation("textures/misc/enchanted_item_glint.png");
-        RenderBlocks renderBlocksRi = new RenderBlocks();
+        new RenderBlocks();
         Random random = new Random();
-        boolean renderWithColor = true;
-        float zLevel;
         IIcon p_77020_2_ = stk.getItem().getIcon(stk, renderPass);
     	
         Tessellator tessellator = Tessellator.instance;
@@ -1035,7 +1018,7 @@ public class MiscUtils {
                 {
                     float x = (random.nextFloat() * 2.0F - 1.0F) * 0.3F / 0.5F;
                     float y = (random.nextFloat() * 2.0F - 1.0F) * 0.3F / 0.5F;
-                    float z = (random.nextFloat() * 2.0F - 1.0F) * 0.3F / 0.5F;
+                    random.nextFloat();
                     GL11.glTranslatef(x, y, f9 + f10);
                 }
                 else
@@ -1153,7 +1136,7 @@ public class MiscUtils {
 		String newDataString = DataStorage.getDataString();
 		dataString+=newDataString;
 		DummyPacketIMSG simplePacket = new DummyPacketIMSG(dataString);
-		CoreInitialiser.packetHandler.sendToAll(simplePacket);
+		DummyPacketHandler.sendToAll(simplePacket);
     }
     
     /**
@@ -1255,22 +1238,23 @@ public class MiscUtils {
     
     /**
      * Allows changes of variables declared like private final || private static final. Advanced. Do not use if you do not know what you are doing!
+     * Sometimes considered as a dirty hacking of the java code. I agree. There is nothing more dirty, than just removing the FINAL modifier of the variable. It's like Java can't even do anything, no matter the protection given.
+     * This should not be done. However, in vanilla MC it is pretty much the only way to do so, so I can't help it.
+     * The only thing, that would be worse is using ASM to remotely change the compiled final variable. That is the most disgusting thing you can do with Java, I believe.
      * @param classToAccess - the class in wich you are changing the variable
      * @param instance - if you want to modify non-static field you should put the instance of the class here. Leave null for static
      * @param value - what you actually want to be set in the variable field
      * @param fieldNames - the names of the field you are changing. Should be both for obfuscated and compiled code.
      */
-    @Deprecated
-    public static void setPrivateFinalValue(Class classToAccess, Object instance, Object value, String fieldNames[])
+    public static void setPrivateFinalValue(Class<Potion> classToAccess, Object instance, Object value, String fieldNames[])
     {
         Field field = ReflectionHelper.findField(classToAccess, ObfuscationReflectionHelper.remapFieldNames(classToAccess.getName(), fieldNames));
         try
         {
-        	ReflectionHelper.setPrivateValue(classToAccess, instance, value, fieldNames); //Sooo... Why would I use this method, if there is a ReflectionHelper?
-            //Field modifiersField = Field.class.getDeclaredField("modifiers");
-            //modifiersField.setAccessible(true);
-            //modifiersField.setInt(field, field.getModifiers() & 0xffffffef);
-            //field.set(instance, value);
+            Field modifiersField = Field.class.getDeclaredField("modifiers");
+            modifiersField.setAccessible(true);
+            modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
+            field.set(instance, value);
         }
         catch(Exception e)
         {
@@ -1288,13 +1272,14 @@ public class MiscUtils {
 		int potionsOffset = Potion.potionTypes.length;
 		int pStart = 0;
 		
-        if(potionsOffset < 128 - byAmount)
+        if(potionsOffset < Potion.potionTypes.length - byAmount)
         {
+        	
         	Potion potionTypes[] = new Potion[potionsOffset + byAmount];
         	System.arraycopy(Potion.potionTypes, 0, potionTypes, 0, potionsOffset);
             setPrivateFinalValue(Potion.class, null, potionTypes, new String[] {
-                    "potionTypes", "field_76425_a", "a"
-                });
+                "potionTypes", "field_76425_a", "a"
+            });
             pStart = potionsOffset++ - 1;
         } else
         {
@@ -1398,7 +1383,7 @@ public class MiscUtils {
 		String newDataString = DataStorage.getDataString();
 		dataString+=newDataString+additionalData;
 		DummyPacketIMSG simplePacket = new DummyPacketIMSG(dataString);
-		CoreInitialiser.packetHandler.sendToServer(simplePacket);
+		DummyPacketHandler.sendToServer(simplePacket);
     }
     
     /**

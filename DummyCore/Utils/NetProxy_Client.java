@@ -24,14 +24,13 @@ import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.INetHandler;
-import net.minecraft.network.NetHandlerPlayServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 
 public class NetProxy_Client extends NetProxy_Server{
 	
-	public static final Hashtable<String, ShaderGroup> shaders = new Hashtable();
+	public static final Hashtable<String, ShaderGroup> shaders = new Hashtable<String, ShaderGroup>();
 
 	@Override
 	public EntityPlayer getPlayerOnSide(INetHandler handler)
@@ -66,10 +65,10 @@ public class NetProxy_Client extends NetProxy_Server{
 			int x, int y, int z) {
 		try
 		{
-			Class guiClass = Class.forName(GuiContainerLibrary.guis.get(ID));
-			Constructor constrctr_gui = guiClass.getConstructor(Container.class, TileEntity.class);
-			Class containerClass = Class.forName(GuiContainerLibrary.containers.get(ID));
-			Constructor constrctr = containerClass.getConstructor(InventoryPlayer.class, TileEntity.class);
+			Class<?> guiClass = Class.forName(GuiContainerLibrary.guis.get(ID));
+			Constructor<?> constrctr_gui = guiClass.getConstructor(Container.class, TileEntity.class);
+			Class<?> containerClass = Class.forName(GuiContainerLibrary.containers.get(ID));
+			Constructor<?> constrctr = containerClass.getConstructor(InventoryPlayer.class, TileEntity.class);
 			Object obj = constrctr.newInstance(player.inventory,world.getTileEntity(x, y, z));
 			return constrctr_gui.newInstance(obj,world.getTileEntity(x, y, z));
 		}catch(Exception e)

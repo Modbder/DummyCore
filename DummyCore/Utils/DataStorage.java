@@ -1,6 +1,5 @@
 package DummyCore.Utils;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,7 +44,7 @@ public class DataStorage {
 	{
 		String field = "";
 		Object value = null;
-		List<DummyData> data = new ArrayList();
+		List<DummyData> data = new ArrayList<DummyData>();
 		for(int i = 0; i < s.length(); ++i)
 		{
 			if(i+2 < s.length() && s.substring(i, i+2).contains("||"))
