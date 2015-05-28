@@ -32,7 +32,7 @@ import cpw.mods.fml.relauncher.Side;
  * @author Modbder
  * @version From DummyCore 1.0
  */
-@Mod(modid = "DummyCore", name = "DummyCore", version = "1.11", useMetadata = false)
+@Mod(modid = "DummyCore", name = "DummyCore", version = "1.12", useMetadata = false)
 public class CoreInitialiser{
 	
 	public static final String modid = "DummyCore";
