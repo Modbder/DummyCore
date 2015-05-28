@@ -80,7 +80,7 @@ public class DCASMManager implements IClassTransformer{
 				}
 			}
 		}
-		cn.accept(cw); //Wrighting changed Instructions into bytecode helper
+		cn.accept(cw); //Writing changed Instructions into bytecode helper
 		Notifier.notifyCustomMod("DummyCoreASM", "Class "+name+" has been checked.");
 		return cw.toByteArray(); //Returning modified bytecode.
 	}
