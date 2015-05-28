@@ -27,4 +27,9 @@ public class DummyData {
 		ret = ret.concat("||").concat(fieldName).concat(":").concat(fieldValue.toString());
 		return ret;
 	}
+	
+	public static DummyData makeNull()
+	{
+		return new DummyData("null","null");
+	}
 }
