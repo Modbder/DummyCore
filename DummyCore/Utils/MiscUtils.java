@@ -50,7 +50,6 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraft.world.chunk.Chunk;
@@ -74,17 +73,12 @@ public class MiscUtils {
 	public static Hashtable<String, EnumChatFormatting> descriptionCTable = new Hashtable<String, EnumChatFormatting>();
 	public static Hashtable<List<?>, String> descriptionNTable = new Hashtable<List<?>, String>();
 	public static Hashtable<List<?>, EnumChatFormatting> descriptionNCTable = new Hashtable<List<?>, EnumChatFormatting>();
-	public static Hashtable<List<?>,String> modifierType = new Hashtable<List<?>, String>();
-	public static Hashtable<List<?>,String> modifierUUID = new Hashtable<List<?>, String>();
-	public static Hashtable<List<?>,Double> modifierValue = new Hashtable<List<?>, Double>();
-	public static Hashtable<List<?>,IAttribute> modifier = new Hashtable<List<?>, IAttribute>();
-	public static Hashtable<List<?>,Integer> modifierOperation = new Hashtable<List<?>, Integer>();
-	public static List<Item> shouldIgnoreDamage = new ArrayList<Item>();
 	public static Hashtable<String, String> registeredClientData = new Hashtable<String, String>();
 	public static Hashtable<String, String> registeredClientWorldData = new Hashtable<String, String>();
 	public static Hashtable<String, String> registeredServerData = new Hashtable<String, String>();
 	public static Hashtable<String, String> registeredServerWorldData = new Hashtable<String, String>();
 	public static List<BlockPosition> unbreakableBlocks = new ArrayList<BlockPosition>();
+	public static Hashtable<String,ResourceLocation> locTable = new Hashtable<String,ResourceLocation>();
 	//ShaderGroups IDs - 
 		//0 - Pixelated
 		//1 -  Smooth
@@ -119,11 +113,14 @@ public class MiscUtils {
 	@SideOnly(Side.CLIENT)
 	public static void bindTexture(String mod, String texture)
 	{
-		//I hope, that MC does not touches the files upon registering a new one of these.
-		ResourceLocation loc = new ResourceLocation(mod,texture);
-		Minecraft.getMinecraft().getTextureManager().bindTexture(loc);	
-		//Not sure, if this is required due to gc, but removing the possible leak anyway? 
-		loc = null;
+		if(locTable.contains(mod+":"+texture))
+			Minecraft.getMinecraft().getTextureManager().bindTexture(locTable.get(mod+":"+texture));
+		else
+		{
+			ResourceLocation loc = new ResourceLocation(mod,texture);
+			locTable.put(mod+":"+texture, loc);
+			Minecraft.getMinecraft().getTextureManager().bindTexture(loc);	
+		}
 	}
 	
 	/**
@@ -215,76 +212,6 @@ public class MiscUtils {
 	}
 	
 	/**
-	 * More readable way of getting entity's health(used untill the renaming)
-	 * @version From DummyCore 1.0
-	 * @param e - the Entity itself
-	 * @return The amount of health that entity has.
-	 */
-	@Deprecated
-	public static float getEntityHealth(EntityLivingBase e)
-	{
-		return e.getHealth();
-	}
-	
-	/**
-	 * Used to get the Block at the given coordinates. This returns the block itself!
-	 * @version From DummyCore 1.1
-	 * @param w - the world object.
-	 * @param x - X coordinate of the block
-	 * @param y - Y coordinate of the block
-	 * @param z - Z coordinate of the block
-	 * @return the Block that is at the given coordinates.
-	 * @warning will get removed due to 1.7.2 changes!
-	 */
-	@Deprecated
-	public static Block getBlock(IBlockAccess w, int x, int y, int z)
-	{
-		Block ret = null;
-		ret = w.getBlock(x, y, z);
-		return ret;
-	}
-	
-	
-	/**
-	 * Adds the given ItemStack to the given inventory, also updating the inventory.
-	 * Need to re-write the code, something here does not seem right.
-	 * @version From DummyCore 1.4
-	 * @param s - the stack to add
-	 * @param i - the inventory for the stack
-	 * @param remote - use world.isRemote here. This function is usually called on both sides, however, you can call it on server only, it will be ok, then put false in this field
-	 * @return true if adding was successful, false if not.
-	 */
-	@Deprecated
-	public static boolean addItemToInventory(ItemStack s, IInventory i, boolean remote)
-	{
-		
-		for(int p = 0; p < i.getSizeInventory();++p)
-		{
-			i.getStackInSlot(p);
-			if(i.getStackInSlot(p) != null && ItemStack.areItemStacksEqual(s, i.getStackInSlot(p)) && i.getStackInSlot(p).stackSize+s.stackSize<=i.getStackInSlot(p).getMaxStackSize())
-			{
-				ItemStack slot = i.getStackInSlot(p);
-				if(!remote)
-				{
-					i.setInventorySlotContents(p, new ItemStack(slot.getItem(),slot.stackSize+s.stackSize,slot.getItemDamage()));
-				}
-				i.markDirty();
-				return true;
-			}
-		}
-		for(int p = 0; p < i.getSizeInventory();++p)
-		{
-			if(i.getStackInSlot(p) == null && !remote)
-			{
-				i.setInventorySlotContents(p, s);
-				i.markDirty();
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	/**
 	 * Used to check, if the Forge Ore Dictionary contains the given name in it. 
 	 * @version From DummyCore 1.4
 	 * @param oreName - the ore name to search
@@ -292,16 +219,7 @@ public class MiscUtils {
 	 */
 	public static boolean oreDictionaryContains(String oreName)
 	{
-		String[] names = OreDictionary.getOreNames();
-		boolean ret = false;
-		for(int i = 0; i < names.length; ++i)
-		{
-			if(names[i].equalsIgnoreCase(oreName))
-			{
-				ret = true;
-			}
-		}
-		return ret;
+		return !OreDictionary.getOres(oreName).isEmpty();
 	}
 	
 	/**
@@ -331,37 +249,16 @@ public class MiscUtils {
 	}  
 	
 	/**
-	 * Used to register modifiers for items, that need to ignore their damage values(ex. Pickaxes)
-	 * @version From DummyCore 1.7
-	 * @param i - the item, that should ignore the damage
-	 */
-	public static void makeItemIgnoreDamage(Item i)
-	{
-		shouldIgnoreDamage.add(i);
-	}
+	 * No longer functional. Please, remove the references from your code and use Minecraft's attrubute system instead! 
+	 * */
+	@Deprecated
+	public static void makeItemIgnoreDamage(Item i){}
 	
 	/**
-	 * Used to add to an item the ability to modify one of Player's attributes in specific times. Note, that this feature is not 100% accurate, and can cause bugs!
-	 * @version From DummyCore 1.7 
-	 * @param id - the ID of an item
-	 * @param meta - the Metadata of an item. Should be -1 if previously registered with makeItemIgnoreDamage
-	 * @param type - the condition, at which the modifier should be applied. 3 Conditions exist - inventory(the item needs to be in Player's inventory),hold(Player needs to hold the item) and armor(item needs to be in Player's armor slots)
-	 * @param last5ofUUID - last 5 symbols of the unique ID of your modifier. Should be unique per item, however not required strictly. The String needs to hold 5 symbols, and allowed symbols are - 0,1,2,3,4,5,6,7,8,9,A,B,C,D,E,F
-	 * @param value - the value, that the attribute will get modified for
-	 * @param attrib - the attribute, that is getting modified
-	 * @param operation - the operation on the attribute(0 is numberical modification(aka currentAttributeValue+yourValue) and 2 is percentage modification(aka currentAttributeValue*yourValue))
-	 */
-	public static void registerItemModifier(Item id, int meta,String type, String last5ofUUID,double value,IAttribute attrib,int operation)
-	{
-		if(meta == -1)
-			makeItemIgnoreDamage(id);
-		List<?> l = Arrays.asList(id.getUnlocalizedName(),Integer.toString(meta));
-		modifierType.put(l, type);
-		modifierUUID.put(l, last5ofUUID);
-		modifierValue.put(l, value);
-		modifier.put(l, attrib);
-		modifierOperation.put(l, operation);
-	}
+	 * No longer functional. Please, remove the references from your code and use Minecraft's attrubute system instead! 
+	 * */
+	@Deprecated
+	public static void registerItemModifier(Item id, int meta,String type, String last5ofUUID,double value,IAttribute attrib,int operation){}
 	
 	/**
 	 * Used to apply any attribute to the Player.
