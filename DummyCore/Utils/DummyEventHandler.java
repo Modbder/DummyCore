@@ -1,12 +1,10 @@
 package DummyCore.Utils;
 
 import java.util.Arrays;
-import java.util.List;
 
+import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.ServerConfigurationManager;
 import net.minecraft.tileentity.TileEntity;
@@ -14,10 +12,11 @@ import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.client.event.GuiScreenEvent.InitGuiEvent;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.player.ItemTooltipEvent;
+import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import DummyCore.Client.GuiButton_ChangeGUI;
 import DummyCore.Client.MainMenuRegistry;
+import DummyCore.Core.CoreInitialiser;
 import DummyCore.Events.DummyEvent_OnClientGUIButtonPress;
 import DummyCore.Events.DummyEvent_OnKeyboardKeyPressed_Server;
 import DummyCore.Events.DummyEvent_OnPacketRecieved;
@@ -50,6 +49,8 @@ public class DummyEventHandler {
 	@SubscribeEvent
 	public void onMainMenuGUISetup(InitGuiEvent.Pre event)
 	{
+		if(!CoreInitialiser.cfg.allowCustomMainMenu)
+			return;
 		if(event.gui.getClass() == GuiMainMenu.class)
 		{
 			event.setCanceled(true);
@@ -70,9 +71,23 @@ public class DummyEventHandler {
 	@SubscribeEvent
 	public void onMainMenuGUISetup(InitGuiEvent.Post event)
 	{
+		if(!CoreInitialiser.cfg.allowCustomMainMenu)
+			return;
+		
 		if(event.gui instanceof IMainMenu)
 		{
-			event.buttonList.add(new GuiButton_ChangeGUI(65535, event.gui.width/2 + 104, event.gui.height/4 + 24 + 72, 100, 20, "Change Main Menu"));
+			boolean add = true;
+			for(int i = 0; i < event.buttonList.size(); ++i)
+			{
+				Object obj = event.buttonList.get(i);
+				if(obj instanceof GuiButton && GuiButton.class.cast(obj).id == 65536)
+				{
+					add = false;
+					break;
+				}
+			}
+			if(add)
+				event.buttonList.add(new GuiButton_ChangeGUI(65535, event.gui.width/2 + 104, event.gui.height/4 + 24 + 72, 100, 20, "Change Main Menu"));
 		}
 	}
 	
@@ -106,6 +121,16 @@ public class DummyEventHandler {
 					double g = Double.parseDouble(packetData[6].fieldValue);
 					double b = Double.parseDouble(packetData[7].fieldValue);
 					event.recievedEntity.worldObj.spawnParticle(type, x, y, z, r, g, b);
+				}
+				if(modData.fieldName.equalsIgnoreCase("mod") && modData.fieldValue.equalsIgnoreCase("dummycore.sound"))
+				{
+					double x = Double.parseDouble(packetData[1].fieldValue);
+					double y = Double.parseDouble(packetData[2].fieldValue);
+					double z = Double.parseDouble(packetData[3].fieldValue);
+					float vol = Float.parseFloat(packetData[4].fieldValue);
+					float pitch = Float.parseFloat(packetData[5].fieldValue);
+					String snd = packetData[6].fieldValue;
+					event.recievedEntity.worldObj.playSound(x, y, z, snd, vol, pitch, false);
 				}
 				if(modData.fieldName.equalsIgnoreCase("mod") && modData.fieldValue.equalsIgnoreCase("dummycore.infosync"))
 				{
@@ -172,29 +197,10 @@ public class DummyEventHandler {
 						MinecraftForge.EVENT_BUS.post(new DummyEvent_OnClientGUIButtonPress(id, pClName, bClName, player,x,y,z,data));
 					}
 				}
+				
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 				return;
-			}
-		}
-	}
-	
-	@SubscribeEvent
-	public void onDescrAdded(ItemTooltipEvent event)
-	{
-		ItemStack stack = event.itemStack;
-		String unlocName = stack.getUnlocalizedName();
-		if(MiscUtils.descriptionTable.containsKey(unlocName))
-		{
-			event.toolTip.add(MiscUtils.descriptionCTable.get(unlocName)+MiscUtils.descriptionTable.get(unlocName));
-		}else
-		{
-			stack.getItem();
-			List<? extends Object> list = Arrays.asList(Item.itemRegistry.getNameForObject(stack.getItem()),stack.getItemDamage());
-			if(MiscUtils.descriptionNTable.containsKey(list))
-			{
-				event.toolTip.add(MiscUtils.descriptionNCTable.get(list)+MiscUtils.descriptionNTable.get(list));
 			}
 		}
 	}
@@ -210,7 +216,30 @@ public class DummyEventHandler {
 				syncTime = 0;
 				SyncUtils.makeSync_LotsSmallPackets();
 			}
+			actionsTick();
 		}
+	}
+	
+	private void actionsTick()
+	{
+		if(!MiscUtils.actions.isEmpty())
+			for(int i = 0; i < MiscUtils.actions.size(); ++i)
+			{
+				ScheduledServerAction ssa = MiscUtils.actions.get(i);
+				--ssa.actionTime;
+				if(ssa.actionTime <= 0)
+				{
+					ssa.execute();
+					MiscUtils.actions.remove(i);
+				}
+			}
+	}
+	
+	@SubscribeEvent
+	public void clientWorldLoad(EntityJoinWorldEvent event)
+	{
+		if(event.entity instanceof EntityPlayer && event.world.isRemote)
+			ModVersionChecker.dispatchModChecks();
 	}
 
 }
