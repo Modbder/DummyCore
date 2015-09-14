@@ -17,7 +17,7 @@ public class GuiCommon extends GuiContainer{
 	public List<GuiElement> elementList = new ArrayList<GuiElement>();
 	public TileEntity genericTile;
 	public ResourceLocation guiGenLocation = new ResourceLocation("textures/gui/container/dispenser.png");
-	public ResourceLocation slotLocation = new ResourceLocation("textures/gui/container/dispenser.png");;
+	public ResourceLocation slotLocation = new ResourceLocation("textures/gui/container/dispenser.png");
 
 	public GuiCommon(Container c) {
 		super(c);
@@ -50,10 +50,12 @@ public class GuiCommon extends GuiContainer{
 			element.draw(k+element.getX(),l+element.getY());
 			GL11.glColor3f(1, 1, 1);
 		}
+		GL11.glColor3f(1, 1, 1);
 	}
 	
 	public void renderSlot(Slot slt)
 	{
+		GL11.glColor3f(1, 1, 1);
         int k = (this.width - this.xSize) / 2;
         int l = (this.height - this.ySize) / 2;
         this.mc.renderEngine.bindTexture(slotLocation);
