@@ -65,7 +65,7 @@ public class GuiMainMenuOld extends GuiMainMenu implements IMainMenu{
 	        }
 	        catch (IOException ioexception1)
 	        {
-	            ;
+	            
 	        }
 	        finally
 	        {
@@ -77,7 +77,7 @@ public class GuiMainMenuOld extends GuiMainMenu implements IMainMenu{
 	                }
 	                catch (IOException ioexception)
 	                {
-	                    ;
+	                    
 	                }
 	            }
 	        }
