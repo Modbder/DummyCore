@@ -24,12 +24,22 @@ public class NetProxy_Server implements IGuiHandler{
 		return null;
 	}
 	
+	public EntityPlayer getClientPlayer()
+	{
+		return null;
+	}
+	
 	public void registerInfo()
 	{
 		
 	}
 	
 	public void registerInit()
+	{
+		
+	}
+	
+	public void removeMissingTextureErrors()
 	{
 		
 	}
