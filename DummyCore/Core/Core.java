@@ -3,130 +3,134 @@ package DummyCore.Core;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
-import DummyCore.CreativeTabs.CreativePageBlocks;
-import DummyCore.CreativeTabs.CreativePageItems;
-import DummyCore.Utils.EnumLightColor;
-import DummyCore.Utils.IDummyConfig;
-import DummyCore.Utils.Notifier;
-import net.minecraft.block.Block;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraftforge.common.config.Configuration;
+import DummyCore.CreativeTabs.CreativePageBlocks;
+import DummyCore.CreativeTabs.CreativePageItems;
+import DummyCore.Utils.IDummyConfig;
+import DummyCore.Utils.LoadingUtils;
+import DummyCore.Utils.Notifier;
 
 public class Core {
-	public static List<Block> lightBlocks = new ArrayList<Block>();
-	public static List<EnumLightColor> lightColors = new ArrayList<EnumLightColor>();
-	private static HashMap<Class<?>, Integer> modList = new HashMap<Class<?>,Integer>();
-	private static HashMap<Integer, Configuration> configurationList = new HashMap<Integer,Configuration>();
-	private static List<String> modNameList = new ArrayList<String>();
-	private static CreativeTabs[] blocksTabs = new CreativeTabs[512];
-	private static CreativeTabs[] itemsTabs = new CreativeTabs[512];
-	private static Configuration[] config = new Configuration[512];
-	private static IDummyConfig[] configurationHandlers = new IDummyConfig[512];
-	private static boolean[] isConfigLoaded = new boolean[512];
 	
-	private static void registerMod(Class<?> c, String name) throws RuntimeException
+	public static final ArrayList<DCMod> registeredMods = new ArrayList<DCMod>();
+	public static File mcDir;
+	
+	public static boolean isModRegistered(Class<?> mod)
 	{
-		if(!modList.containsKey(c))
+		for(DCMod dcm : registeredMods)
+			if(dcm.modClass.equals(mod))
+				return true;
+		
+		return false;
+	}
+	
+	public static DCMod getModFromClass(Class<?> c)
+	{
+		for(DCMod dcm : registeredMods)
+			if(dcm.modClass.equals(c))
+				return dcm;
+		
+		return null;
+	}
+	
+	private static void registerMod(Class<?> c, String name, boolean addCreativeTabs)
+	{
+		if(!isModRegistered(c))
 		{
-			int modId = getNextModId();
-			if(modId < 0 || modId >= 512)
+			DCMod mod = new DCMod(c,name);
+			if(addCreativeTabs)
 			{
-				throw new RuntimeException("Mod "+name+" is trying to be registered with wrong id "+modId);
+				mod.blocks = new CreativePageBlocks(name);
+				mod.items = new CreativePageItems(name);
 			}
-			modList.put(c, modId);
-			modNameList.add(modId, name);
-			blocksTabs[modId] = new CreativePageBlocks(name);
-			itemsTabs[modId] = new CreativePageItems(name);
-			Notifier.notifySimple("Mod with name "+name+" and classpath "+c.getName()+".class using ID "+modId+" has been succesfully registered!");
+			registeredMods.add(mod);
 		}else
 		{
-			throw new RuntimeException("Mod "+name+" is already registered!");
+			Notifier.notifyError(name+"[classPath:"+c+"]Already has a DummyCore mod associated with it(is already registered), ignoring");
 		}
 	}
 
-	private static void registerConfigurationFileForMod(Class<?> c, String path) throws IOException
+	private static void registerConfigurationFileForMod(Class<?> c, String path)
 	{
-		File file = new File(path,getModName(getIdForMod(c))+".cfg");
-		if(!file.exists())
-			file.createNewFile();
-		config[getIdForMod(c)] = new Configuration(file);
-		config[getIdForMod(c)].save();
-		configurationList.put(getIdForMod(c), config[getIdForMod(c)]);
-		Notifier.notifySimple("Configuration File for mod "+getModName(getIdForMod(c))+" was successfully created with path "+path+getModName(getIdForMod(c))+".cfg");
+		try
+		{
+			if(!isModRegistered(c))
+			{
+				LoadingUtils.makeACrash("[DummyCore]Catched an attempt to register configuration file for not registered mod, this should not be possible and many things will go wrong as a result!", new IllegalStateException(c+" Is not a valid DCMod!"), false);
+			}else
+			{
+				DCMod mod = getModFromClass(c);
+				File file = new File(path,mod.ufName+".cfg");
+				if(file.isDirectory())
+					file.delete();
+				
+				if(!file.exists())
+					file.createNewFile();
+				
+				Configuration cfg = new Configuration(file);
+				cfg.save();
+				mod.injectFMLConfig(cfg);
+				Notifier.notifySimple("Configuration File for mod "+mod+" was successfully created with path "+path+mod.ufName+".cfg");
+			}
+		}
+		catch(IOException e)
+		{
+			DCMod mod = getModFromClass(c);
+			LoadingUtils.makeACrash("[DummyCore]Could not create a config file for mod "+mod+" - check your file system!", e, true);
+		}
 	}
 	
 	/**
-	 * Use this in you Pre-Initiasisation functions. This will register your mod in the DummyCore system and automatically create all config and .lang files.
+	 * Use this in you Pre-Initialization functions. This will register your mod in the DummyCore system and automatically create all config and .lang files.
 	 * From DummyCore v1.1 you no longer need to use IMCEvent to register all blocks and items.
 	 * @param c - class file of your mod. MUST be registered from the mod itself. Use getClass().
 	 * @param modname - this name will be used to name CreativeTabs, config and .lang files.
 	 * @param configPath - the path to your configuration file. You can use FMLPreInitialisationEvent.getModConfigurationDirectory().getAbsolutePath() to get your path.
-	 * @param config - the initialised! object, that implements IDummyConfig.
-	 * @throws IOException - If something has gone wrong the game will give the corresponding error report.
+	 * @param config - the initialized! object, that implements IDummyConfig.
 	 * @version From DummyCore 1.0. 
 	 * @Warning From DummyCore 1.1 no longer the function registerConfigurationHandler must be called.
 	 * 
 	 */
-	public static void registerModAbsolute(Class<?> c, String modname, String configPath, IDummyConfig config) throws IOException
+	public static void registerModAbsolute(Class<?> c, String modname, String configPath, IDummyConfig config)
 	{
-		registerMod(c,modname);
+		registerModAbsolute(c,modname,configPath,config,true);
+	}
+	
+	/**
+	 * Use this in you Pre-Initialization functions. This will register your mod in the DummyCore system and automatically create all config and .lang files.
+	 * From DummyCore v1.1 you no longer need to use IMCEvent to register all blocks and items.
+	 * @param c - class file of your mod. MUST be registered from the mod itself. Use getClass().
+	 * @param modname - this name will be used to name CreativeTabs, config and .lang files.
+	 * @param configPath - the path to your configuration file. You can use FMLPreInitialisationEvent.getModConfigurationDirectory().getAbsolutePath() to get your path.
+	 * @param config - the initialized! object, that implements IDummyConfig.
+	 * @param addCreativeTabs if the custom creative tabs for your mod should be created.
+	 * @version From DummyCore 2.0. 
+	 * 
+	 */
+	public static void registerModAbsolute(Class<?> c, String modname, String configPath, IDummyConfig config, boolean addCreativeTabs)
+	{
+		registerMod(c,modname,addCreativeTabs);
 		registerConfigurationFileForMod(c,configPath);
 		registerConfigurationHandler(config,c);
-		loadConfigForMod(getIdForMod(c));
-	}
-	
-	private static int getNextModId()
-	{
-		int i = 0;
-		while(i < 512)
-		{
-			if(!modList.containsValue(i))
-			{
-				break;
-			}
-			++i;
-		}
-		return i;
-	}
-	
-	/**
-	 * Used to get the ID of the mod using .class file.
-	 * @param m - the class file of the mod.
-	 * @return The corresponding ID of the mod.
-	 * @version From DummyCore 1.0
-	 */
-	public static int getIdForMod(Class<?> m)
-	{
-		if(modList.containsKey(m))
-		{
-			return (Integer)modList.get(m);
-		}
-		return 0;
-	}
-	
-	/**
-	 * Used to get the name of the mod using .class file.
-	 * @param i - the id of the mod.
-	 * @return The corresponding name of the mod.
-	 * @version From DummyCore 1.0
-	 */
-	public static String getModName(int i)
-	{
-		return (String)modNameList.get(i);
+		loadConfigForMod(c);
 	}
 	
 	/**
 	 * Used to get the config file of the mod using .class file.
 	 * @param c - the class file of the mod.
 	 * @return The corresponding config file of the mod.
-	 * @version From DummyCore 1.0
+	 * @version From DummyCore 2.0
 	 */
 	public static Configuration getConfigFileForMod(Class<?> c)
 	{
-		return config[getIdForMod(c)];
+		if(!isModRegistered(c))
+		{
+			Notifier.notifyError("Catched an attempt to get configuration for a not registered mod, things are about go wery wrong! Offendor: "+c);
+			return null;
+		}
+		return getModFromClass(c).fmlCfg;
 	}
 	
 	/**
@@ -134,39 +138,32 @@ public class Core {
 	 * @param config - the initialised! object, that implements IDummyConfig.
 	 * @param c - the class file of the mod. Use getClass(). Should only be called in the mod itself.
 	 * @throws RuntimeException
-	 * @version From DummyCore 1.0
+	 * @version From DummyCore 2.0
 	 */
-	private static void registerConfigurationHandler(IDummyConfig config, Class<?> c) throws RuntimeException
+	private static void registerConfigurationHandler(IDummyConfig config, Class<?> c)
 	{
-		int modId = getIdForMod(c);
-		if(configurationHandlers[modId] == null)
+		if(!isModRegistered(c))
 		{
-			configurationHandlers[modId] = config;
+			LoadingUtils.makeACrash("[DummyCore]Catched an attempt to register IDummyConfig for not registered mod, this should not be possible and many things will go wrong as a result!", new IllegalStateException(c+" Is not a valid DCMod!"), false);
 		}else
 		{
-			throw new RuntimeException("Configuration handler for mod "+getModName(modId)+" is already registered!");
+			DCMod mod = getModFromClass(c);
+			mod.injectConfig(config);
+			Notifier.notifySimple("IDummyConfing for mod "+mod+" was successfully created");
 		}
 	}
 	
-	private static void loadConfigForMod(int t) throws RuntimeException
+	public static void loadConfigForMod(Class<?> c)
 	{
-		if(!isConfigLoaded[t])
+		if(!isModRegistered(c))
 		{
-				if(configurationHandlers[t] != null && config[t] != null)
-				{
-					config[t].load();
-					configurationHandlers[t].load(config[t]);
-					config[t].save();
-				}
-				else
-					if((configurationHandlers[t] == null && config[t] != null) || (configurationHandlers[t] != null && config[t] == null))
-					{
-						//throw new RuntimeException("Either the configuration handler for config was not registered, or the IConfig was not registered. The ID for both elements is "+t);
-					}
-			isConfigLoaded[t] = true;
+			LoadingUtils.makeACrash("[DummyCore]Catched an attempt to load IDummyConfig for not registered mod, this should not be possible and many things will go wrong as a result!", new IllegalStateException(c+" Is not a valid DCMod!"), false);
 		}else
 		{
-			throw new RuntimeException("Configuration handler was already initialised!");
+			DCMod mod = getModFromClass(c);
+			mod.fmlCfg.load();
+			mod.cfg.load(mod.fmlCfg);
+			mod.fmlCfg.save();
 		}
 	}
 	
@@ -174,22 +171,32 @@ public class Core {
 	 * Use this to get the creativetab of all mod items.
 	 * @param c - the .class file of the mod.
 	 * @return The corresponding Creative Tab
-	 * @version From DummyCore 1.0
+	 * @version From DummyCore 2.0
 	 */
 	public static CreativeTabs getItemTabForMod(Class<?> c)
 	{
-		return itemsTabs[getIdForMod(c)];
+		if(!isModRegistered(c))
+		{
+			Notifier.notifyError("Catched an attempt to get CreativeTabs for a not registered mod, things are about go wery wrong! Offendor: "+c);
+			return null;
+		}
+		return getModFromClass(c).items;
 	}
 	
 	/**
 	 * Use this to get the creativetab of all mod blocks.
 	 * @param c - the .class file of the mod.
 	 * @return The corresponding Creative Tab
-	 * @version From DummyCore 1.0
+	 * @version From DummyCore 2.0
 	 */
 	public static CreativeTabs getBlockTabForMod(Class<?> c)
 	{
-		return blocksTabs[getIdForMod(c)];
+		if(!isModRegistered(c))
+		{
+			Notifier.notifyError("Catched an attempt to get CreativeTabs for a not registered mod, things are about go wery wrong! Offendor: "+c);
+			return null;
+		}
+		return getModFromClass(c).blocks;
 	}
 
 }
