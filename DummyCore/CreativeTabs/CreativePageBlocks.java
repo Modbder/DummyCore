@@ -22,6 +22,7 @@ public final class CreativePageBlocks extends CreativeTabs{
 	private final String tabLabel;
 	public List<ItemStack> blockList = new ArrayList<ItemStack>();
 	public int tries = 0;
+	public ItemStack overrideDisplayStack;
 	
 	public CreativePageBlocks(String m) {
 		super(m + " Blocks");
@@ -30,6 +31,8 @@ public final class CreativePageBlocks extends CreativeTabs{
 	
     public ItemStack getIconItemStack()
     {
+    	if(overrideDisplayStack != null)
+    		return overrideDisplayStack;
     	CoreInitialiser.proxy.choseDisplayStack(this);
     	return this.displayStack;
     }

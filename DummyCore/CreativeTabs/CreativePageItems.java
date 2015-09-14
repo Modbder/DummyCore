@@ -21,7 +21,7 @@ public final class CreativePageItems extends CreativeTabs{
 	private final String tabLabel;
 	public List<ItemStack> itemList = new ArrayList<ItemStack>();
 	public int tries = 0;
-	
+	public ItemStack overrideDisplayStack;
 	
 	public CreativePageItems(String m) {
 		super(m + " Items");
@@ -31,6 +31,8 @@ public final class CreativePageItems extends CreativeTabs{
 	@Override
     public ItemStack getIconItemStack()
     {
+    	if(overrideDisplayStack != null)
+    		return overrideDisplayStack;
 		CoreInitialiser.proxy.choseDisplayStack(this);
     	return this.displayStack;
     }
@@ -76,7 +78,6 @@ public final class CreativePageItems extends CreativeTabs{
 
 	@Override
 	public Item getTabIconItem() {
-		// TODO Auto-generated method stub
-		return (Item) Item.itemRegistry.getObject("minecraft:iron_axe");
+		return Items.iron_axe;
 	}
 }
