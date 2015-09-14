@@ -1,16 +1,22 @@
 package DummyCore.Utils;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Hashtable;
 
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.nbt.CompressedStreamTools;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
-import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.event.entity.player.PlayerEvent.LoadFromFile;
+import net.minecraftforge.event.entity.player.PlayerEvent.SaveToFile;
 import net.minecraftforge.event.world.WorldEvent;
-
 import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.event.FMLServerAboutToStartEvent;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent;
 import cpw.mods.fml.relauncher.Side;
 
 /**
@@ -20,12 +26,13 @@ import cpw.mods.fml.relauncher.Side;
  * @Description used to store any String for players/worlds in the world save folder and get it.
  */
 public class DummyDataUtils {
-	private static Configuration globalConfig;
+	private static NBTTagCompound globalConfig;
 	private static Hashtable<String,File> playerFiles = new Hashtable<String,File>();
-	private static Hashtable<String,Configuration> playerConfigs = new Hashtable<String,Configuration>();
+	private static Hashtable<String,NBTTagCompound> playerConfigs = new Hashtable<String,NBTTagCompound>();
 	private static String getPath;
 	private static boolean isWorking;
 	private static File directory;
+	private static final Class<DummyDataUtils> clazz = DummyDataUtils.class;
 	
 	/**
 	 * A new version of world loads, better server compathabilities.
@@ -33,7 +40,6 @@ public class DummyDataUtils {
 	@SubscribeEvent
 	public void serverWorldLoad(WorldEvent.Load event)
 	{
-
 		try
 		{
 			World w = event.world;
@@ -51,7 +57,7 @@ public class DummyDataUtils {
 					File f1 = new File(directory+"//PlayerData//");
 					f1.mkdirs();
 					getPath = dDataPath;
-					globalConfig = new Configuration(globalDataDat);
+					globalConfig = createOrLoadTag(globalDataDat);
 					isWorking = true;
 				}
 			}
@@ -61,46 +67,225 @@ public class DummyDataUtils {
 		}
 	}
 	
-	@Deprecated
-	public static void load(FMLServerAboutToStartEvent event)
+	@SubscribeEvent
+	public void serverWorldSave(WorldEvent.Save event)
 	{
-		String name = event.getServer().getFile(event.getServer().getFolderName()).getAbsolutePath();
-		int length = 0;
-		boolean shouldAddSaves = true;
-		for(int i = 0; i < name.length(); ++i)
+		try
 		{
-			if(name.substring(0, i).contains("\\.\\"))
-			{ 
-				shouldAddSaves = true;
-				--length;
-				--length;
-				break;
+			World w = event.world;
+			if(w != null && !w.isRemote && w.provider != null && w.provider.dimensionId == 0)
+			{
+				File f = event.world.getSaveHandler().getWorldDirectory();
+				if(f != null)
+				{
+					String fPath = f.getAbsolutePath();
+					String dDataPath = fPath+"//DummyData//";
+					directory = new File(dDataPath);
+					directory.mkdirs();
+					File globalDataDat = new File(directory+"//GlobalData.ddat");
+					saveGlobalTag(globalDataDat);
+				}
 			}
-			++length;
-		}
-		String print = name.substring(0,length);
-		if(shouldAddSaves)
+		}catch(Exception e)
 		{
-			print += "saves\\";
-			print += event.getServer().getFolderName();
+			Notifier.notifyCustomMod("DummyCore", "Error loading DummyData!");e.printStackTrace();return;
 		}
-		print += "\\DummyData\\";
-		File f = new File(print);
-		f.mkdirs();
-		File file = new File(print+"GlobalData.ddat");
-		try {
-			if(!file.exists())
-				file.createNewFile();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return;
+	}
+	
+	@SubscribeEvent
+	public void playerLoad(LoadFromFile event)
+	{
+		if(!event.entityPlayer.worldObj.isRemote)
+		{
+			EntityPlayer player = event.entityPlayer;
+			boolean exists = true;
+			File playerFile = getDataFileForPlayer(player.getCommandSenderName());
+			if(playerFile.isDirectory())
+			{
+				restoreFileFromDir(playerFile);
+				exists = false;
+			}
+			
+			if(!playerFile.exists())
+			{
+				exists = false;
+				createFile(playerFile);
+			}
+			
+			if(exists)
+			{
+				NBTTagCompound tag = loadNBTFromFile(playerFile);
+				playerConfigs.put(player.getCommandSenderName(), tag);
+			}else
+			{
+				playerConfigs.put(player.getCommandSenderName(), new NBTTagCompound());
+			}
 		}
-		File f1 = new File(print+"/PlayerData/");
-		f1.mkdirs();
-		getPath = print;
-		globalConfig = new Configuration(file);
-		isWorking = true;
+	}
+	
+	@SubscribeEvent
+	public void playerSave(SaveToFile event)
+	{
+		if(!event.entityPlayer.worldObj.isRemote)
+		{
+			EntityPlayer player = event.entityPlayer;
+			File playerFile = getDataFileForPlayer(player.getCommandSenderName());
+			if(playerFile.isDirectory())
+				restoreFileFromDir(playerFile);
+			
+			if(!playerFile.exists())
+				createFile(playerFile);
+			
+			writeNBTToFile(globalConfig,playerFile);
+		}
+	}
+	
+	@SubscribeEvent
+	public void playerLogOut(PlayerLoggedOutEvent event)
+	{
+		if(!event.player.worldObj.isRemote)
+		{
+			playerFiles.remove(event.player.getCommandSenderName());
+			playerConfigs.remove(event.player.getCommandSenderName());
+		}
+	}
+	
+	private static void saveGlobalTag(File file)
+	{
+		if(file.isDirectory())
+			restoreFileFromDir(file);
+		
+		if(!file.exists())
+			createFile(file);
+		writeNBTToFile(globalConfig,file);
+	}
+	
+	
+	private static void writeNBTToFile(NBTTagCompound tag, File file)
+	{
+		try
+		{
+			FileOutputStream oStream = new FileOutputStream(file);
+			try
+			{
+				CompressedStreamTools.writeCompressed(tag, oStream);
+			}
+			catch(IOException ioe)
+			{
+				LoadingUtils.makeACrash(file+" appears to be damaged, either fix it or delete it!", clazz, ioe, false);
+			}
+			finally
+			{
+				oStream.close();
+			}
+		}
+		catch(FileNotFoundException fnfe)
+		{
+			LoadingUtils.makeACrash(file+" does not exists. This is an impossible error and should be reported as soon as possible", clazz, fnfe, true);
+		}
+		catch(SecurityException se)
+		{
+			LoadingUtils.makeACrash(file+" Can't be accessed by Java, check your anti-virus and file privelleges!", clazz, se, true);
+		}
+		catch(IOException ioe)
+		{
+			LoadingUtils.makeACrash(file+" Can't be created, check your file system!", clazz, ioe, true);
+		}
+	}
+	
+	private static void restoreFileFromDir(File file)
+	{
+		Notifier.notifyError(file+" Is a directory, and should not be. Trying to resolve the issue...");
+		try
+		{
+			file.delete();
+			file.createNewFile();
+		}
+		catch(IOException ioe)
+		{
+			LoadingUtils.makeACrash(file+" Can't be created, check your file system!", clazz, ioe, true);
+		}
+		catch(SecurityException se)
+		{
+			LoadingUtils.makeACrash(file+" Can't be accessed by Java, check your anti-virus and file privelleges!", clazz, se, true);
+		}
+	}
+	
+	private static void createFile(File file)
+	{
+		try
+		{
+			file.createNewFile();
+		}
+		catch(IOException ioe)
+		{
+			LoadingUtils.makeACrash(file+" Can't be created, check your file system!", clazz, ioe, true);
+		}
+		catch(SecurityException se)
+		{
+			LoadingUtils.makeACrash(file+" Can't be accessed by Java, check your anti-virus and file privelleges!", clazz, se, true);
+		}
+	}
+	
+	private static NBTTagCompound createOrLoadTag(File file)
+	{
+		NBTTagCompound tag = new NBTTagCompound();
+		
+		boolean exists = true;
+		if(file.isDirectory())
+		{
+			restoreFileFromDir(file);
+			exists = false;
+		}
+		
+		if(!file.exists())
+		{
+			exists = false;
+			createFile(file);
+		}
+		
+		if(exists)
+		{
+			tag = loadNBTFromFile(file);
+		}
+		
+		return tag;
+	}
+	
+	private static NBTTagCompound loadNBTFromFile(File file)
+	{
+		try
+		{
+			FileInputStream iStream = new FileInputStream(file);
+			try
+			{
+				NBTTagCompound tag = CompressedStreamTools.readCompressed(iStream);
+				return tag;
+			}
+			catch(IOException ioe)
+			{
+				LoadingUtils.makeACrash(file+" appears to be damaged, either fix it or delete it!", clazz, ioe, false);
+			}
+			
+			finally
+			{
+				iStream.close();
+			}
+		}
+		catch(FileNotFoundException fnfe)
+		{
+			LoadingUtils.makeACrash(file+" does not exists. This is an impossible error and should be reported as soon as possible", clazz, fnfe, true);
+		}
+		catch(SecurityException se)
+		{
+			LoadingUtils.makeACrash(file+" Can't be accessed by Java, check your anti-virus and file privelleges!", clazz, se, true);
+		}
+		catch(IOException ioe)
+		{
+			LoadingUtils.makeACrash(file+" Can't be created, check your file system!", clazz, ioe, true);
+		}
+		
+		return new NBTTagCompound();
 	}
 	
 	public static void stop()
@@ -126,7 +311,6 @@ public class DummyDataUtils {
 				try {
 					ret.createNewFile();
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 					return null;
 				}
@@ -139,12 +323,14 @@ public class DummyDataUtils {
 		
 	}
 	
-	private static Configuration getDataConfigForPlayer(String playerName)
+	private static NBTTagCompound getDataConfigForPlayer(String playerName)
 	{
-		if(!canWorkWithData())return null;
+		if(!canWorkWithData())
+			return null;
+		
 		if(!playerConfigs.containsKey(playerName))
 		{
-			playerConfigs.put(playerName, new Configuration(getDataFileForPlayer(playerName)));
+			playerConfigs.put(playerName, createOrLoadTag(playerFiles.get(playerName)));
 		}
 		return playerConfigs.get(playerName);
 	}
@@ -165,10 +351,8 @@ public class DummyDataUtils {
 		}else
 		{
 			if(!canWorkWithData())return;
-			globalConfig.load();
-			globalConfig.get(modid, dataName, dataString).set(dataString);
+			globalConfig.setString(modid+"|"+dataName,dataString);
 			MiscUtils.registeredServerWorldData.put(modid+"|"+dataName, dataString);
-			globalConfig.save();
 			syncGlobalDataToClient(modid, dataName);
 		}
 	}
@@ -181,10 +365,10 @@ public class DummyDataUtils {
 			return;
 		}else
 		{
-			if(!canWorkWithData())return;
-			globalConfig.load();
-			MiscUtils.registeredServerWorldData.put(modid+"|"+dataName, globalConfig.get(modid, dataName, "no data").getString());
-			globalConfig.save();
+			if(!canWorkWithData())
+				return;
+			
+			MiscUtils.registeredServerWorldData.put(modid+"|"+dataName, globalConfig.getString(modid+"|"+dataName));
 			syncGlobalDataToClient(modid, dataName);
 		}
 	}
@@ -197,10 +381,10 @@ public class DummyDataUtils {
 			return;
 		}else
 		{
-			if(!canWorkWithData())return;
-			globalConfig.load();
-			MiscUtils.registeredServerWorldData.put(modid+"|"+modid, globalConfig.get(modid, modid, "no data").getString());
-			globalConfig.save();
+			if(!canWorkWithData())
+				return;
+			
+			MiscUtils.registeredServerWorldData.put(modid+"|"+modid, globalConfig.getString(modid+"|"+modid));
 			syncGlobalDataToClient(modid, modid);
 		}
 	}
@@ -220,10 +404,8 @@ public class DummyDataUtils {
 		}else
 		{
 			if(!canWorkWithData())return;
-			globalConfig.load();
-			globalConfig.get(modid, modid, dataString).set(dataString);
+			globalConfig.setString(modid+"|"+modid, dataString);
 			MiscUtils.registeredServerWorldData.put(modid+"|"+modid, dataString);
-			globalConfig.save();
 			syncGlobalDataToClient(modid);
 		}
 	}
@@ -247,12 +429,6 @@ public class DummyDataUtils {
 				loadGlobalDataForMod(modid);
 			return MiscUtils.registeredServerWorldData.get(modid+"|"+modid);
 		}
-		//@Deprecated
-		//if(!canWorkWithData())return null;
-		//globalConfig.load();
-		//String ret = globalConfig.get(modid, modid, "no data").getString();
-		//globalConfig.save();
-		//return ret;
 	}
 	
 	/**
@@ -274,12 +450,6 @@ public class DummyDataUtils {
 				loadCustomDataForMod(modid,dataName);
 			return MiscUtils.registeredServerWorldData.get(modid+"|"+dataName);
 		}
-		//@Deprecated
-		//if(!canWorkWithData())return null;
-		//globalConfig.load();
-		//String ret = globalConfig.get(modid, dataName, "no data").getString();
-		//globalConfig.save();
-		//return ret;
 	}
 	
 	/**
@@ -298,12 +468,11 @@ public class DummyDataUtils {
 			MiscUtils.registeredClientData.put(playerName+"_"+modid+"|"+dataName, dataValue);
 		}else
 		{
-			if(!canWorkWithData())return;
-			Configuration config = getDataConfigForPlayer(playerName);
-			config.load();
-			config.get(modid, dataName, dataValue).set(dataValue);
+			if(!canWorkWithData())
+				return;
+			NBTTagCompound tag = getDataConfigForPlayer(playerName);
+			tag.setString(modid+"|"+dataName, dataValue);
 			MiscUtils.registeredServerData.put(playerName+"_"+modid+"|"+dataName, dataValue);
-			config.save();
 			syncPlayerDataToClient(playerName, modid, dataName);
 		}
 	}
@@ -317,10 +486,8 @@ public class DummyDataUtils {
 		}else
 		{
 			if(!canWorkWithData())return;
-			Configuration config = getDataConfigForPlayer(playerName);
-			config.load();
-			MiscUtils.registeredServerData.put(playerName+"_"+modid+"|"+dataName, config.get(modid, dataName, "no data").getString());
-			config.save();
+			NBTTagCompound tag = getDataConfigForPlayer(playerName);
+			MiscUtils.registeredServerData.put(playerName+"_"+modid+"|"+dataName, tag.getString(modid+"|"+dataName));
 			syncPlayerDataToClient(playerName, modid, dataName);
 		}
 	}
@@ -346,13 +513,6 @@ public class DummyDataUtils {
 				loadPlayerDataForMod(playerName, modid, dataName);
 			return MiscUtils.registeredServerData.get(playerName+"_"+modid+"|"+dataName);
 		}
-		//@Deprecated
-		//if(!canWorkWithData())return null;
-		//Configuration config = getDataConfigForPlayer(playerName);
-		//config.load();
-		//String ret = config.get(modid, dataName, "no data").getString();
-		//config.save();
-		//return ret;
 	}
 	
 	/**
@@ -368,49 +528,16 @@ public class DummyDataUtils {
 	public static void syncGlobalDataToClient(String modid, String dataName)
 	{
 		SyncUtils.addRequiresSync(modid, dataName);
-		/*
-		if(MiscUtils.registeredServerWorldData.containsKey(modid+"|"+dataName))
-		{
-			String dataString = "||mod:DummyCore.InfoSync"+"||"+modid+":"+dataName+"||ddata:"+MiscUtils.registeredServerWorldData.get(modid+"|"+dataName);
-			DummyPacketIMSG simplePacket = new DummyPacketIMSG(dataString);
-			CoreInitialiser.packetHandler.sendToAll(simplePacket);
-		}else
-		{
-			Notifier.notifyCustomMod(modid, "The sync packet for data "+modid+"|"+dataName+" could not be generated - the requested server data does not exist!");
-		}
-		*/
 	}
 	
 	public static void syncGlobalDataToClient(String modid)
 	{
 		SyncUtils.addRequiresSync(modid, modid);
-		/*
-		if(MiscUtils.registeredServerWorldData.containsKey(modid+"|"+modid))
-		{
-			String dataString = "||mod:DummyCore.InfoSync"+"||"+modid+":"+modid+"||ddata:"+MiscUtils.registeredServerWorldData.get(modid+"|"+modid);
-			DummyPacketIMSG simplePacket = new DummyPacketIMSG(dataString);
-			CoreInitialiser.packetHandler.sendToAll(simplePacket);
-		}else
-		{
-			Notifier.notifyCustomMod(modid, "The sync packet for data "+modid+ "could not be generated - the requested server data does not exist!");
-		}
-		*/
 	}
 	
 	public static void syncPlayerDataToClient(String playerName, String modid, String dataName)
 	{
 		SyncUtils.addRequiresSync(playerName, modid, dataName);
-		/*
-		if(MiscUtils.registeredServerData.containsKey(playerName+"_"+modid+"|"+dataName))
-		{
-			String dataString = "||mod:DummyCore.PlayerInfoSync"+"||"+"playerName:"+playerName+"||"+modid+ ":" + dataName+"||ddata:"+MiscUtils.registeredServerData.get(playerName+"_"+modid+"|"+dataName);
-			DummyPacketIMSG simplePacket = new DummyPacketIMSG(dataString);
-			CoreInitialiser.packetHandler.sendToAll(simplePacket);
-		}else
-		{
-			Notifier.notifyCustomMod(modid, "The sync packet for data "+playerName+"_"+modid+ "could not be generated - the requested server data does not exist!");
-		}
-		*/
 	}
 
 }
