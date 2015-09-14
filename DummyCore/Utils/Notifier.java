@@ -23,52 +23,83 @@ public class Notifier {
 	
 	public static void notify(String... s)
 	{
-		String begin = "";
-		String mid = "";
-		String end = "";
-		String mesg = s[3];
-		mid = s[1];
-		end = s[2];
-		String out = buildString(begin,mid,end,mesg);
-		publish(out);
+		notify(Level.TRACE,s);
+	}
+	
+	public static void notify(Level l,String... s)
+	{
+		publish(l,buildString("[DCNotifier]",s[1],s[2],s[3]));
 	}
 	
 	public static void notifyDev(String s)
 	{
-		notify("",dev,mod,s);
+		notify(Level.DEBUG,"",dev,mod,s);
 	}
 	
 	public static void notifyDevCustomMod(String modname, String s)
 	{
 		modname = "["+modname+"]";
-		notify("",dev,modname,s);
+		notify(Level.DEBUG,"",dev,modname,s);
 	}
 	
 	public static void notifyDebugCustomMod(String modname, String s)
 	{
 		modname = "["+modname+"]";
-		notify("",debug,modname,s);
+		notify(Level.DEBUG,"",debug,modname,s);
 	}
 	
 	public static void notifyDebug(String s)
 	{
-		notify("",debug,mod,s);
+		notify(Level.DEBUG,"",debug,mod,s);
+	}
+	
+	public static void notifyWarnCustomMod(String modname, String s)
+	{
+		modname = "["+modname+"]";
+		notify(Level.WARN,"",debug,modname,s);
+	}
+	
+	public static void notifyWarn(String s)
+	{
+		notify(Level.WARN,"",debug,mod,s);
+	}
+	
+	public static void notifyErrorCustomMod(String modname, String s)
+	{
+		modname = "["+modname+"]";
+		notify(Level.ERROR,"",debug,modname,s);
+	}
+	
+	public static void notifyError(String s)
+	{
+		notify(Level.ERROR,"",debug,mod,s);
+	}
+	
+	public static void notifyFatalCustomMod(String modname, String s)
+	{
+		modname = "["+modname+"]";
+		notify(Level.FATAL,"",debug,modname,s);
+	}
+	
+	public static void notifyFatal(String s)
+	{
+		notify(Level.FATAL,"",debug,mod,s);
 	}
 	
 	public static void notifySystem(String s)
 	{
-		notify("","",system,s);
+		notify(Level.TRACE,"","",system,s);
 	}
 	
 	public static void notifySimple(String s)
 	{
-		notify("","",mod,s);
+		notify(Level.TRACE,"","",mod,s);
 	}
 	
 	public static void notifyCustomMod(String modname,String s)
 	{
 		modname = "["+modname+"]";
-		notify("","",modname,s);
+		notify(Level.INFO,"","",modname,s);
 	}
 	
 	public static String buildString(String...strings)
@@ -76,12 +107,15 @@ public class Notifier {
 		return strings[0] + " " + strings[1] + " " + strings[2] + " " + strings[3] + " ";
 	}
 	
+	public static void publish(Level l,String s)
+	{
+		if(DummyConfig.enableNotifierLogging)
+			logger.log(l, s);
+	}
+	
 	public static void publish(String s)
 	{
-		org.apache.logging.log4j.core.Logger log = (org.apache.logging.log4j.core.Logger) logger;
-		log.setLevel(Level.INFO);
-		if(DummyConfig.enableNotifierLogging)
-			logger.log(Level.INFO, s);
+		publish(Level.TRACE,s);
 	}
 
 }
