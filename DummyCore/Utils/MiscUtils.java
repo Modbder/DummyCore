@@ -4,27 +4,13 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.List;
-import java.util.Random;
 import java.util.UUID;
 
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL12;
-
-import DummyCore.Core.CoreInitialiser;
 import net.minecraft.block.Block;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.renderer.ItemRenderer;
-import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.RenderBlocks;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.client.renderer.texture.TextureUtil;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -36,14 +22,13 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemBlock;
-import net.minecraft.item.ItemCloth;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.potion.Potion;
+import net.minecraft.potion.PotionEffect;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.DamageSource;
@@ -53,9 +38,11 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraft.world.chunk.Chunk;
-import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.oredict.OreDictionary;
+import DummyCore.Core.CoreInitialiser;
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.ObfuscationReflectionHelper;
+import cpw.mods.fml.common.network.NetworkRegistry.TargetPoint;
 import cpw.mods.fml.relauncher.ReflectionHelper;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -69,16 +56,17 @@ import cpw.mods.fml.relauncher.SideOnly;
  */
 public class MiscUtils {
 	public static final String genUUIDString = "CB3F55A9-6DCC-4FF8-AAC7-9B87A33";
-	public static Hashtable<String, String> descriptionTable = new Hashtable<String, String>();
-	public static Hashtable<String, EnumChatFormatting> descriptionCTable = new Hashtable<String, EnumChatFormatting>();
-	public static Hashtable<List<?>, String> descriptionNTable = new Hashtable<List<?>, String>();
-	public static Hashtable<List<?>, EnumChatFormatting> descriptionNCTable = new Hashtable<List<?>, EnumChatFormatting>();
-	public static Hashtable<String, String> registeredClientData = new Hashtable<String, String>();
-	public static Hashtable<String, String> registeredClientWorldData = new Hashtable<String, String>();
-	public static Hashtable<String, String> registeredServerData = new Hashtable<String, String>();
-	public static Hashtable<String, String> registeredServerWorldData = new Hashtable<String, String>();
-	public static List<BlockPosition> unbreakableBlocks = new ArrayList<BlockPosition>();
-	public static Hashtable<String,ResourceLocation> locTable = new Hashtable<String,ResourceLocation>();
+	public static final Hashtable<String, String> descriptionTable = new Hashtable<String, String>();
+	public static final Hashtable<String, EnumChatFormatting> descriptionCTable = new Hashtable<String, EnumChatFormatting>();
+	public static final Hashtable<List<?>, String> descriptionNTable = new Hashtable<List<?>, String>();
+	public static final Hashtable<List<?>, EnumChatFormatting> descriptionNCTable = new Hashtable<List<?>, EnumChatFormatting>();
+	public static final Hashtable<String, String> registeredClientData = new Hashtable<String, String>();
+	public static final Hashtable<String, String> registeredClientWorldData = new Hashtable<String, String>();
+	public static final Hashtable<String, String> registeredServerData = new Hashtable<String, String>();
+	public static final Hashtable<String, String> registeredServerWorldData = new Hashtable<String, String>();
+	public static final List<BlockPosition> unbreakableBlocks = new ArrayList<BlockPosition>();
+	public static final List<ScheduledServerAction> actions = new ArrayList<ScheduledServerAction>();
+	
 	//ShaderGroups IDs - 
 		//0 - Pixelated
 		//1 -  Smooth
@@ -104,23 +92,15 @@ public class MiscUtils {
 		//21 - Small blur
 		//22 - List Index End
 	public static final ResourceLocation[] defaultShaders = new ResourceLocation[] {new ResourceLocation("shaders/post/notch.json"), new ResourceLocation("shaders/post/fxaa.json"), new ResourceLocation("shaders/post/art.json"), new ResourceLocation("shaders/post/bumpy.json"), new ResourceLocation("shaders/post/blobs2.json"), new ResourceLocation("shaders/post/pencil.json"), new ResourceLocation("shaders/post/color_convolve.json"), new ResourceLocation("shaders/post/deconverge.json"), new ResourceLocation("shaders/post/flip.json"), new ResourceLocation("shaders/post/invert.json"), new ResourceLocation("shaders/post/ntsc.json"), new ResourceLocation("shaders/post/outline.json"), new ResourceLocation("shaders/post/phosphor.json"), new ResourceLocation("shaders/post/scan_pincushion.json"), new ResourceLocation("shaders/post/sobel.json"), new ResourceLocation("shaders/post/bits.json"), new ResourceLocation("shaders/post/desaturate.json"), new ResourceLocation("shaders/post/green.json"), new ResourceLocation("shaders/post/blur.json"), new ResourceLocation("shaders/post/wobble.json"), new ResourceLocation("shaders/post/blobs.json"), new ResourceLocation("shaders/post/antialias.json")};
+
 	/**
-	 * Used to bind texture from the mod. First string is the mod id, and the second is the texture path.
-	 * @version From DummyCore 1.0
-	 * @param mod - the in-code modname. always use small letters!
-	 * @param texture - path to your thexture.
+	 * <b>Deprecated!</b> Use DrawUtils from now!
 	 */
+	@Deprecated
 	@SideOnly(Side.CLIENT)
 	public static void bindTexture(String mod, String texture)
 	{
-		if(locTable.contains(mod+":"+texture))
-			Minecraft.getMinecraft().getTextureManager().bindTexture(locTable.get(mod+":"+texture));
-		else
-		{
-			ResourceLocation loc = new ResourceLocation(mod,texture);
-			locTable.put(mod+":"+texture, loc);
-			Minecraft.getMinecraft().getTextureManager().bindTexture(loc);	
-		}
+		DrawUtils.bindTexture(mod, texture);
 	}
 	
 	/**
@@ -284,32 +264,11 @@ public class MiscUtils {
 		}
 	}
 	
-	/**
-	 * Used to add custom description to any items. Useful if you do not want to create whole bunch of events?
-	 * @version From DummyCore 1.7 
-	 * @param unlocalisedName - The name of the item(the unlocalized one) to apply the description for. Not sure, why this exist, guess for more convenience?
-	 * @param descr - The description to add
-	 * @param color - not actually the color itself, but the formatting of the description.
-	 */
-	public static void registerDescriptionFor(String unlocalisedName, String descr, EnumChatFormatting color)
-	{
-		descriptionTable.put(unlocalisedName, descr);
-		descriptionCTable.put(unlocalisedName, color);
-	}
-	
-	/**
-	 * Used to add custom description to any items. Useful if you do not want to create whole bunch of events?
-	 * @version From DummyCore 1.7 
-	 * @param id - The id of the item to apply the description for.
-	 * @param meta - The metadate of the item to apply the description for.
-	 * @param descr - The description to add
-	 * @param color - not actually the color itself, but the formatting of the description.
-	 */
-	public static void registerDescriptionFor(String id, int meta, String descr, EnumChatFormatting color)
-	{
-		descriptionNTable.put((List<?>) Arrays.asList(id,meta),descr);
-		descriptionNCTable.put((List<?>) Arrays.asList(id,meta),color);
-	}
+	@Deprecated
+	public static void registerDescriptionFor(String unlocalisedName, String descr, EnumChatFormatting color){}
+
+	@Deprecated
+	public static void registerDescriptionFor(String id, int meta, String descr, EnumChatFormatting color){}
 	
 	/**
 	 * Used to send packets from SERVER to CLIENT.
@@ -424,119 +383,43 @@ public class MiscUtils {
 	}
 	
 	/**
-	 * Used to draw a textured rectangle using the given IIcon
-	 * @param x - the X coordinate on the screen. Should be bound to the ScaledResolution
-	 * @param y - the Y coordinate on the screen. Should be bound to the ScaledResolution
-	 * @param icon - the icon itself
-	 * @param width - the width of your Icon
-	 * @param height - the height of your Icon
-	 * @param zLevel - the z rendering level on the GUI(depth)
-	 * @return
+	 * <b>Deprecated!</b> Use DrawUtils from now!
 	 */
+	@Deprecated
     @SideOnly(Side.CLIENT)
     public static boolean drawScaledTexturedRect_Items(int x, int y, IIcon icon, int width, int height, float zLevel)
     {
-        if(icon == null)
-        {
-            return false;
-        }
-        else
-        {
-        	bindTexture("minecraft", "textures/atlas/items.png");
-            double minU = icon.getMinU();
-            double maxU = icon.getMaxU();
-            double minV = icon.getMinV();
-            double maxV = icon.getMaxV();
-            Tessellator tessellator = Tessellator.instance;
-            tessellator.startDrawingQuads();
-            tessellator.addVertexWithUV(x + 0, y + height, zLevel, minU, minV + ((maxV - minV) * (double)height) / 16D);
-            tessellator.addVertexWithUV(x + width, y + height, zLevel, minU + ((maxU - minU) * (double)width) / 16D, minV + ((maxV - minV) * (double)height) / 16D);
-            tessellator.addVertexWithUV(x + width, y + 0, zLevel, minU + ((maxU - minU) * (double)width) / 16D, minV);
-            tessellator.addVertexWithUV(x + 0, y + 0, zLevel, minU, minV);
-            tessellator.draw();
-            return true;
-        }
+    	return DrawUtils.drawScaledTexturedRect_Items(x, y, icon, width, height, zLevel);
     }
 	
 	/**
-	 * Used to draw a textured rectangle using the given IIcon
-	 * @param x - the X coordinate on the screen. Should be bound to the ScaledResolution
-	 * @param y - the Y coordinate on the screen. Should be bound to the ScaledResolution
-	 * @param icon - the icon itself
-	 * @param width - the width of your Icon
-	 * @param height - the height of your Icon
-	 * @param zLevel - the z rendering level on the GUI(depth)
-	 * @return
+	 * <b>Deprecated!</b> Use DrawUtils from now!
 	 */
+	@Deprecated
     @SideOnly(Side.CLIENT)
     public static boolean drawScaledTexturedRect(int x, int y, IIcon icon, int width, int height, float zLevel)
     {
-        if(icon == null)
-        {
-            return false;
-        }
-        else
-        {
-        	bindTexture("minecraft", "textures/atlas/blocks.png");
-            double minU = icon.getMinU();
-            double maxU = icon.getMaxU();
-            double minV = icon.getMinV();
-            double maxV = icon.getMaxV();
-            Tessellator tessellator = Tessellator.instance;
-            tessellator.startDrawingQuads();
-            tessellator.addVertexWithUV(x + 0, y + height, zLevel, minU, minV + ((maxV - minV) * (double)height) / 16D);
-            tessellator.addVertexWithUV(x + width, y + height, zLevel, minU + ((maxU - minU) * (double)width) / 16D, minV + ((maxV - minV) * (double)height) / 16D);
-            tessellator.addVertexWithUV(x + width, y + 0, zLevel, minU + ((maxU - minU) * (double)width) / 16D, minV);
-            tessellator.addVertexWithUV(x + 0, y + 0, zLevel, minU, minV);
-            tessellator.draw();
-            return true;
-        }
+		return DrawUtils.drawScaledTexturedRect(x, y, icon, width, height, zLevel);
     }
 
 	/**
-	 * Used to draw a textured rectangle using the given IIcon
-	 * @param x - the X coordinate on the screen. Should be bound to the ScaledResolution
-	 * @param y - the Y coordinate on the screen. Should be bound to the ScaledResolution
-	 * @param icon - the icon itself
-	 * @param width - the width of your rectangle
-	 * @param height - the height of your rectangle
-	 * @param zLevel - the z rendering level on the GUI(depth)
-	 * @return
+	 * <b>Deprecated!</b> Use DrawUtils from now!
 	 */
+	@Deprecated
     @SideOnly(Side.CLIENT)
     public static void drawTexture(int x, int y, IIcon icon, int width, int height, float zLevel)
     {
-        for(int i = 0; i < width; i += 16)
-        {
-            for(int j = 0; j < height; j += 16)
-            {
-                drawScaledTexturedRect(x + i, y + j, icon, Math.min(width - i, 16), Math.min(height - j, 16),zLevel);
-            }
-        }
-        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+		DrawUtils.drawTexture(x, y, icon, width, height, zLevel);
     }
     
 	/**
-	 * Used to draw a textured rectangle using the given IIcon
-	 * @param x - the X coordinate on the screen. Should be bound to the ScaledResolution
-	 * @param y - the Y coordinate on the screen. Should be bound to the ScaledResolution
-	 * @param icon - the icon itself
-	 * @param width - the width of your rectangle
-	 * @param height - the height of your rectangle
-	 * @param zLevel - the z rendering level on the GUI(depth)
-	 * @return
+	 * <b>Deprecated!</b> Use DrawUtils from now!
 	 */
+	@Deprecated
     @SideOnly(Side.CLIENT)
     public static void drawTexture_Items(int x, int y, IIcon icon, int width, int height, float zLevel)
     {
-        for(int i = 0; i < width; i += 16)
-        {
-            for(int j = 0; j < height; j += 16)
-            {
-                drawScaledTexturedRect_Items(x + i, y + j, icon, Math.min(width - i, 16), Math.min(height - j, 16),zLevel);
-            }
-        }
-        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+		DrawUtils.drawTexture_Items(x, y, icon, width, height, zLevel);
     }
     
     /**
@@ -661,338 +544,122 @@ public class MiscUtils {
 	}
 	
 	/**
-	 * Actually draws a textured rectangle
-	 * @param p_73729_1_ - first vertex U
-	 * @param p_73729_2_ - first vertex V
-	 * @param p_73729_3_ - second vertex U
-	 * @param p_73729_4_ - second vertex V
-	 * @param p_73729_5_ - third vertex U
-	 * @param p_73729_6_ - third vertex V
-	 * @param zLevel - the zlevel on the GUI
+	 * Plays a sound to all players nearby
+	 * @version From DummyFore 2.0
+	 * @param x - sound x
+	 * @param y - sound y
+	 * @param z - sound z
+	 * @param sound - the sound itself
+	 * @param volume - sound volume
+	 * @param pitch - sound pitch
+	 * @param radius - radius to play the sound in
+	 * @param dim - dimension to play the sound in
 	 */
+	public static void playSoundOnServerToAllNearby(double x, double y, double z, String sound, float volume, float pitch, double radius, int dim)
+	{
+		DummyData aaa = new DummyData("x",x);
+		DummyData aab = new DummyData("y",y);
+		DummyData aac = new DummyData("z",z);
+		DummyData aad = new DummyData("vol",volume);
+		DummyData aae = new DummyData("pitch",pitch);
+		DummyData aaf = new DummyData("sound",sound);
+		DummyPacketIMSG pkt = new DummyPacketIMSG("||mod:DummyCore.Sound"+aaa+""+aab+""+aac+""+aad+""+aae+""+aaf);
+		DummyPacketHandler.sendToAllAround(pkt, new TargetPoint(dim, x, y, z, radius));
+	}
+	
+	/**
+	 * Adds a potion effect to the player.<BR> If the effect exists - increases the duration.<BR> If the duration is over specified amount adds +1 level. 
+	 * @param mob - the entity to add the effect
+	 * @param potion - the potion to apply
+	 * @param index - the duration
+	 * @param index2 - the duration to add +1 level at
+	 * @version From DummyCore 2.0
+	 */
+	public static void calculateAndAddPE(EntityLivingBase mob, Potion potion, int index, int index2)
+	{
+		boolean hasEffect = mob.getActivePotionEffect(potion) != null;
+		if(hasEffect)
+		{
+			int currentDuration = mob.getActivePotionEffect(potion).getDuration();
+			int newDuration = currentDuration+index2;
+			int newModifier = currentDuration/index;
+			mob.removePotionEffect(potion.id);
+			mob.addPotionEffect(new PotionEffect(potion.id,newDuration,newModifier));
+		}else
+		{
+			mob.addPotionEffect(new PotionEffect(potion.id,index2,0));
+		}
+	}
+	
+	/**
+	 * Compares if 2 itemstacks are equal on the oredict side
+	 * @param stk
+	 * @param stk1
+	 * @return
+	 * @version From DummyCore 2.0
+	 */
+	public static boolean oreDictionaryCompare(ItemStack stk, ItemStack stk1)
+	{
+		if(stk == null || stk1 == null)
+			return false;
+		
+		if(OreDictionary.getOreIDs(stk) == null || OreDictionary.getOreIDs(stk).length == 0 || OreDictionary.getOreIDs(stk1) == null || OreDictionary.getOreIDs(stk1).length == 0)
+			return false;
+		
+		int[] ids = OreDictionary.getOreIDs(stk);
+		int[] ids1 = OreDictionary.getOreIDs(stk1);
+		
+		for(int i = 0; i < ids.length; ++i)
+		{
+			for(int j = 0; j < ids1.length; ++j)
+			{
+				if(ids[i] == ids1[j])
+					return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * Adds a specific action for the server to execute after some time
+	 * @param ssa
+	 */
+	public static void addScheduledAction(ScheduledServerAction ssa)
+	{
+		if(FMLCommonHandler.instance().getEffectiveSide() != Side.SERVER)
+			Notifier.notifyError("Trying to add a scheduled server action not on server side, aborting!");
+		
+		actions.add(ssa);
+	}
+	
+	/**
+	 * <b>Deprecated!</b> Use DrawUtils from now!
+	 */
+	@Deprecated
     public static void drawTexturedModalRect(int p_73729_1_, int p_73729_2_, int p_73729_3_, int p_73729_4_, int p_73729_5_, int p_73729_6_, int zLevel)
     {
-        float f = 0.00390625F;
-        float f1 = 0.00390625F;
-        Tessellator tessellator = Tessellator.instance;
-        tessellator.startDrawingQuads();
-        tessellator.addVertexWithUV((double)(p_73729_1_ + 0), (double)(p_73729_2_ + p_73729_6_), (double)zLevel, (double)((float)(p_73729_3_ + 0) * f), (double)((float)(p_73729_4_ + p_73729_6_) * f1));
-        tessellator.addVertexWithUV((double)(p_73729_1_ + p_73729_5_), (double)(p_73729_2_ + p_73729_6_), (double)zLevel, (double)((float)(p_73729_3_ + p_73729_5_) * f), (double)((float)(p_73729_4_ + p_73729_6_) * f1));
-        tessellator.addVertexWithUV((double)(p_73729_1_ + p_73729_5_), (double)(p_73729_2_ + 0), (double)zLevel, (double)((float)(p_73729_3_ + p_73729_5_) * f), (double)((float)(p_73729_4_ + 0) * f1));
-        tessellator.addVertexWithUV((double)(p_73729_1_ + 0), (double)(p_73729_2_ + 0), (double)zLevel, (double)((float)(p_73729_3_ + 0) * f), (double)((float)(p_73729_4_ + 0) * f1));
-        tessellator.draw();
+		DrawUtils.drawTexturedModalRect(p_73729_1_, p_73729_2_, p_73729_3_, p_73729_4_, p_73729_5_, p_73729_6_, zLevel);
     }
     
-    /**
-     * Renders the given ItemStack in the world. Call ONLY from render methods!
-     * @param stk - ItemStack you wish to render
-     * @param posX - xCoord in the world
-     * @param posY - yCoord in the world
-     * @param posZ - zCoord in the world
-     * @param screenPosX - x position on the screen(given by render)
-     * @param screenPosY - y position on the screen(given by render)
-     * @param screenPosZ - z position on the screen(given by render)
-     * @param rotation - the X axis rotation
-     * @param rotationZ - the Z axis rotation
-     * @param colorRed - red color index(0.0F is 0% and 1.0F is 100%)
-     * @param colorGreen - green color index(0.0F is 0% and 1.0F is 100%)
-     * @param colorBlue - blue color index(0.0F is 0% and 1.0F is 100%)
-     * @param offsetX - offset by X
-     * @param offsetY - offset by Y
-     * @param offsetZ - offset by Z
-     */
+	/**
+	 * <b>Deprecated!</b> Use DrawUtils from now!
+	 */
+	@Deprecated
     @SideOnly(Side.CLIENT)
     public static void renderItemStack_Full(ItemStack stk,double posX, double posY, double posZ, double screenPosX, double screenPosY, double screenPosZ, float rotation, float rotationZ, float colorRed, float colorGreen, float colorBlue, float offsetX, float offsetY, float offsetZ)
     {
-    	if(stk != null)
-    	{
-    	 ItemStack itemstack = stk.copy();
-    	 itemstack.stackSize = 1; //Doing this so no weird glitches occur.
-         new ResourceLocation("textures/misc/enchanted_item_glint.png");
-         RenderBlocks renderBlocksRi = new RenderBlocks();
-         Random random = new Random(); 
-         boolean renderWithColor = true;
-         if (itemstack != null && itemstack.getItem() != null)
-         {
-             Minecraft.getMinecraft().renderEngine.bindTexture(Minecraft.getMinecraft().renderEngine.getResourceLocation(stk.getItemSpriteNumber()));
-             TextureUtil.func_152777_a(false, false, 1.0F);
-             random.setSeed(187L);
-             GL11.glPushMatrix();
-             float f2 = rotationZ;
-             float f3 = rotation;
-             byte b0 = 1;
-
-             if (stk.stackSize > 1)
-             {
-                 b0 = 2;
-             }
-
-             if (stk.stackSize > 5)
-             {
-                 b0 = 3;
-             }
-
-             if (stk.stackSize > 20)
-             {
-                 b0 = 4;
-             }
-
-             if (stk.stackSize > 40)
-             {
-                 b0 = 5;
-             }
-
-             GL11.glTranslated((float)screenPosX+offsetX, (float)screenPosY+offsetY, (float)screenPosZ+offsetZ);
-             GL11.glEnable(GL12.GL_RESCALE_NORMAL);
-             float f6;
-             float f7;
-             int k;
-             EntityItem fakeItem = new EntityItem(Minecraft.getMinecraft().theWorld, posX, posY, posZ, stk);
-             GL11.glRotatef(f2, 0, 0, 1);
-             if (ForgeHooksClient.renderEntityItem(fakeItem, itemstack, f2, f3, random, Minecraft.getMinecraft().renderEngine, renderBlocksRi, b0))
-             {
-                 ;
-             }
-             else if (itemstack.getItemSpriteNumber() == 0 && itemstack.getItem() instanceof ItemBlock && RenderBlocks.renderItemIn3d(Block.getBlockFromItem(itemstack.getItem()).getRenderType()))
-             {
-                 Block block = Block.getBlockFromItem(itemstack.getItem());
-                 GL11.glRotatef(f3, 0.0F, 1.0F, 0.0F);
-                 float f9 = 0.25F;
-                 k = block.getRenderType();
-
-                 if (k == 1 || k == 19 || k == 12 || k == 2)
-                 {
-                     f9 = 0.5F;
-                 }
-
-                 if (block.getRenderBlockPass() > 0)
-                 {
-                     GL11.glAlphaFunc(GL11.GL_GREATER, 0.1F);
-                     GL11.glEnable(GL11.GL_BLEND);
-                     OpenGlHelper.glBlendFunc(770, 771, 1, 0);
-                 }
-
-                 GL11.glScalef(f9, f9, f9);
-
-                 for (int l = 0; l < b0; ++l)
-                 {
-                     GL11.glPushMatrix();
-
-                     if (l > 0)
-                     {
-                         f6 = (random.nextFloat() * 2.0F - 1.0F) * 0.2F / f9;
-                         f7 = (random.nextFloat() * 2.0F - 1.0F) * 0.2F / f9;
-                         float f8 = (random.nextFloat() * 2.0F - 1.0F) * 0.2F / f9;
-                         GL11.glTranslatef(f6, f7, f8);
-                     }
-
-                     renderBlocksRi.renderBlockAsItem(block, itemstack.getItemDamage(), 1.0F);
-                     GL11.glPopMatrix();
-                 }
-
-                 if (block.getRenderBlockPass() > 0)
-                 {
-                     GL11.glDisable(GL11.GL_BLEND);
-                 }
-             }
-             else
-             {
-                 if (itemstack.getItem().requiresMultipleRenderPasses())
-                 {
-                     GL11.glScalef(0.5F, 0.5F, 0.5F);
-                     for (int j = 0; j < itemstack.getItem().getRenderPasses(itemstack.getItemDamage()); ++j)
-                     {
-                         random.setSeed(187L);
-                         itemstack.getItem().getIcon(itemstack, j);
-                         renderItemStack(stk, posX, posY, posZ, screenPosX, screenPosY, screenPosZ, rotation, colorRed, colorGreen, colorBlue, j, stk.stackSize);
-                     }
-                 }
-                 else
-                 {
-                     if (itemstack != null && itemstack.getItem() instanceof ItemCloth)
-                     {
-                         GL11.glAlphaFunc(GL11.GL_GREATER, 0.1F);
-                         GL11.glEnable(GL11.GL_BLEND);
-                         OpenGlHelper.glBlendFunc(770, 771, 1, 0);
-                     }
-                     GL11.glScalef(0.5F, 0.5F, 0.5F);
-                     itemstack.getIconIndex();
-
-                     if (renderWithColor)
-                     {
-                         renderItemStack(stk, posX, posY, posZ, screenPosX, screenPosY, screenPosZ, rotation, colorRed, colorGreen, colorBlue, 0, stk.stackSize);
-                     }
-                     if (itemstack != null && itemstack.getItem() instanceof ItemCloth)
-                     {
-                         GL11.glDisable(GL11.GL_BLEND);
-                     }
-                 }
-             }
-             fakeItem = null;
-             GL11.glDisable(GL12.GL_RESCALE_NORMAL);
-             GL11.glPopMatrix();
-             Minecraft.getMinecraft().renderEngine.bindTexture(Minecraft.getMinecraft().renderEngine.getResourceLocation(stk.getItemSpriteNumber()));
-             TextureUtil.func_147945_b();
-         }
-         itemstack = null; //Again, there is a gc for that, but removing possible leaks is never a bad thing to do...
-    	}
+		DrawUtils.renderItemStack_Full(stk, posX, posY, posZ, screenPosX, screenPosY, screenPosZ, rotation, rotationZ, colorRed, colorGreen, colorBlue, offsetX, offsetY, offsetZ, false);
     }
     
-    /**
-     * Sub-function to the first one. You shouldn't use this, however it is also possible.
-     * @param stk - ItemStack you wish to render
-     * @param posX - xCoord in the world
-     * @param posY - yCoord in the world
-     * @param posZ - zCoord in the world
-     * @param screenPosX - x position on the screen(given by render)
-     * @param screenPosY - y position on the screen(given by render)
-     * @param screenPosZ - z position on the screen(given by render)
-     * @param rotation - the X axis rotation
-     * @param colorRed - red color index(0.0F is 0% and 1.0F is 100%)
-     * @param colorGreen - green color index(0.0F is 0% and 1.0F is 100%)
-     * @param colorBlue - blue color index(0.0F is 0% and 1.0F is 100%)
-     * @param renderPass - the render pass of the ItemStack(is 0 for most of them, however may depend)
-     * @param itemsAmount - the amount of items in the ItemStack(or actually ItemStack.stackSize)
-     */
+	/**
+	 * <b>Deprecated!</b> Use DrawUtils from now!
+	 */
+	@Deprecated
     @SideOnly(Side.CLIENT)
     public static void renderItemStack(ItemStack stk,double posX, double posY, double posZ, double screenPosX, double screenPosY, double screenPosZ, float rotation, float colorRed, float colorGreen, float colorBlue, int renderPass, int itemsAmount)
     {
-        final ResourceLocation RES_ITEM_GLINT = new ResourceLocation("textures/misc/enchanted_item_glint.png");
-        new RenderBlocks();
-        Random random = new Random();
-        IIcon p_77020_2_ = stk.getItem().getIcon(stk, renderPass);
-    	
-        Tessellator tessellator = Tessellator.instance;
-
-        if (p_77020_2_ == null)
-        {
-            TextureManager texturemanager = Minecraft.getMinecraft().getTextureManager();
-            ResourceLocation resourcelocation = texturemanager.getResourceLocation(stk.getItem().getSpriteNumber());
-            p_77020_2_ = ((TextureMap)texturemanager.getTexture(resourcelocation)).getAtlasSprite("missingno");
-        }
-
-        float f14 = ((IIcon)p_77020_2_).getMinU();
-        float f15 = ((IIcon)p_77020_2_).getMaxU();
-        float f4 = ((IIcon)p_77020_2_).getMinV();
-        float f5 = ((IIcon)p_77020_2_).getMaxV();
-        float f6 = 1.0F;
-        float f7 = 0.5F;
-        float f8 = 0.25F;
-        float f10;
-
-        if (Minecraft.getMinecraft().gameSettings.fancyGraphics)
-        {
-            GL11.glPushMatrix();
-            GL11.glRotatef(rotation, 0.0F, 1.0F, 0.0F);
-            float f9 = 0.0625F;
-            f10 = 0.021875F;
-            ItemStack itemstack = stk;
-            int j = itemstack.stackSize;
-            byte b0;
-
-            if (j < 2)
-            {
-                b0 = 1;
-            }
-            else if (j < 16)
-            {
-                b0 = 2;
-            }
-            else if (j < 32)
-            {
-                b0 = 3;
-            }
-            else
-            {
-                b0 = 4;
-            }
-            
-            GL11.glTranslatef(-f7, -f8, -((f9 + f10) * (float)b0 / 2.0F));
-
-            for (int k = 0; k < b0; ++k)
-            {
-                if (k > 0)
-                {
-                    float x = (random.nextFloat() * 2.0F - 1.0F) * 0.3F / 0.5F;
-                    float y = (random.nextFloat() * 2.0F - 1.0F) * 0.3F / 0.5F;
-                    random.nextFloat();
-                    GL11.glTranslatef(x, y, f9 + f10);
-                }
-                else
-                {
-                    GL11.glTranslatef(0f, 0f, f9 + f10);
-                }
-
-                if (itemstack.getItemSpriteNumber() == 0)
-                {
-                    Minecraft.getMinecraft().renderEngine.bindTexture(TextureMap.locationBlocksTexture);
-                }
-                else
-                {
-                	Minecraft.getMinecraft().renderEngine.bindTexture(TextureMap.locationItemsTexture);
-                }
-
-                GL11.glColor4f(colorRed, colorGreen, colorBlue, 1.0F);
-                ItemRenderer.renderItemIn2D(tessellator, f15, f4, f14, f5, ((IIcon)p_77020_2_).getIconWidth(), ((IIcon)p_77020_2_).getIconHeight(), f9);
-
-                if (itemstack.hasEffect(renderPass))
-                {
-                    GL11.glDepthFunc(GL11.GL_EQUAL);
-                    GL11.glDisable(GL11.GL_LIGHTING);
-                    Minecraft.getMinecraft().renderEngine.bindTexture(RES_ITEM_GLINT);
-                    GL11.glEnable(GL11.GL_BLEND);
-                    GL11.glBlendFunc(GL11.GL_SRC_COLOR, GL11.GL_ONE);
-                    float f11 = 0.76F;
-                    GL11.glColor4f(0.5F * f11, 0.25F * f11, 0.8F * f11, 1.0F);
-                    GL11.glMatrixMode(GL11.GL_TEXTURE);
-                    GL11.glPushMatrix();
-                    float f12 = 0.125F;
-                    GL11.glScalef(f12, f12, f12);
-                    float f13 = (float)(Minecraft.getSystemTime() % 3000L) / 3000.0F * 8.0F;
-                    GL11.glTranslatef(f13, 0.0F, 0.0F);
-                    GL11.glRotatef(-50.0F, 0.0F, 0.0F, 1.0F);
-                    ItemRenderer.renderItemIn2D(tessellator, 0.0F, 0.0F, 1.0F, 1.0F, 255, 255, f9);
-                    GL11.glPopMatrix();
-                    GL11.glPushMatrix();
-                    GL11.glScalef(f12, f12, f12);
-                    f13 = (float)(Minecraft.getSystemTime() % 4873L) / 4873.0F * 8.0F;
-                    GL11.glTranslatef(-f13, 0.0F, 0.0F);
-                    GL11.glRotatef(10.0F, 0.0F, 0.0F, 1.0F);
-                    ItemRenderer.renderItemIn2D(tessellator, 0.0F, 0.0F, 1.0F, 1.0F, 255, 255, f9);
-                    GL11.glPopMatrix();
-                    GL11.glMatrixMode(GL11.GL_MODELVIEW);
-                    GL11.glDisable(GL11.GL_BLEND);
-                    GL11.glEnable(GL11.GL_LIGHTING);
-                    GL11.glDepthFunc(GL11.GL_LEQUAL);
-                }
-            }
-
-            GL11.glPopMatrix();
-        }
-        else
-        {
-            for (int l = 0; l < itemsAmount; ++l)
-            {
-                GL11.glPushMatrix();
-
-                if (l > 0)
-                {
-                    f10 = (random.nextFloat() * 2.0F - 1.0F) * 0.3F;
-                    float f16 = (random.nextFloat() * 2.0F - 1.0F) * 0.3F;
-                    float f17 = (random.nextFloat() * 2.0F - 1.0F) * 0.3F;
-                    GL11.glTranslatef(f10, f16, f17);
-                }
-                GL11.glColor4f(colorRed, colorGreen, colorBlue, 1.0F);
-                tessellator.startDrawingQuads();
-                tessellator.setNormal(0.0F, 1.0F, 0.0F);
-                tessellator.addVertexWithUV((double)(0.0F - f7), (double)(0.0F - f8), 0.0D, (double)f14, (double)f5);
-                tessellator.addVertexWithUV((double)(f6 - f7), (double)(0.0F - f8), 0.0D, (double)f15, (double)f5);
-                tessellator.addVertexWithUV((double)(f6 - f7), (double)(1.0F - f8), 0.0D, (double)f15, (double)f4);
-                tessellator.addVertexWithUV((double)(0.0F - f7), (double)(1.0F - f8), 0.0D, (double)f14, (double)f4);
-                tessellator.draw();
-                GL11.glPopMatrix();
-            }
-        }
+		DrawUtils.renderItemStack(stk, posX, posY, posZ, screenPosX, screenPosY, screenPosZ, rotation, colorRed, colorGreen, colorBlue, renderPass, itemsAmount, false);
     }
     
     /**
@@ -1143,7 +810,7 @@ public class MiscUtils {
      * @param value - what you actually want to be set in the variable field
      * @param fieldNames - the names of the field you are changing. Should be both for obfuscated and compiled code.
      */
-    public static void setPrivateFinalValue(Class<Potion> classToAccess, Object instance, Object value, String fieldNames[])
+    public static void setPrivateFinalValue(Class<?> classToAccess, Object instance, Object value, String fieldNames[])
     {
         Field field = ReflectionHelper.findField(classToAccess, ObfuscationReflectionHelper.remapFieldNames(classToAccess.getName(), fieldNames));
         try
@@ -1166,29 +833,15 @@ public class MiscUtils {
      */
     public static int extendPotionArray(int byAmount)
     {
-		int potionsOffset = Potion.potionTypes.length;
-		int pStart = 0;
+    	int potionOffset = Potion.potionTypes.length;
+		Potion[] potionTypes = new Potion[potionOffset + byAmount];
+		System.arraycopy(Potion.potionTypes, 0, potionTypes, 0, potionOffset);
+		setPrivateFinalValue(Potion.class,null,potionTypes,ObfuscationReflectionHelper.remapFieldNames(Potion.class.getName(), new String[] {"potionTypes","field_76425_a","a"}));
+		for(int i = 0; i < Potion.potionTypes.length; ++i)
+			if(Potion.potionTypes[i] == null)
+				return i;
 		
-        if(potionsOffset < Potion.potionTypes.length - byAmount)
-        {
-        	
-        	Potion potionTypes[] = new Potion[potionsOffset + byAmount];
-        	System.arraycopy(Potion.potionTypes, 0, potionTypes, 0, potionsOffset);
-            setPrivateFinalValue(Potion.class, null, potionTypes, new String[] {
-                "potionTypes", "field_76425_a", "a"
-            });
-            pStart = potionsOffset++ - 1;
-        } else
-        {
-        	for(int i = 0; i < Potion.potionTypes.length; ++i)
-        	{
-        		if(Potion.potionTypes[i] == null)
-        			return i;
-        	}
-            pStart = -1;
-            Notifier.notifyCustomMod("DummyCore", "Potion Array limit reached!");
-        }
-        return pStart;
+		return -1;
     }
     
     /**
@@ -1333,4 +986,33 @@ public class MiscUtils {
     	CoreInitialiser.proxy.initShaders(shaders);
     }
     
+    public static boolean classExists(String className)
+    {
+    	try
+    	{
+    		return Class.forName(className) != null;
+    	}
+    	catch(ClassNotFoundException cnfe)
+    	{
+    		return false;
+    	}
+    }
+    
+	public static EntityLivingBase getClosestEntity(List<EntityLivingBase> mobs, double x, double y, double z)
+	{
+		double minDistance = Double.MAX_VALUE;
+		EntityLivingBase retEntity = null;
+		
+		for(EntityLivingBase elb : mobs)
+		{
+			double distance = elb.getDistance(x, y, z);
+			if(distance < minDistance)
+			{
+				retEntity = elb;
+				minDistance = distance;
+			}
+		}
+		
+		return retEntity;
+	}
 }
