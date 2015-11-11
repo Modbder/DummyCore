@@ -2,43 +2,94 @@ package DummyCore.Utils;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.core.Logger;
+
+import com.google.common.collect.SetMultimap;
+import com.google.common.collect.Table;
+
+import DummyCore.Client.AdvancedModelLoader;
+import DummyCore.Client.GuiMainMenuOld;
+import DummyCore.Client.GuiMainMenuVanilla;
+import DummyCore.Client.MainMenuRegistry;
+import DummyCore.Client.RenderAccessLibrary;
+import DummyCore.Client.SBRHAwareModel;
+import DummyCore.Client.ISBRH.RenderAllFacesWithHorizontalOffset;
+import DummyCore.Client.ISBRH.RenderAnvil;
+import DummyCore.Client.ISBRH.RenderBothCrosses;
+import DummyCore.Client.ISBRH.RenderConnectedToBlock;
+import DummyCore.Client.ISBRH.RenderCrops;
+import DummyCore.Client.ISBRH.RenderCrossedSquares;
+import DummyCore.Client.ISBRH.RenderCube;
+import DummyCore.Client.ISBRH.RenderCubeAndCrossedSquares;
+import DummyCore.Client.ISBRH.RenderFacesWithOffset;
+import DummyCore.Client.ISBRH.RenderHorizontalCross;
+import DummyCore.Client.obj.ObjModelLoader;
+import DummyCore.Client.techne.TechneModelLoader;
+import DummyCore.Core.CoreInitialiser;
+import DummyCore.CreativeTabs.CreativePageBlocks;
+import DummyCore.CreativeTabs.CreativePageItems;
+import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.client.renderer.EntityRenderer;
+import net.minecraft.client.renderer.ItemModelMesher;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.shader.ShaderGroup;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.INetHandler;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
-
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.core.Logger;
-
-import DummyCore.Client.GuiMainMenuOld;
-import DummyCore.Client.GuiMainMenuVanilla;
-import DummyCore.Client.MainMenuRegistry;
-import DummyCore.Core.CoreInitialiser;
-import DummyCore.CreativeTabs.CreativePageBlocks;
-import DummyCore.CreativeTabs.CreativePageItems;
-
-import com.google.common.collect.SetMultimap;
-import com.google.common.collect.Table;
-
-import cpw.mods.fml.client.FMLClientHandler;
+import net.minecraftforge.fml.client.FMLClientHandler;
 
 public class NetProxy_Client extends NetProxy_Server{
 	
 	public static final Hashtable<String, ShaderGroup> shaders = new Hashtable<String, ShaderGroup>();
-
+	public static final Hashtable<Block,Integer[]> cachedMeta = new Hashtable<Block,Integer[]>();
+	
+	public static int getIndex(Item item, int meta)
+	{
+		return Item.getIdFromItem(item) << 16 | meta;
+	}
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public void injectOldItemBlockModel(Block b)
+	{
+		try
+		{
+			Class<ItemModelMesher> imm = ItemModelMesher.class;
+			Field simpleShapesCacheField = imm.getDeclaredField(ASMManager.chooseByEnvironment("simpleShapesCache", "field_178091_b"));
+			simpleShapesCacheField.setAccessible(true);
+			Map m = Map.class.cast(simpleShapesCacheField.get(Minecraft.getMinecraft().getRenderItem().getItemModelMesher()));
+			List<IBlockState> lst = IOldCubicBlock.class.cast(b).listPossibleStates(b);
+			if(lst == null || lst.isEmpty())
+				m.put(Integer.valueOf(getIndex(Item.getItemFromBlock(b),b.getMetaFromState(b.getDefaultState()))), new SBRHAwareModel(b,b.getDefaultState()));
+			else
+				for(IBlockState ibs : lst)
+					m.put(Integer.valueOf(getIndex(Item.getItemFromBlock(b),b.getMetaFromState(ibs))), new SBRHAwareModel(b,ibs));
+			
+			simpleShapesCacheField.set(Minecraft.getMinecraft().getRenderItem().getItemModelMesher(), m);
+		}catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
 	@Override
 	public EntityPlayer getPlayerOnSide(INetHandler handler)
 	{
@@ -54,13 +105,54 @@ public class NetProxy_Client extends NetProxy_Server{
 		return Minecraft.getMinecraft().thePlayer;
 	}
 	
+	public World getClientWorld()
+	{
+		return Minecraft.getMinecraft().theWorld;
+	}
+	
+	public Integer[] createPossibleMetadataCacheFromBlock(Block b)
+	{
+		if(cachedMeta.containsKey(b))
+			return cachedMeta.get(b);
+		
+		Item i = Item.getItemFromBlock(b);
+		ArrayList<ItemStack> dummyTabsTrick = new ArrayList<ItemStack>();
+		i.getSubItems(i, b.getCreativeTabToDisplayOn(), dummyTabsTrick);
+		Integer[] retInt = new Integer[dummyTabsTrick.size()];
+		int count = 0;
+		for(ItemStack is : dummyTabsTrick)
+		{
+			if(is != null && is.getItem() == i)
+			{
+				retInt[count] = is.getItemDamage();
+				++count;
+			}
+		}
+		
+		cachedMeta.put(b, retInt);
+		return retInt;
+	}
+	
 	@Override
 	public void registerInfo()
 	{
+		AdvancedModelLoader.registerModelHandler(new ObjModelLoader());
+		AdvancedModelLoader.registerModelHandler(new TechneModelLoader());
 		MainMenuRegistry.initMenuConfigs();
 		MainMenuRegistry.registerNewGui(GuiMainMenuVanilla.class,"[DC] Vanilla","Just a simple vanilla MC gui.");
 		MainMenuRegistry.registerNewGui(GuiMainMenuOld.class,"[DC] Old Vanilla","An old MC gui.");
 		TimerHijack.initMCTimer();
+		
+		RenderAccessLibrary.registerRenderingHandler(new RenderCube());
+		RenderAccessLibrary.registerRenderingHandler(new RenderCrossedSquares());
+		RenderAccessLibrary.registerRenderingHandler(new RenderCubeAndCrossedSquares());
+		RenderAccessLibrary.registerRenderingHandler(new RenderHorizontalCross());
+		RenderAccessLibrary.registerRenderingHandler(new RenderBothCrosses());
+		RenderAccessLibrary.registerRenderingHandler(new RenderFacesWithOffset());
+		RenderAccessLibrary.registerRenderingHandler(new RenderCrops());
+		RenderAccessLibrary.registerRenderingHandler(new RenderAllFacesWithHorizontalOffset());
+		RenderAccessLibrary.registerRenderingHandler(new RenderConnectedToBlock());
+		RenderAccessLibrary.registerRenderingHandler(new RenderAnvil());
 	}
 	
 	@Override
@@ -98,8 +190,8 @@ public class NetProxy_Client extends NetProxy_Server{
 			Constructor<?> constrctr_gui = guiClass.getConstructor(Container.class, TileEntity.class);
 			Class<?> containerClass = Class.forName(GuiContainerLibrary.containers.get(ID));
 			Constructor<?> constrctr = containerClass.getConstructor(InventoryPlayer.class, TileEntity.class);
-			Object obj = constrctr.newInstance(player.inventory,world.getTileEntity(x, y, z));
-			return constrctr_gui.newInstance(obj,world.getTileEntity(x, y, z));
+			Object obj = constrctr.newInstance(player.inventory,world.getTileEntity(new BlockPos(x, y, z)));
+			return constrctr_gui.newInstance(obj,world.getTileEntity(new BlockPos(x, y, z)));
 		}catch(Exception e)
 		{
 			Notifier.notifySimple("Unable to open GUI for ID "+ID);
@@ -169,11 +261,20 @@ public class NetProxy_Client extends NetProxy_Server{
     	{
     		if(rLoc == null)
     		{
-    			er.deactivateShader();
+    			if(er.isShaderActive())
+    				er.switchUseShader();
     		}else
     		{
-	    		er.theShaderGroup = new ShaderGroup(mc.getTextureManager(), mc.getResourceManager(), mc.getFramebuffer(), rLoc);
-	    		er.theShaderGroup.createBindFramebuffers(mc.displayWidth, mc.displayHeight);
+    			Class<? extends EntityRenderer> erclazz = er.getClass();
+    			Method loadShader = null;
+    			for(Method m : erclazz.getDeclaredMethods())
+    				if(m.getParameterCount() == 1 && m.getParameters()[0].getType() == ResourceLocation.class)
+    				{
+    					loadShader = m;
+    					break;
+    				}
+    			if(loadShader != null)
+    				loadShader.invoke(er, rLoc);
     		}
     	}catch(Exception e)
     	{

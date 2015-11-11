@@ -4,16 +4,21 @@ import java.lang.reflect.Constructor;
 
 import DummyCore.CreativeTabs.CreativePageBlocks;
 import DummyCore.CreativeTabs.CreativePageItems;
-import cpw.mods.fml.common.network.IGuiHandler;
+import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.network.INetHandler;
 import net.minecraft.network.NetHandlerPlayServer;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
+import net.minecraftforge.common.DimensionManager;
+import net.minecraftforge.fml.common.network.IGuiHandler;
 
 public class NetProxy_Server implements IGuiHandler{
+	
+	public void injectOldItemBlockModel(Block b){}
 	
 	public EntityPlayer getPlayerOnSide(INetHandler handler)
 	{
@@ -27,6 +32,21 @@ public class NetProxy_Server implements IGuiHandler{
 	public EntityPlayer getClientPlayer()
 	{
 		return null;
+	}
+	
+	public World getWorldForDim(int dim)
+	{
+		return DimensionManager.getWorld(dim);
+	}
+	
+	public World getClientWorld()
+	{
+		return null;
+	}
+	
+	public Integer[] createPossibleMetadataCacheFromBlock(Block b)
+	{
+		return new Integer[]{0};
 	}
 	
 	public void registerInfo()
@@ -50,7 +70,7 @@ public class NetProxy_Server implements IGuiHandler{
 		{
 			Class<?> containerClass = Class.forName(GuiContainerLibrary.containers.get(ID));
 			Constructor<?> constrctr = containerClass.getConstructor(InventoryPlayer.class, TileEntity.class);
-			return constrctr.newInstance(player.inventory,world.getTileEntity(x, y, z));
+			return constrctr.newInstance(player.inventory,world.getTileEntity(new BlockPos(x, y, z)));
 		}catch(Exception e)
 		{
 			Notifier.notifySimple("Unable to open Container for ID "+ID);
