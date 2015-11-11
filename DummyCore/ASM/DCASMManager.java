@@ -3,208 +3,243 @@ package DummyCore.ASM;
 import java.util.Arrays;
 import java.util.List;
 
-import net.minecraft.launchwrapper.IClassTransformer;
-
-import org.apache.logging.log4j.LogManager;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.FrameNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.LabelNode;
-import org.objectweb.asm.tree.LdcInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
-import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
-import DummyCore.Utils.CustomTXTConfig;
+import DummyCore.Utils.ASMManager;
+import DummyCore.Utils.LoadingUtils;
 import DummyCore.Utils.Notifier;
+import net.minecraft.launchwrapper.IClassTransformer;
 
+/**
+ * 
+ * @author modbder
+ * @Description
+ * Internal. Enables features like IOldCubicBlock and IOldItem
+ */
 public class DCASMManager implements IClassTransformer{
 	
-	public static final String FMLClientHandlerName = "cpw.mods.fml.client.FMLClientHandler";
-	public static final String logMissingTextureErrorsName = "logMissingTextureErrors";
-	public static final String logMissingTextureErrorsDesc = "()V";
-	public static final String NetHandlerPlayClientName = "NetHandlerPlayClient";
-	public static final String NotchNetHandlerPlayClientName = "fv";
-	public static final String ObfNetHandlerPlayClientName = "NetHandlerPlayClient";
-	public static final String NetHandlerPlayClient_MethodHandleSpawnMobName = "handleSpawnMob";
-	public static final String ObfNetHandlerPlayClient_MethodHandleSpawnMobName = "func_147281_a";
-	public static final String NotchNetHandlerPlayClient_MethodHandleSpawnMobName = "a";
-	public static final String NetHandlerPlayClient_MethodHandleSpawnMobDesc = "(Lnet/minecraft/network/play/server/S0FPacketSpawnMob;)V";
-	public static final String ObfNetHandlerPlayClient_MethodHandleSpawnMobDesc = "(Lnet/minecraft/network/play/server/S0FPacketSpawnMob;)V";
-	public static final String NotchNetHandlerPlayClient_MethodHandleSpawnMobDesc = "(Lfz;)V";
-	
+	public DCASMManager()
+	{
+		try{Class.forName("DummyCore.Utils.ASMManager");}catch(Exception e){e.printStackTrace();}
+	}
 
 	@Override
 	public byte[] transform(String name, String transformedName,byte[] basicClass) 
 	{
+		if(ASMManager.strictCompareByEnvironment(name, "net.minecraft.client.renderer.BlockModelShapes", "net.minecraft.client.renderer.BlockModelShapes"))
+			return handleBlockModelShapes(name,basicClass);
+		if(ASMManager.strictCompareByEnvironment(name, "net.minecraft.client.renderer.BlockRendererDispatcher", "net.minecraft.client.renderer.BlockRendererDispatcher"))
+			return handleBlockRendererDispatcher(name,basicClass);
+		if(ASMManager.strictCompareByEnvironment(name, "net.minecraft.client.renderer.ItemModelMesher", "net.minecraft.client.renderer.ItemModelMesher"))
+			return handleItemModelMesher(name,basicClass);
+		if(ASMManager.strictCompareByEnvironment(name, "net.minecraft.client.renderer.tileentity.TileEntityItemStackRenderer", "net.minecraft.client.renderer.tileentity.TileEntityItemStackRenderer"))
+			return handleTileEntityItemStackRenderer(name,basicClass);	
 		
 		if(basicClass != null) //If the class we are loading exists
-		{
-			if(name.equals(FMLClientHandlerName))
-				return handleForgeClientHandlerClass(name,transformedName,basicClass);
-			else
-			{
-				if(name.endsWith(NetHandlerPlayClientName) || name.endsWith(NotchNetHandlerPlayClientName) || name.endsWith(ObfNetHandlerPlayClientName))
-				{
-					handleNetHandlerPlayClientClass(name,transformedName,basicClass);
-				}
-				else
-				{
-					ClassNode classNode = new ClassNode(); //Creating a most basic bytecode->runtime command helper.
-					ClassReader classReader = new ClassReader(basicClass); //Parsing the bytecode to runtime commands
-					classReader.accept(classNode, 0); //Giving our helper a parsed list of commands without any code modifications.
-					if(classNode.invisibleAnnotations != null && classNode.invisibleAnnotations.size() > 0) //If we have some invisible annotations on our class.
-					{
-						boolean checkClass = false;
-						for(int i = 0; i < classNode.invisibleAnnotations.size(); ++i) //Looking through all annotations presented on the class
-						{
-							AnnotationNode node = classNode.invisibleAnnotations.get(i);
-							if(node.desc.equalsIgnoreCase("LDummyCore/Utils/DCASMCheck;")) //If the given annotation is a DummyCore annotation, that sygnals, that the class needs to be checked.
-							{
-								checkClass = true;
-								break; //We have to send our class outside the loop to make sure there is no ConcurrentModificationException.
-							}
-								
-						}
-						if(checkClass)
-							return handleClass(name,transformedName,basicClass,classNode,classReader); //If class requires inspection we are sending it into our method
-					}
-				}
-			}
-		}
+		{			
+			ClassNode classNode = new ClassNode(); //Creating a most basic bytecode->runtime command helper.
+			ClassReader classReader = new ClassReader(basicClass); //Parsing the bytecode to runtime commands
+			classReader.accept(classNode, 0); //Giving our helper a parsed list of commands without any code modifications.
+			if(ASMManager.checkAnnotationForClass(classNode, "LDummyCore/Utils/DCASMCheck;"))
+				return handleClass(name,transformedName,basicClass,classNode,classReader); //If class requires inspection we are sending it into our method
 		
+		}		
 		return basicClass;
 	}
 	
-	public byte[] handleNetHandlerPlayClientClass(String name, String transformedName,byte[] basicClass)
+	/**
+	 * Allows the IItemRenderer
+	 */
+	public byte[] handleTileEntityItemStackRenderer(String name,byte[] basicClass)
 	{
-		int obfuscationType = name.endsWith(NetHandlerPlayClientName) ? 0 : name.endsWith(ObfNetHandlerPlayClientName) ? 1 : 2;
-		String S0FPacketSpawnMob = obfuscationType == 0 || obfuscationType == 1 ? "net/minecraft/network/play/server/S0FPacketSpawnMob" : "fz";
-		String EntityLivingBase = obfuscationType == 0 ? "net/minecraft/entity/EntityLivingBase" : obfuscationType == 1 ? "net/minecraft/entity/EntityLivingBase" : "sv";
-		if(!CustomTXTConfig.init)
-			CustomTXTConfig.createCFG();
-		if(CustomTXTConfig.mappings.containsKey("fixS0FSpawnMobPacketCrash") && CustomTXTConfig.mappings.get("fixS0FSpawnMobPacketCrash").contains("true"))
-		{
-			byte[] defaultBytes = basicClass.clone();
-			
-			try
-			{
-				ClassNode cn = new ClassNode(); //<---- Actually creates the EMPTY class
-				ClassReader cr = new ClassReader(basicClass); //<---- Bytecode -> Instructions
-				cr.accept(cn, ClassReader.EXPAND_FRAMES); //<---- giving cn the instruction list. 0 is for flags, we want none.
-			
-				List<MethodNode> methods = cn.methods;
-				for(int i = 0; i < methods.size(); ++i)
-				{
-					MethodNode method = methods.get(i);
-					if(method.name.equals(NetHandlerPlayClient_MethodHandleSpawnMobName) || method.name.equals(ObfNetHandlerPlayClient_MethodHandleSpawnMobName) || method.name.equals(NotchNetHandlerPlayClient_MethodHandleSpawnMobName))
-					{
-						if(method.desc.equals(NetHandlerPlayClient_MethodHandleSpawnMobDesc) || method.desc.equals(ObfNetHandlerPlayClient_MethodHandleSpawnMobDesc) || method.desc.equals(NotchNetHandlerPlayClient_MethodHandleSpawnMobDesc))
-						{
-							AbstractInsnNode insertAfter = null;
-							for(int j = 0; j < method.instructions.size(); ++j)
-							{
-								AbstractInsnNode ain = method.instructions.get(j);
-								if(ain instanceof TypeInsnNode && ain.getOpcode() == Opcodes.CHECKCAST)
-								{
-									if(method.instructions.size() > j+1)
-									{
-										AbstractInsnNode ain1 = method.instructions.get(j+1);
-										if(ain1 instanceof VarInsnNode && ain1.getOpcode() == Opcodes.ASTORE && ain.getType() == Type.OBJECT)
-										{
-											insertAfter = ain1;
-											break;
-										}
-									}
-								}
-							}
-							if(insertAfter != null)
-							{
-								InsnList inst = new InsnList();
-								inst.add(new LabelNode());
-								inst.add(new VarInsnNode(Opcodes.ALOAD,Type.OBJECT));
-								LabelNode ifStart = new LabelNode();
-								inst.add(new JumpInsnNode(Opcodes.IFNONNULL,ifStart));
-								inst.add(new LabelNode());
-								inst.add(new LdcInsnNode("Vanilla->DummyCore"));
-								inst.add(new LdcInsnNode("Handled an attempt to spawn a null mob on client, aborting! This might break everything completely though."));
-								inst.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "DummyCore/Utils/Notifier", "notifyErrorCustomMod", "(Ljava/lang/String;Ljava/lang/String;)V", false));
-								inst.add(new LabelNode());
-								inst.add(new InsnNode(Opcodes.RETURN));
-								inst.add(ifStart);
-								inst.add(new FrameNode(Opcodes.F_FULL, 8, new Object[] {name.replace('.', '/'), S0FPacketSpawnMob, Opcodes.DOUBLE, Opcodes.DOUBLE, Opcodes.DOUBLE, Opcodes.FLOAT, Opcodes.FLOAT, EntityLivingBase}, 0, new Object[] {}));
-								
-								method.instructions.insert(insertAfter, inst);
-							}
-						}
-					}
-				}
-				
-				ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS); //<---- Creating the way we are writing Instructions into bytecode. COMPUTE_MAXS will automatically calculate STACK size and LOCAL count for each method. 
-				cn.accept(cw); //<---- Writing all modifications
-				
-				byte[] bytes = cw.toByteArray();
-				defaultBytes = null;
-				return bytes;
-			}
-			catch(Exception e)
-			{
-				LogManager.getLogger().error("[DummyCore][ASM]Failed to modify "+NetHandlerPlayClientName,e);
-				return defaultBytes;
-			}
-		}
-		
-		return basicClass;
-	}
-	
-	public byte[] handleForgeClientHandlerClass(String name, String transformedName,byte[] basicClass)
-	{
-		if(!CustomTXTConfig.init)
-			CustomTXTConfig.createCFG();
-		if(!CustomTXTConfig.mappings.containsKey("insertDCCallInTextureLoader") || !CustomTXTConfig.mappings.get("insertDCCallInTextureLoader").equals("true"))
-			return basicClass;
-		
-		byte[] defaultBytes = basicClass.clone();
+		Notifier.notifyCustomMod("DCASM", "Transforming "+name);
+		Notifier.notifyCustomMod("DCASM", "Initial byte[] count: "+basicClass.length);
+		byte[] basic = basicClass.clone();
 		try
 		{
-			ClassNode cn = new ClassNode(); //<---- Actually creates the EMPTY class
-			ClassReader cr = new ClassReader(basicClass); //<---- Bytecode -> Instructions
-			cr.accept(cn, ClassReader.EXPAND_FRAMES); //<---- giving cn the instruction list. 0 is for flags, we want none.
-		
-			List<MethodNode> methods = cn.methods;
-			for(int i = 0; i < methods.size(); ++i)
-			{
-				MethodNode method = methods.get(i);
-				if(method.name.equals(logMissingTextureErrorsName) && method.desc.equals(logMissingTextureErrorsDesc))
-				{
-					method.instructions.insert(new LabelNode());
-					method.instructions.insert(new MethodInsnNode(Opcodes.INVOKESTATIC, "DummyCore/Core/CoreInitialiser", "fmlLogMissingTextures", "()V", false));
-				}
-			}
+			ClassNode classNode = new ClassNode();
+			ClassReader classReader = new ClassReader(basicClass);
+			classReader.accept(classNode, ClassReader.EXPAND_FRAMES);
+			ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+
+			MethodNode mn = ASMManager.getMethod(classNode, "renderByItem", "func_179022_a", "(Lnet/minecraft/item/ItemStack;)V", "(Lnet/minecraft/item/ItemStack;)V");
 			
-			ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS); //<---- Creating the way we are writing Instructions into bytecode. COMPUTE_MAXS will automatically calculate STACK size and LOCAL count for each method. 
-			cn.accept(cw); //<---- Writing all modifications
+			LabelNode iflabel = new LabelNode();
+			InsnList lst = new InsnList();
+			lst.add(new VarInsnNode(Opcodes.ALOAD, 1));
+			lst.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "DummyCore/Utils/OldTextureHandler", "renderIS", "(Lnet/minecraft/item/ItemStack;)Z", false));
+			lst.add(new JumpInsnNode(Opcodes.IFEQ, iflabel));
+			lst.add(new LabelNode());
+			lst.add(new InsnNode(Opcodes.RETURN));
+			lst.add(iflabel);
+			lst.add(new FrameNode(Opcodes.F_SAME, 0, null, 0, null));
 			
-			byte[] bytes = cw.toByteArray();
-			defaultBytes = null;
-			return bytes;
+			mn.instructions.insert(mn.instructions.get(1), lst);
+			
+			classNode.accept(cw);
+			byte[] bArray = cw.toByteArray();
+			
+			Notifier.notifyCustomMod("DCASM", "Finished Transforming "+name);
+			Notifier.notifyCustomMod("DCASM", "Final byte[] count: "+bArray.length);
+			
+			return bArray;
 		}
 		catch(Exception e)
 		{
-			LogManager.getLogger().error("[DummyCore][ASM]Failed to modify "+FMLClientHandlerName,e);
-			return defaultBytes;
+			LoadingUtils.makeACrash("[DCASM]Fatal errors occured patching "+name+"! This modification is marked as REQUIRED, thus the loading cannot continue.", e, true);
+			return basic;
 		}
 	}
 	
+	/**
+	 * Allows the IOldItem
+	 */
+	public byte[] handleItemModelMesher(String name,byte[] basicClass)
+	{
+		Notifier.notifyCustomMod("DCASM", "Transforming "+name);
+		Notifier.notifyCustomMod("DCASM", "Initial byte[] count: "+basicClass.length);
+		byte[] basic = basicClass.clone();
+		try
+		{
+			ClassNode classNode = new ClassNode();
+			ClassReader classReader = new ClassReader(basicClass);
+			classReader.accept(classNode, ClassReader.EXPAND_FRAMES);
+			ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+			
+			MethodNode mn = ASMManager.getMethod(classNode, "getItemModel", "func_178089_a", "(Lnet/minecraft/item/ItemStack;)Lnet/minecraft/client/resources/model/IBakedModel;", "(Lnet/minecraft/item/ItemStack;)Lnet/minecraft/client/resources/model/IBakedModel;");
+			
+			AbstractInsnNode insertAfter = null;
+			for(int i = 0; i < mn.instructions.size(); ++i)
+			{
+				AbstractInsnNode an = mn.instructions.get(i);
+				if(an.getOpcode()==Opcodes.ASTORE&&an instanceof VarInsnNode && VarInsnNode.class.cast(an).var==3)
+				{
+					insertAfter = an;
+					break;
+				}
+			}
+			
+			InsnList lst = new InsnList();
+			lst.add(new LabelNode());
+			lst.add(new VarInsnNode(Opcodes.ALOAD, 1));
+			lst.add(new VarInsnNode(Opcodes.ALOAD, 3));
+			lst.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "DummyCore/Utils/OldTextureHandler", "getModelForIS", "(Lnet/minecraft/item/ItemStack;Lnet/minecraft/client/resources/model/IBakedModel;)Lnet/minecraft/client/resources/model/IBakedModel;", false));
+			lst.add(new VarInsnNode(Opcodes.ASTORE, 3));
+			
+			mn.instructions.insert(insertAfter, lst);
+			
+			classNode.accept(cw);
+			byte[] bArray = cw.toByteArray();
+			
+			Notifier.notifyCustomMod("DCASM", "Finished Transforming "+name);
+			Notifier.notifyCustomMod("DCASM", "Final byte[] count: "+bArray.length);
+			
+			return bArray;
+		}
+		catch(Exception e)
+		{
+			LoadingUtils.makeACrash("[DCASM]Fatal errors occured patching "+name+"! This modification is marked as REQUIRED, thus the loading cannot continue.", e, true);
+			return basic;
+		}
+	}
+	
+	/**
+	 * Allows the IOldCubicBlock
+	 */
+	public byte[] handleBlockRendererDispatcher(String name,byte[] basicClass)
+	{
+		Notifier.notifyCustomMod("DCASM", "Transforming "+name);
+		Notifier.notifyCustomMod("DCASM", "Initial byte[] count: "+basicClass.length);
+		byte[] basic = basicClass.clone();
+		try
+		{
+			ClassNode classNode = new ClassNode();
+			ClassReader classReader = new ClassReader(basicClass);
+			classReader.accept(classNode, ClassReader.EXPAND_FRAMES);
+			ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+			
+			MethodNode mn = ASMManager.getMethod(classNode, "getModelFromBlockState", "func_175022_a", "(Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/util/BlockPos;)Lnet/minecraft/client/resources/model/IBakedModel;", "(Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/util/BlockPos;)Lnet/minecraft/client/resources/model/IBakedModel;");
+			
+			InsnList lst = new InsnList();
+			
+			lst.add(new VarInsnNode(Opcodes.ALOAD, 2));
+			lst.add(new VarInsnNode(Opcodes.ALOAD, 3));
+			lst.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "DummyCore/Utils/OldTextureHandler", "handleIWR", "(Lnet/minecraft/client/resources/model/IBakedModel;Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/util/BlockPos;)Lnet/minecraft/client/resources/model/IBakedModel;", false));
+			lst.add(new VarInsnNode(Opcodes.ASTORE, 5));
+			lst.add(new LabelNode());
+			lst.add(new VarInsnNode(Opcodes.ALOAD, 5));
+			
+			mn.instructions.insert(mn.instructions.get(mn.instructions.size()-3), lst);
+			classNode.accept(cw);
+			byte[] bArray = cw.toByteArray();
+			Notifier.notifyCustomMod("DCASM", "Finished Transforming "+name);
+			Notifier.notifyCustomMod("DCASM", "Final byte[] count: "+bArray.length);
+			
+			return bArray;
+		}
+		catch(Exception e)
+		{
+			LoadingUtils.makeACrash("[DCASM]Fatal errors occured patching "+name+"! This modification is marked as REQUIRED, thus the loading cannot continue.", e, true);
+			return basic;
+		}
+	}
+	
+	/**
+	 * Allows the IOldCubicBlock
+	 */
+	public byte[] handleBlockModelShapes(String name,byte[] basicClass)
+	{
+		Notifier.notifyCustomMod("DCASM", "Transforming "+name);
+		Notifier.notifyCustomMod("DCASM", "Initial byte[] count: "+basicClass.length);
+		byte[] basic = basicClass.clone();
+		try
+		{
+			ClassNode classNode = new ClassNode();
+			ClassReader classReader = new ClassReader(basicClass);
+			classReader.accept(classNode, ClassReader.EXPAND_FRAMES);
+			ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+			
+			MethodNode mn = ASMManager.getMethod(classNode, "reloadModels", "func_178124_c", "()V", "()V");
+			
+			InsnList lst = new InsnList();
+			lst.add(new LabelNode());
+			lst.add(new VarInsnNode(Opcodes.ALOAD,0));
+			lst.add(new FieldInsnNode(Opcodes.GETFIELD,name.replace('.', '/'),ASMManager.chooseByEnvironment("bakedModelStore", "field_178129_a"),"Ljava/util/Map;"));
+			lst.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "DummyCore/Utils/OldTextureHandler", "reloadResourceManager", "(Ljava/util/Map;)V", false));
+			
+			mn.instructions.insert(mn.instructions.get(mn.instructions.size()-3), lst);
+			classNode.accept(cw);
+			byte[] bArray = cw.toByteArray();
+			
+			Notifier.notifyCustomMod("DCASM", "Finished Transforming "+name);
+			Notifier.notifyCustomMod("DCASM", "Final byte[] count: "+bArray.length);
+			
+			return bArray;
+			
+		}
+		catch(Exception e)
+		{
+			LoadingUtils.makeACrash("[DCASM]Fatal errors occured patching "+name+"! This modification is marked as REQUIRED, thus the loading cannot continue.", e, true);
+			return basic;
+		}
+	}
+	/**
+	 * My dumb version of {@link net.minecraftforge.fml.common.Optional}
+	 */
 	public byte[] handleClass(String name, String transformedName,byte[] basicClass,ClassNode cn, ClassReader cr)
 	{
 		Notifier.notifyCustomMod("DummyCoreASM", "Class "+name+" has requested a DummyCore ASM check via DummyCore/Utils/DCASMCheck annotation. Examining...");
@@ -249,7 +284,7 @@ public class DCASMManager implements IClassTransformer{
 		return cw.toByteArray(); //Returning modified bytecode.
 	}
 
-	boolean classExists(String s)
+	public boolean classExists(String s)
 	{
 		try
 		{
