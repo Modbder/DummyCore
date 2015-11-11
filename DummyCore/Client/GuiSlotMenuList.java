@@ -3,7 +3,7 @@ package DummyCore.Client;
 import DummyCore.Utils.DummyData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Tessellator;
-import cpw.mods.fml.client.GuiScrollingList;
+import net.minecraftforge.fml.client.GuiScrollingList;
 
 public class GuiSlotMenuList extends GuiScrollingList {
 	
