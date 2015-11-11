@@ -6,9 +6,9 @@ import org.apache.logging.log4j.Level;
 
 import DummyCore.Core.Core;
 import DummyCore.Core.DCMod;
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.Loader;
-import cpw.mods.fml.common.ModContainer;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.ModContainer;
 
 
 public class LoadingUtils {
