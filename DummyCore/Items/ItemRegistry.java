@@ -2,11 +2,13 @@ package DummyCore.Items;
 
 import java.util.Hashtable;
 
-import net.minecraft.item.Item;
 import DummyCore.Core.Core;
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.registry.GameRegistry;
-import cpw.mods.fml.relauncher.Side;
+import DummyCore.Utils.IOldItem;
+import DummyCore.Utils.OldTextureHandler;
+import net.minecraft.item.Item;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraftforge.fml.relauncher.Side;
 
 /**
  * 
@@ -38,6 +40,9 @@ public class ItemRegistry {
 			itemsList.put(i, Core.getItemTabForMod(modClass).getTabLabel());
 		}
 		GameRegistry.registerItem(i, name);
+		
+		if(i instanceof IOldItem)
+			OldTextureHandler.addOldItem(Core.getModFromClass(modClass).modid+":"+name, i);
 	}
 	
 	/**
