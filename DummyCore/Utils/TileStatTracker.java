@@ -22,19 +22,17 @@ public class TileStatTracker
 			trackedTag = new NBTTagCompound();
 			trackedTile.writeToNBT(trackedTag);
 			return true;
-		}else
-		{
-			trackedTile.writeToNBT(currentTag);
-			if(currentTag.equals(trackedTag))
-			{
-				trackedTile.writeToNBT(trackedTag);
-				return false;
-			}else
-			{
-				trackedTile.writeToNBT(trackedTag);
-				return true;
-			}
 		}
+		
+		trackedTile.writeToNBT(currentTag);
+		if(currentTag.equals(trackedTag))
+		{
+			trackedTile.writeToNBT(trackedTag);
+			return false;
+		}
+		
+		trackedTile.writeToNBT(trackedTag);
+		return true;
 	}
 	
 }
