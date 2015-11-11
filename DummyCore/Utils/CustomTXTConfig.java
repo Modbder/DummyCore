@@ -7,7 +7,7 @@ import java.io.PrintWriter;
 import java.util.Hashtable;
 
 import DummyCore.Core.Core;
-import cpw.mods.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 
 public class CustomTXTConfig {
 	

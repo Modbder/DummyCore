@@ -2,14 +2,14 @@ package DummyCore.Utils;
 
 import DummyCore.Core.CoreInitialiser;
 import DummyCore.Events.DummyEvent_OnPacketRecieved;
+import io.netty.channel.ChannelHandler;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.common.MinecraftForge;
-import cpw.mods.fml.common.network.NetworkRegistry.TargetPoint;
-import cpw.mods.fml.common.network.simpleimpl.IMessage;
-import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
-import cpw.mods.fml.common.network.simpleimpl.MessageContext;
-import cpw.mods.fml.relauncher.Side;
-import io.netty.channel.ChannelHandler;
+import net.minecraftforge.fml.common.network.NetworkRegistry.TargetPoint;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
+import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.minecraftforge.fml.relauncher.Side;
 
 @ChannelHandler.Sharable
 public class DummyPacketHandler implements IMessageHandler<DummyPacketIMSG, IMessage> {
@@ -45,7 +45,7 @@ public class DummyPacketHandler implements IMessageHandler<DummyPacketIMSG, IMes
 	
 	public static void sendToPlayer(DummyPacketIMSG message, EntityPlayerMP player)
 	{
-		CoreInitialiser.network.sendTo(message, (EntityPlayerMP) player);
+		CoreInitialiser.network.sendTo(message, player);
 	}
 	
 	public static void sendToServer(DummyPacketIMSG message)

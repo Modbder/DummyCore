@@ -1,14 +1,15 @@
 package DummyCore.Utils;
 
 import DummyCore.Core.CoreInitialiser;
+import io.netty.channel.ChannelHandler;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
-import cpw.mods.fml.common.network.NetworkRegistry.TargetPoint;
-import cpw.mods.fml.common.network.simpleimpl.IMessage;
-import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
-import cpw.mods.fml.common.network.simpleimpl.MessageContext;
-import cpw.mods.fml.relauncher.Side;
-import io.netty.channel.ChannelHandler;
+import net.minecraft.util.BlockPos;
+import net.minecraftforge.fml.common.network.NetworkRegistry.TargetPoint;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
+import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.minecraftforge.fml.relauncher.Side;
 
 @ChannelHandler.Sharable
 public class DummyTilePacketHandler implements IMessageHandler<DummyPacketIMSG_Tile, IMessage> {
@@ -23,7 +24,7 @@ public class DummyTilePacketHandler implements IMessageHandler<DummyPacketIMSG_T
 			packetID = message.dataTag.getInteger("packetID");
 			message.dataTag.removeTag("packetID");
 		}
-		S35PacketUpdateTileEntity genPkt = new S35PacketUpdateTileEntity(message.dataTag.getInteger("x"),message.dataTag.getInteger("y"),message.dataTag.getInteger("z"),packetID,message.dataTag);
+		S35PacketUpdateTileEntity genPkt = new S35PacketUpdateTileEntity(new BlockPos(message.dataTag.getInteger("x"),message.dataTag.getInteger("y"),message.dataTag.getInteger("z")),packetID,message.dataTag);
 		if(s == Side.CLIENT)
 		{
 			ctx.getClientHandler().handleUpdateTileEntity(genPkt);
@@ -51,7 +52,7 @@ public class DummyTilePacketHandler implements IMessageHandler<DummyPacketIMSG_T
 	
 	public static void sendToPlayer(DummyPacketIMSG_Tile message, EntityPlayerMP player)
 	{
-		CoreInitialiser.network.sendTo(message, (EntityPlayerMP) player);
+		CoreInitialiser.network.sendTo(message, player);
 	}
 	
 	public static void sendToServer(DummyPacketIMSG_Tile message)

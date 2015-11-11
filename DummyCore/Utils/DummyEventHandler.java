@@ -2,30 +2,36 @@ package DummyCore.Utils;
 
 import java.util.Arrays;
 
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiMainMenu;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.management.ServerConfigurationManager;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.World;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraftforge.client.event.GuiScreenEvent.InitGuiEvent;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.EntityJoinWorldEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
 import DummyCore.Client.GuiButton_ChangeGUI;
+import DummyCore.Client.IconRegister;
 import DummyCore.Client.MainMenuRegistry;
 import DummyCore.Core.CoreInitialiser;
 import DummyCore.Events.DummyEvent_OnClientGUIButtonPress;
 import DummyCore.Events.DummyEvent_OnKeyboardKeyPressed_Server;
 import DummyCore.Events.DummyEvent_OnPacketRecieved;
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.gameevent.TickEvent;
-import cpw.mods.fml.common.gameevent.TickEvent.Phase;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraft.block.Block;
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.GuiMainMenu;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.management.ServerConfigurationManager;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumParticleTypes;
+import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraftforge.client.event.GuiScreenEvent.InitGuiEvent;
+import net.minecraftforge.client.event.TextureStitchEvent;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 /**
  * @author Modbder
@@ -37,9 +43,21 @@ public class DummyEventHandler {
 	public static int syncTime;
 	public static boolean[] isKeyPressed;
 	
+	@SideOnly(Side.CLIENT)
+	@SubscribeEvent
+	public void textureInit(TextureStitchEvent.Pre event)
+	{
+		IconRegister.currentMap = event.map;
+		for(Pair<String,Block> p : OldTextureHandler.oldBlocksToRender)
+			IOldCubicBlock.class.cast(p.getSecond()).registerBlockIcons(IconRegister.instance);
+		for(Pair<String,Item> p : OldTextureHandler.oldItemsToRender)
+			IOldItem.class.cast(p.getSecond()).registerIcons(IconRegister.instance);
+	}
+	
+	@SubscribeEvent
 	public void onBlockBeeingBroken(PlayerEvent.BreakSpeed event)
 	{
-		if(MiscUtils.isBlockUnbreakable(event.entityPlayer.worldObj, event.x, event.y, event.z))
+		if(MiscUtils.isBlockUnbreakable(event.entityPlayer.worldObj, event.pos.getX(), event.pos.getY(), event.pos.getZ()))
 		{
 			event.setCanceled(true);
 		}
@@ -104,7 +122,7 @@ public class DummyEventHandler {
 					int x = Integer.parseInt(packetData[1].fieldValue);
 					int y = Integer.parseInt(packetData[2].fieldValue);
 					int z = Integer.parseInt(packetData[3].fieldValue);
-					TileEntity tile = event.recievedEntity.worldObj.getTileEntity(x, y, z);
+					TileEntity tile = event.recievedEntity.worldObj.getTileEntity(new BlockPos(x, y, z));
 					if(tile != null && tile instanceof ITEHasGameData)
 					{
 						DummyData[] tileShouldRecieve = Arrays.copyOfRange(packetData, 4, packetData.length);
@@ -120,7 +138,7 @@ public class DummyEventHandler {
 					double r = Double.parseDouble(packetData[5].fieldValue);
 					double g = Double.parseDouble(packetData[6].fieldValue);
 					double b = Double.parseDouble(packetData[7].fieldValue);
-					event.recievedEntity.worldObj.spawnParticle(type, x, y, z, r, g, b);
+					event.recievedEntity.worldObj.spawnParticle(EnumParticleTypes.valueOf(type.toUpperCase()), x, y, z, r, g, b);
 				}
 				if(modData.fieldName.equalsIgnoreCase("mod") && modData.fieldValue.equalsIgnoreCase("dummycore.sound"))
 				{
@@ -153,7 +171,7 @@ public class DummyEventHandler {
 					int z = Integer.parseInt(packetData[2].fieldValue);
 					int id = Integer.parseInt(packetData[3].fieldValue);
 					World world = event.recievedEntity.worldObj;
-					Chunk chunk = world.getChunkFromBlockCoords(x,z);
+					Chunk chunk = world.getChunkFromBlockCoords(new BlockPos(x,world.getActualHeight(),z));
 					byte[] biome = chunk.getBiomeArray();
 					int cbiome = biome[(z & 0xf) << 4 | x & 0xf];
 					cbiome = id & 0xff;
@@ -172,7 +190,7 @@ public class DummyEventHandler {
 					{
 						MinecraftServer server = MinecraftServer.getServer();
 						ServerConfigurationManager manager = server.getConfigurationManager();
-						EntityPlayer player = manager.func_152612_a(username);
+						EntityPlayer player = manager.getPlayerByUsername(username);
 						MinecraftForge.EVENT_BUS.post(new DummyEvent_OnKeyboardKeyPressed_Server(id, name, player,pressed));
 					}
 				}
@@ -193,7 +211,7 @@ public class DummyEventHandler {
 					{
 						MinecraftServer server = MinecraftServer.getServer();
 						ServerConfigurationManager manager = server.getConfigurationManager();
-						EntityPlayer player = manager.func_152612_a(username);
+						EntityPlayer player = manager.getPlayerByUsername(username);
 						MinecraftForge.EVENT_BUS.post(new DummyEvent_OnClientGUIButtonPress(id, pClName, bClName, player,x,y,z,data));
 					}
 				}

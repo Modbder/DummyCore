@@ -1,14 +1,14 @@
 package DummyCore.Core;
 
 import DummyCore.Utils.LoadingUtils;
-import cpw.mods.fml.common.ICrashCallable;
+import net.minecraftforge.fml.common.ICrashCallable;
 
 public class DCCrashCallable implements ICrashCallable {
 
 	@Override
 	public String call() throws Exception {
 		return  "'Special case ASM modification mods: '" +
-			    "'Note, that this mods might not be involved in the crash in ANY WAY!'" +
+			    "'Note, that these mods might not be involved in the crash in ANY WAY!'" +
 				"'DummyCore just prints some known mods for a lot of ASM modifications'" +
 				computeASMIfiers();
 	}

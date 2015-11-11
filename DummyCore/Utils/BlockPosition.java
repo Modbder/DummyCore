@@ -1,7 +1,9 @@
 package DummyCore.Utils;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 
 public class BlockPosition {
@@ -20,9 +22,11 @@ public class BlockPosition {
 		x = posX;
 		y = posY;
 		z = posZ;
-		blk = w.getBlock(posX, posY, posZ);
-		metadata = w.getBlockMetadata(posX, posY, posZ);
-		blockTile = w.getTileEntity(posX, posY, posZ);
+		BlockPos bp = new BlockPos(posX, posY, posZ);
+		IBlockState bs = w.getBlockState(bp);
+		blk = bs.getBlock();
+		metadata = blk.getMetaFromState(bs);
+		blockTile = w.getTileEntity(bp);
 	}
 
 }

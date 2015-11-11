@@ -26,7 +26,7 @@ public abstract class ContainerInventory extends Container{
 		tile = tileInv;
 		player = playerInv.player;
 		
-		inv.openInventory();
+		inv.openInventory(playerInv.player);
 		setupSlots();
 	}
 	
@@ -50,7 +50,7 @@ public abstract class ContainerInventory extends Container{
     public void onContainerClosed(EntityPlayer player)
     {
         super.onContainerClosed(player);
-        inv.closeInventory();
+        inv.closeInventory(player);
     }
     
     @Override

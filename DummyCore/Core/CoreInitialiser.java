@@ -7,9 +7,6 @@ import static DummyCore.Core.CoreInitialiser.version;
 
 import java.util.Arrays;
 
-import net.minecraft.command.CommandHandler;
-import net.minecraft.server.MinecraftServer;
-import net.minecraftforge.common.MinecraftForge;
 import DummyCore.Utils.CommandTransfer;
 import DummyCore.Utils.DummyConfig;
 import DummyCore.Utils.DummyDataUtils;
@@ -22,19 +19,22 @@ import DummyCore.Utils.LoadingUtils;
 import DummyCore.Utils.MiscUtils;
 import DummyCore.Utils.ModVersionChecker;
 import DummyCore.Utils.NetProxy_Server;
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.Loader;
-import cpw.mods.fml.common.Mod;
-import cpw.mods.fml.common.Mod.EventHandler;
-import cpw.mods.fml.common.ModMetadata;
-import cpw.mods.fml.common.SidedProxy;
-import cpw.mods.fml.common.event.FMLInitializationEvent;
-import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import cpw.mods.fml.common.event.FMLServerStartingEvent;
-import cpw.mods.fml.common.event.FMLServerStoppedEvent;
-import cpw.mods.fml.common.network.NetworkRegistry;
-import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
-import cpw.mods.fml.relauncher.Side;
+import net.minecraft.command.CommandHandler;
+import net.minecraft.server.MinecraftServer;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.Mod.EventHandler;
+import net.minecraftforge.fml.common.ModMetadata;
+import net.minecraftforge.fml.common.SidedProxy;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
+import net.minecraftforge.fml.common.event.FMLServerStoppedEvent;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
+import net.minecraftforge.fml.relauncher.Side;
 
 /**
  * @author Modbder
@@ -46,9 +46,9 @@ public class CoreInitialiser{
 	public static final String modid = "DummyCore";
 	public static final String modname = "DummyCore";
 	public static final String globalVersion = "2";
-	public static final String modVersion = "0";
-	public static final String mcVersion = "1.7.10";
-	public static final String modmcVersion = "1710";
+	public static final String modVersion = "1";
+	public static final String mcVersion = "1.8";
+	public static final String modmcVersion = "18";
 	public static final String buildVersion = "0";
 	public static final String buildPostfix = "A";
 	public static final String version = globalVersion+'.'+modVersion+'.'+modmcVersion+'.'+buildVersion+'.'+buildPostfix;
@@ -127,6 +127,7 @@ public class CoreInitialiser{
 	{
 		NetworkRegistry.INSTANCE.registerGuiHandler(instance, proxy);
 		proxy.registerInit();
+		
 	}
 	
 	@EventHandler

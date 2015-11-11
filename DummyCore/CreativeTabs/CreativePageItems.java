@@ -2,13 +2,14 @@ package DummyCore.CreativeTabs;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import DummyCore.Core.CoreInitialiser;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 /**
  * @version From DummyCore 1.0
@@ -17,7 +18,7 @@ import net.minecraft.item.ItemStack;
  */
 public final class CreativePageItems extends CreativeTabs{
 	public int delayTime = 0;
-	public ItemStack displayStack = new ItemStack((Item) Items.iron_axe,1,0);
+	public ItemStack displayStack = new ItemStack(Items.iron_axe,1,0);
 	private final String tabLabel;
 	public List<ItemStack> itemList = new ArrayList<ItemStack>();
 	public int tries = 0;
@@ -62,10 +63,8 @@ public final class CreativePageItems extends CreativeTabs{
 	    		}
 	    	}
 	    	return this.itemList;
-    	}else
-    	{
-    		return this.itemList;
     	}
+		return this.itemList;
     	
     }
     

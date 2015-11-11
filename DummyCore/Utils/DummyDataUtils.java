@@ -14,10 +14,10 @@ import net.minecraft.world.World;
 import net.minecraftforge.event.entity.player.PlayerEvent.LoadFromFile;
 import net.minecraftforge.event.entity.player.PlayerEvent.SaveToFile;
 import net.minecraftforge.event.world.WorldEvent;
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent;
-import cpw.mods.fml.relauncher.Side;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent;
+import net.minecraftforge.fml.relauncher.Side;
 
 /**
  * 
@@ -43,7 +43,7 @@ public class DummyDataUtils {
 		try
 		{
 			World w = event.world;
-			if(w != null && !w.isRemote && w.provider != null && w.provider.dimensionId == 0)
+			if(w != null && !w.isRemote && w.provider != null && w.provider.getDimensionId() == 0)
 			{
 				File f = event.world.getSaveHandler().getWorldDirectory();
 				if(f != null)
@@ -73,7 +73,7 @@ public class DummyDataUtils {
 		try
 		{
 			World w = event.world;
-			if(w != null && !w.isRemote && w.provider != null && w.provider.dimensionId == 0)
+			if(w != null && !w.isRemote && w.provider != null && w.provider.getDimensionId() == 0)
 			{
 				File f = event.world.getSaveHandler().getWorldDirectory();
 				if(f != null)
@@ -99,7 +99,7 @@ public class DummyDataUtils {
 		{
 			EntityPlayer player = event.entityPlayer;
 			boolean exists = true;
-			File playerFile = getDataFileForPlayer(player.getCommandSenderName());
+			File playerFile = getDataFileForPlayer(player.getName());
 			if(playerFile.isDirectory())
 			{
 				restoreFileFromDir(playerFile);
@@ -115,10 +115,10 @@ public class DummyDataUtils {
 			if(exists)
 			{
 				NBTTagCompound tag = loadNBTFromFile(playerFile);
-				playerConfigs.put(player.getCommandSenderName(), tag);
+				playerConfigs.put(player.getName(), tag);
 			}else
 			{
-				playerConfigs.put(player.getCommandSenderName(), new NBTTagCompound());
+				playerConfigs.put(player.getName(), new NBTTagCompound());
 			}
 		}
 	}
@@ -129,7 +129,7 @@ public class DummyDataUtils {
 		if(!event.entityPlayer.worldObj.isRemote)
 		{
 			EntityPlayer player = event.entityPlayer;
-			File playerFile = getDataFileForPlayer(player.getCommandSenderName());
+			File playerFile = getDataFileForPlayer(player.getName());
 			if(playerFile.isDirectory())
 				restoreFileFromDir(playerFile);
 			
@@ -145,8 +145,8 @@ public class DummyDataUtils {
 	{
 		if(!event.player.worldObj.isRemote)
 		{
-			playerFiles.remove(event.player.getCommandSenderName());
-			playerConfigs.remove(event.player.getCommandSenderName());
+			playerFiles.remove(event.player.getName());
+			playerConfigs.remove(event.player.getName());
 		}
 	}
 	
@@ -316,10 +316,9 @@ public class DummyDataUtils {
 				}
 			playerFiles.put(playerName, ret);
 			return ret;
-		}else
-		{
-			return playerFiles.get(playerName);
 		}
+		
+		return playerFiles.get(playerName);
 		
 	}
 	
@@ -363,14 +362,13 @@ public class DummyDataUtils {
 		if(s == Side.CLIENT)
 		{
 			return;
-		}else
-		{
-			if(!canWorkWithData())
-				return;
-			
-			MiscUtils.registeredServerWorldData.put(modid+"|"+dataName, globalConfig.getString(modid+"|"+dataName));
-			syncGlobalDataToClient(modid, dataName);
 		}
+		
+		if(!canWorkWithData())
+			return;
+		
+		MiscUtils.registeredServerWorldData.put(modid+"|"+dataName, globalConfig.getString(modid+"|"+dataName));
+		syncGlobalDataToClient(modid, dataName);
 	}
 	
 	public static void loadGlobalDataForMod(String modid)
@@ -379,14 +377,12 @@ public class DummyDataUtils {
 		if(s == Side.CLIENT)
 		{
 			return;
-		}else
-		{
-			if(!canWorkWithData())
-				return;
-			
-			MiscUtils.registeredServerWorldData.put(modid+"|"+modid, globalConfig.getString(modid+"|"+modid));
-			syncGlobalDataToClient(modid, modid);
 		}
+		if(!canWorkWithData())
+			return;
+		
+		MiscUtils.registeredServerWorldData.put(modid+"|"+modid, globalConfig.getString(modid+"|"+modid));
+		syncGlobalDataToClient(modid, modid);
 	}
 	
 	/**
@@ -423,12 +419,10 @@ public class DummyDataUtils {
 		if(s == Side.CLIENT)
 		{
 			return MiscUtils.registeredClientWorldData.get(modid+"|"+modid);
-		}else
-		{
-			if(!MiscUtils.registeredServerWorldData.containsKey(modid+"|"+modid))
-				loadGlobalDataForMod(modid);
-			return MiscUtils.registeredServerWorldData.get(modid+"|"+modid);
 		}
+		if(!MiscUtils.registeredServerWorldData.containsKey(modid+"|"+modid))
+			loadGlobalDataForMod(modid);
+		return MiscUtils.registeredServerWorldData.get(modid+"|"+modid);
 	}
 	
 	/**
@@ -444,12 +438,10 @@ public class DummyDataUtils {
 		if(s == Side.CLIENT)
 		{
 			return MiscUtils.registeredClientWorldData.get(modid+"|"+dataName);
-		}else
-		{
-			if(!MiscUtils.registeredServerWorldData.containsKey(modid+"|"+dataName))
-				loadCustomDataForMod(modid,dataName);
-			return MiscUtils.registeredServerWorldData.get(modid+"|"+dataName);
 		}
+		if(!MiscUtils.registeredServerWorldData.containsKey(modid+"|"+dataName))
+			loadCustomDataForMod(modid,dataName);
+		return MiscUtils.registeredServerWorldData.get(modid+"|"+dataName);
 	}
 	
 	/**
@@ -483,13 +475,11 @@ public class DummyDataUtils {
 		if(s == Side.CLIENT)
 		{
 			return;
-		}else
-		{
-			if(!canWorkWithData())return;
-			NBTTagCompound tag = getDataConfigForPlayer(playerName);
-			MiscUtils.registeredServerData.put(playerName+"_"+modid+"|"+dataName, tag.getString(modid+"|"+dataName));
-			syncPlayerDataToClient(playerName, modid, dataName);
 		}
+		if(!canWorkWithData())return;
+		NBTTagCompound tag = getDataConfigForPlayer(playerName);
+		MiscUtils.registeredServerData.put(playerName+"_"+modid+"|"+dataName, tag.getString(modid+"|"+dataName));
+		syncPlayerDataToClient(playerName, modid, dataName);
 	}
 	
 	
@@ -507,12 +497,10 @@ public class DummyDataUtils {
 		if(s == Side.CLIENT)
 		{
 			return MiscUtils.registeredClientData.get(playerName+"_"+modid+"|"+dataName);
-		}else
-		{
-			if(!MiscUtils.registeredServerData.containsKey(playerName+"_"+modid+"|"+dataName))
-				loadPlayerDataForMod(playerName, modid, dataName);
-			return MiscUtils.registeredServerData.get(playerName+"_"+modid+"|"+dataName);
 		}
+		if(!MiscUtils.registeredServerData.containsKey(playerName+"_"+modid+"|"+dataName))
+			loadPlayerDataForMod(playerName, modid, dataName);
+		return MiscUtils.registeredServerData.get(playerName+"_"+modid+"|"+dataName);
 	}
 	
 	/**

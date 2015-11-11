@@ -13,7 +13,8 @@ import org.lwjgl.opengl.GL11;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
-import cpw.mods.fml.common.FMLCommonHandler;
+import DummyCore.Utils.DrawUtils;
+import DummyCore.Utils.IMainMenu;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
@@ -24,7 +25,7 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.ForgeHooksClient;
-import DummyCore.Utils.IMainMenu;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 
 public class GuiMainMenuOld extends GuiMainMenu implements IMainMenu{
 
@@ -58,7 +59,7 @@ public class GuiMainMenuOld extends GuiMainMenu implements IMainMenu{
 	            {
 	                do
 	                {
-	                    this.splashText = (String)arraylist.get(rand.nextInt(arraylist.size()));
+	                    this.splashText = arraylist.get(rand.nextInt(arraylist.size()));
 	                }
 	                while (this.splashText.hashCode() == 125780783);
 	            }
@@ -86,7 +87,7 @@ public class GuiMainMenuOld extends GuiMainMenu implements IMainMenu{
 	@Override
     public void drawScreen(int p_73863_1_, int p_73863_2_, float p_73863_3_)
     {
-        Tessellator tessellator = Tessellator.instance;
+        Tessellator tessellator = Tessellator.getInstance();
         short short1 = 274;
         int k = this.width / 2 - short1 / 2;
         byte b0 = 30;
@@ -100,12 +101,12 @@ public class GuiMainMenuOld extends GuiMainMenu implements IMainMenu{
             this.drawTexturedModalRect(k + 155, b0 + 0, 0, 45, 155, 44);
         }
 
-        tessellator.setColorOpaque_I(-1);
+        tessellator.getWorldRenderer().setColorOpaque_I(-1);
         GL11.glPushMatrix();
-        GL11.glTranslatef((float)(this.width / 2 + 90), 70.0F, 0.0F);
+        GL11.glTranslatef(this.width / 2 + 90, 70.0F, 0.0F);
         GL11.glRotatef(-20.0F, 0.0F, 0.0F, 1.0F);
-        float f1 = 1.8F - MathHelper.abs(MathHelper.sin((float)(Minecraft.getSystemTime() % 1000L) / 1000.0F * (float)Math.PI * 2.0F) * 0.1F);
-        f1 = f1 * 100.0F / (float)(this.fontRendererObj.getStringWidth(this.splashText) + 32);
+        float f1 = 1.8F - MathHelper.abs(MathHelper.sin(Minecraft.getSystemTime() % 1000L / 1000.0F * (float)Math.PI * 2.0F) * 0.1F);
+        f1 = f1 * 100.0F / (this.fontRendererObj.getStringWidth(this.splashText) + 32);
         GL11.glScalef(f1, f1, f1);
         this.drawCenteredString(this.fontRendererObj, this.splashText, 0, -8, -256);
         GL11.glPopMatrix();
@@ -138,7 +139,7 @@ public class GuiMainMenuOld extends GuiMainMenu implements IMainMenu{
 
         for (k1 = 0; k1 < this.labelList.size(); ++k1)
         {
-            ((GuiLabel)this.labelList.get(k1)).func_146159_a(this.mc, p_73863_1_, p_73863_2_);
+            ((GuiLabel)this.labelList.get(k1)).drawLabel(this.mc, p_73863_1_, p_73863_2_);
         }
     }
 	
@@ -146,11 +147,11 @@ public class GuiMainMenuOld extends GuiMainMenu implements IMainMenu{
     {
         if (button.enabled)
         {
-            FontRenderer fontrenderer = p_146112_1_.fontRenderer;
+            FontRenderer fontrenderer = p_146112_1_.fontRendererObj;
             p_146112_1_.getTextureManager().bindTexture(buttonTextures);
             GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
             boolean field_146123_n = p_146112_2_ >= button.xPosition && p_146112_3_ >= button.yPosition && p_146112_2_ < button.xPosition + button.width && p_146112_3_ < button.yPosition + button.height;
-            int k = button.getHoverState(field_146123_n);
+            int k = DrawUtils.getButtonHoverState(button, field_146123_n);
             GL11.glEnable(GL11.GL_BLEND);
             OpenGlHelper.glBlendFunc(770, 771, 1, 0);
             GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
@@ -166,7 +167,7 @@ public class GuiMainMenuOld extends GuiMainMenu implements IMainMenu{
             {
                 l = 10526880;
             }
-            else if (button.getHoverState(true) == 0)
+            else if (DrawUtils.getButtonHoverState(button, true) == 0)
             {
                 l = 16777120;
             }

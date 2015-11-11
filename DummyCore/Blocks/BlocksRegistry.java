@@ -2,12 +2,14 @@ package DummyCore.Blocks;
 
 import java.util.Hashtable;
 
+import DummyCore.Core.Core;
+import DummyCore.Utils.IOldCubicBlock;
+import DummyCore.Utils.OldTextureHandler;
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemBlock;
-import DummyCore.Core.Core;
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.registry.GameRegistry;
-import cpw.mods.fml.relauncher.Side;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraftforge.fml.relauncher.Side;
 
 /**
  * 
@@ -46,6 +48,9 @@ public class BlocksRegistry {
 			b.setCreativeTab(Core.getBlockTabForMod(modClass));
 			blocksList.put(b, Core.getBlockTabForMod(modClass).getTabLabel());
 		}
+		
+		if(b instanceof IOldCubicBlock)
+			OldTextureHandler.addOldBlock(Core.getModFromClass(modClass).modid+":"+name, b);
 	}
 
 }

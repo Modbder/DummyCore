@@ -13,9 +13,9 @@ public class GuiButton_ChangeGUI extends GuiButton{
 	}
 	
 	@Override
-    public void func_146113_a(SoundHandler p_146113_1_)
+    public void playPressSound(SoundHandler p_146113_1_)
     {
-		p_146113_1_.playSound(PositionedSoundRecord.func_147674_a(new ResourceLocation("gui.button.press"), 1.0F));
+		p_146113_1_.playSound(PositionedSoundRecord.create(new ResourceLocation("gui.button.press"), 1.0F));
 		Minecraft.getMinecraft().displayGuiScreen(new GuiMenuList(Minecraft.getMinecraft().currentScreen));
     }
 

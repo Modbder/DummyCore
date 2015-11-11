@@ -1,16 +1,5 @@
 package DummyCore.Utils;
 
-import java.util.Arrays;
-
-import net.minecraft.client.Minecraft;
-import net.minecraft.entity.EntityList;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.network.play.server.S0FPacketSpawnMob;
-
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.tree.ClassNode;
-
 /**
  * 
  * @author modbder

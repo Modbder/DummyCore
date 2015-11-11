@@ -4,9 +4,10 @@ import java.util.ArrayList;
 
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
-import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
+import net.minecraftforge.oredict.OreDictionary;
 
 public class Generator 
 {
@@ -23,12 +24,12 @@ public class Generator
 	
 	public int flag;
 	
-	public static AxisAlignedBB centerBB(AxisAlignedBB genBox)
+	public static ExtendedAABB centerBB(ExtendedAABB genBox)
 	{
-		return AxisAlignedBB.getBoundingBox(genBox.minX-((genBox.maxX-genBox.minX)/2), genBox.minY-((genBox.maxY-genBox.minY)/2), genBox.minZ-((genBox.maxZ-genBox.minZ)/2), genBox.maxX-((genBox.maxX-genBox.minX)/2), genBox.maxY-((genBox.maxY-genBox.minY)/2), genBox.maxZ-((genBox.maxZ-genBox.minZ)/2));
+		return ExtendedAABB.fromBounds(genBox.minX-((genBox.maxX-genBox.minX)/2), genBox.minY-((genBox.maxY-genBox.minY)/2), genBox.minZ-((genBox.maxZ-genBox.minZ)/2), genBox.maxX-((genBox.maxX-genBox.minX)/2), genBox.maxY-((genBox.maxY-genBox.minY)/2), genBox.maxZ-((genBox.maxZ-genBox.minZ)/2));
 	}
 	
-	public static AxisAlignedBB normaliseBB(AxisAlignedBB genBox)
+	public static ExtendedAABB normaliseBB(ExtendedAABB genBox)
 	{
 		double minX = genBox.minX;
 		double minY = genBox.minY;
@@ -37,10 +38,10 @@ public class Generator
 		double maxY = genBox.maxY;
 		double maxZ = genBox.maxZ;
 		
-		return AxisAlignedBB.getBoundingBox(maxX < minX ? genBox.maxX : genBox.minX, maxY < minY ? genBox.maxY : genBox.minY, maxZ < minZ ? genBox.maxZ : genBox.minZ, maxX < minX ? genBox.minX : genBox.maxX, maxY < minY ? genBox.minY : genBox.maxY, maxZ < minZ ? genBox.minZ : genBox.maxZ);
+		return ExtendedAABB.fromBounds(maxX < minX ? genBox.maxX : genBox.minX, maxY < minY ? genBox.maxY : genBox.minY, maxZ < minZ ? genBox.maxZ : genBox.minZ, maxX < minX ? genBox.minX : genBox.maxX, maxY < minY ? genBox.minY : genBox.maxY, maxZ < minZ ? genBox.minZ : genBox.maxZ);
 	}
 	
-	public ArrayList<Coord3D> getBlocksOfType(AxisAlignedBB genBox)
+	public ArrayList<Coord3D> getBlocksOfType(ExtendedAABB genBox)
 	{
 		gen();
 		
@@ -54,7 +55,7 @@ public class Generator
 			{
 				for(int z = MathHelper.floor_double(genBox.minZ); z <= MathHelper.floor_double(genBox.maxZ); ++z)
 				{
-					if(worldObj.getBlock(x, y, z) == setTo && worldObj.getBlockMetadata(x, y, z) == genMetadata)
+					if(worldObj.getBlockState(new BlockPos(x, y, z)).getBlock() == setTo && (worldObj.getBlockState(new BlockPos(x, y, z)).getBlock().getMetaFromState(worldObj.getBlockState(new BlockPos(x, y, z))) == genMetadata || genMetadata == OreDictionary.WILDCARD_VALUE))
 					{
 						Coord3D c = new Coord3D(x,y,z);
 						lst.add(c);
@@ -131,7 +132,7 @@ public class Generator
 	
 	
 	
-	public void restoreBB(AxisAlignedBB genBox)
+	public void restoreBB(ExtendedAABB genBox)
 	{
 		gen();
 		
@@ -146,7 +147,7 @@ public class Generator
 		}	
 	}
 	
-	public void prepareBB(AxisAlignedBB genBox)
+	public void prepareBB(ExtendedAABB genBox)
 	{
 		gen();
 		
@@ -177,7 +178,7 @@ public class Generator
 	}
 	
 	@SuppressWarnings("unchecked")
-	public void randomiseCuboid(AxisAlignedBB genBox, Pair<Block,Integer>...pairs)
+	public void randomiseCuboid(ExtendedAABB genBox, Pair<Block,Integer>...pairs)
 	{
 		gen();
 		
@@ -197,8 +198,8 @@ public class Generator
 				for(int dz = z; dz <= eZ; ++dz)
 				{
 					int i = worldObj.rand.nextInt(pairs.length);
-					if(worldObj.getBlock(dx,dy,dz) == setTo)
-						worldObj.setBlock(dx, dy, dz, pairs[i].obj1, pairs[i].obj2, flag);
+					if(worldObj.getBlockState(new BlockPos(dx,dy,dz)).getBlock() == setTo)
+						worldObj.setBlockState(new BlockPos(dx, dy, dz), pairs[i].obj1.getStateFromMeta(pairs[i].obj2), flag);
 				}
 			}
 		}
@@ -206,7 +207,7 @@ public class Generator
 		restoreBB(genBox);
 	}
 	
-	public void addFullSphere(AxisAlignedBB genBox)
+	public void addFullSphere(ExtendedAABB genBox)
 	{
 		gen();
 		
@@ -233,17 +234,17 @@ public class Generator
 	    fX:for(int x = 0; x <= ceilRadiusX; x++)
 	    {
 	    	double xn = nextXn;
-	        nextXn = (double)(x + 1) * invRadiusX;
+	        nextXn = (x + 1) * invRadiusX;
 	        double nextYn = 0.0D;
 	        fZ:for(int y = 0; y <= ceilRadiusY; y++)
 	        {
 	            double yn = nextYn;
-	            nextYn = (double)(y + 1) * invRadiusY;
+	            nextYn = (y + 1) * invRadiusY;
 	            double nextZn = 0.0D;
 	            for(int z = 0; z <= ceilRadiusZ; z++)
 	            {
 	                double zn = nextZn;
-	                nextZn = (double)(z + 1) * invRadiusZ;
+	                nextZn = (z + 1) * invRadiusZ;
 	                double distanceSq = lengthSq(xn, yn, zn);
 	                if(distanceSq > 1.0D)
 	                {
@@ -251,8 +252,7 @@ public class Generator
 	                        break;
 	                    if(y == 0)
 	                        break fX;
-	                    else
-	                        break fZ;
+						break fZ;
 	                }
 	                if(!filled && lengthSq(nextXn, yn, zn) <= 1.0D && lengthSq(xn, nextYn, zn) <= 1.0D && lengthSq(xn, yn, nextZn) <= 1.0D)
 	                    continue;
@@ -271,7 +271,7 @@ public class Generator
 	    restoreBB(genBox);
 	}
 	
-	public void addHollowCylinder(AxisAlignedBB genBox)
+	public void addHollowCylinder(ExtendedAABB genBox)
 	{
 		gen();
 		
@@ -302,7 +302,7 @@ public class Generator
             dy = 0;
         else
         if((dy + height) - 1 > worldObj.getActualHeight())
-            height = (int) ((worldObj.getActualHeight() - dy) + 1);
+            height = (worldObj.getActualHeight() - dy) + 1;
         double invRadiusX = 1.0D / radiusX;
         double invRadiusZ = 1.0D / radiusZ;
         int ceilRadiusX = (int)Math.ceil(radiusX);
@@ -311,18 +311,18 @@ public class Generator
         D:for(int x = 0; x <= ceilRadiusX; x++)
         {
             double xn = nextXn;
-            nextXn = (double)(x + 1) * invRadiusX;
+            nextXn = (x + 1) * invRadiusX;
             double nextZn = 0.0D;
             for(int z = 0; z <= ceilRadiusZ; z++)
             {
                 double zn = nextZn;
-                nextZn = (double)(z + 1) * invRadiusZ;
+                nextZn = (z + 1) * invRadiusZ;
                 double distanceSq = lengthSq(xn, zn);
-                if(distanceSq > 1.0D)
-                    if(z == 0)
+                if(distanceSq > 1.0D) {
+					if(z == 0)
                         break D;
-                    else
-                        break;
+					break;
+				}
                 if(!filled && lengthSq(nextXn, zn) <= 1.0D && lengthSq(xn, nextZn) <= 1.0D)
                     continue;
                 
@@ -339,7 +339,7 @@ public class Generator
         restoreBB(genBox);
 	}
 	
-	public void addFullCylinder(AxisAlignedBB genBox)
+	public void addFullCylinder(ExtendedAABB genBox)
 	{
 		gen();
 		
@@ -370,7 +370,7 @@ public class Generator
             dy = 0;
         else
         if((dy + height) - 1 > worldObj.getActualHeight())
-            height = (int) ((worldObj.getActualHeight() - dy) + 1);
+            height = (worldObj.getActualHeight() - dy) + 1;
         double invRadiusX = 1.0D / radiusX;
         double invRadiusZ = 1.0D / radiusZ;
         int ceilRadiusX = (int)Math.ceil(radiusX);
@@ -379,18 +379,18 @@ public class Generator
         D:for(int x = 0; x <= ceilRadiusX; x++)
         {
             double xn = nextXn;
-            nextXn = (double)(x + 1) * invRadiusX;
+            nextXn = (x + 1) * invRadiusX;
             double nextZn = 0.0D;
             for(int z = 0; z <= ceilRadiusZ; z++)
             {
                 double zn = nextZn;
-                nextZn = (double)(z + 1) * invRadiusZ;
+                nextZn = (z + 1) * invRadiusZ;
                 double distanceSq = lengthSq(xn, zn);
-                if(distanceSq > 1.0D)
-                    if(z == 0)
+                if(distanceSq > 1.0D) {
+					if(z == 0)
                         break D;
-                    else
-                        break;
+					break;
+				}
                 if(!filled && lengthSq(nextXn, zn) <= 1.0D && lengthSq(xn, nextZn) <= 1.0D)
                     continue;
                 
@@ -407,7 +407,7 @@ public class Generator
         restoreBB(genBox);
 	}
 	
-	public void addHollowSphere(AxisAlignedBB genBox)
+	public void addHollowSphere(ExtendedAABB genBox)
 	{
 		gen();
 		
@@ -434,17 +434,17 @@ public class Generator
 	    fX:for(int x = 0; x <= ceilRadiusX; x++)
 	    {
 	    	double xn = nextXn;
-	        nextXn = (double)(x + 1) * invRadiusX;
+	        nextXn = (x + 1) * invRadiusX;
 	        double nextYn = 0.0D;
 	        fZ:for(int y = 0; y <= ceilRadiusY; y++)
 	        {
 	            double yn = nextYn;
-	            nextYn = (double)(y + 1) * invRadiusY;
+	            nextYn = (y + 1) * invRadiusY;
 	            double nextZn = 0.0D;
 	            for(int z = 0; z <= ceilRadiusZ; z++)
 	            {
 	                double zn = nextZn;
-	                nextZn = (double)(z + 1) * invRadiusZ;
+	                nextZn = (z + 1) * invRadiusZ;
 	                double distanceSq = lengthSq(xn, yn, zn);
 	                if(distanceSq > 1.0D)
 	                {
@@ -452,8 +452,7 @@ public class Generator
 	                        break;
 	                    if(y == 0)
 	                        break fX;
-	                    else
-	                        break fZ;
+						break fZ;
 	                }
 	                if(!filled && lengthSq(nextXn, yn, zn) <= 1.0D && lengthSq(xn, nextYn, zn) <= 1.0D && lengthSq(xn, yn, nextZn) <= 1.0D)
 	                    continue;
@@ -472,22 +471,22 @@ public class Generator
 	    restoreBB(genBox);
 	}
 	
-	public void addWallsCuboid(AxisAlignedBB genBox)
+	public void addWallsCuboid(ExtendedAABB genBox)
 	{
 		gen();
 		
 		//Bottom
-		addCuboid(AxisAlignedBB.getBoundingBox(genBox.minX, genBox.minY, genBox.minZ, genBox.maxX, genBox.minY, genBox.maxZ));
+		addCuboid(ExtendedAABB.fromBounds(genBox.minX, genBox.minY, genBox.minZ, genBox.maxX, genBox.minY, genBox.maxZ));
 		//Top
-		addCuboid(AxisAlignedBB.getBoundingBox(genBox.minX, genBox.maxY, genBox.minZ, genBox.maxX, genBox.maxY, genBox.maxZ));
+		addCuboid(ExtendedAABB.fromBounds(genBox.minX, genBox.maxY, genBox.minZ, genBox.maxX, genBox.maxY, genBox.maxZ));
 		//X Neg
-		addCuboid(AxisAlignedBB.getBoundingBox(genBox.minX, genBox.minY, genBox.minZ, genBox.minX, genBox.maxY, genBox.maxZ));
+		addCuboid(ExtendedAABB.fromBounds(genBox.minX, genBox.minY, genBox.minZ, genBox.minX, genBox.maxY, genBox.maxZ));
 		//X Pos
-		addCuboid(AxisAlignedBB.getBoundingBox(genBox.maxX, genBox.minY, genBox.minZ, genBox.maxX, genBox.maxY, genBox.maxZ));
+		addCuboid(ExtendedAABB.fromBounds(genBox.maxX, genBox.minY, genBox.minZ, genBox.maxX, genBox.maxY, genBox.maxZ));
 		//Z Neg
-		addCuboid(AxisAlignedBB.getBoundingBox(genBox.minX, genBox.minY, genBox.minZ, genBox.maxX, genBox.maxY, genBox.minZ));
+		addCuboid(ExtendedAABB.fromBounds(genBox.minX, genBox.minY, genBox.minZ, genBox.maxX, genBox.maxY, genBox.minZ));
 		//Z Pos
-		addCuboid(AxisAlignedBB.getBoundingBox(genBox.minX, genBox.minY, genBox.maxZ, genBox.maxX, genBox.maxY, genBox.maxZ));
+		addCuboid(ExtendedAABB.fromBounds(genBox.minX, genBox.minY, genBox.maxZ, genBox.maxX, genBox.maxY, genBox.maxZ));
 	
 	}
 	
@@ -495,10 +494,10 @@ public class Generator
 	{
 		gen();
 		
-		return worldObj.setBlock(x, y, z, setTo, genMetadata, flag);
+		return worldObj.setBlockState(new BlockPos(x, y, z), setTo.getStateFromMeta(genMetadata), flag);
 	}
 	
-	public void addCuboid(AxisAlignedBB genBox)
+	public void addCuboid(ExtendedAABB genBox)
 	{
 		gen();
 		prepareBB(genBox);

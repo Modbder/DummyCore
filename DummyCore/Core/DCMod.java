@@ -1,13 +1,13 @@
 package DummyCore.Core;
 
-import net.minecraftforge.common.config.Configuration;
 import DummyCore.CreativeTabs.CreativePageBlocks;
 import DummyCore.CreativeTabs.CreativePageItems;
 import DummyCore.Utils.IDummyConfig;
 import DummyCore.Utils.Notifier;
-import cpw.mods.fml.common.Loader;
-import cpw.mods.fml.common.LoaderState;
-import cpw.mods.fml.common.ModContainer;
+import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.LoaderState;
+import net.minecraftforge.fml.common.ModContainer;
 
 public class DCMod{
 

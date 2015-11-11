@@ -1,8 +1,8 @@
 package DummyCore.Events;
 
 import DummyCore.Utils.DummyData;
-import cpw.mods.fml.common.eventhandler.Event;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraftforge.fml.common.eventhandler.Event;
 
 public class DummyEvent_OnClientGUIButtonPress extends Event{
 	

@@ -2,14 +2,16 @@ package DummyCore.CreativeTabs;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import DummyCore.Core.CoreInitialiser;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 /**
  * @version From DummyCore 1.0
@@ -44,7 +46,7 @@ public final class CreativePageBlocks extends CreativeTabs{
     	{
 	    	for(int t = 0; t < Block.blockRegistry.getKeys().size(); ++t)
 	    	{
-	    		Block b = Block.getBlockFromName((String) Block.blockRegistry.getKeys().toArray()[t]);
+	    		Block b = Block.getBlockFromName(((ResourceLocation) Block.blockRegistry.getKeys().toArray()[t]).toString());
 	    		if(b != null && b.getCreativeTabToDisplayOn() == this)
 	    		{
 	    			Item itm = Item.getItemFromBlock(b);
@@ -69,10 +71,8 @@ public final class CreativePageBlocks extends CreativeTabs{
 	    	}
 	    	
 	        return blockList;
-    	}else
-    	{
-    		return this.blockList;
     	}
+		return this.blockList;
     }
     @SideOnly(Side.CLIENT)
     @Override
