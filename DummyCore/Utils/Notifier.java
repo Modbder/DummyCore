@@ -10,6 +10,7 @@ public class Notifier {
 	public static final String info = "[INFO]";
 	public static final String warning = "[WARNING]";
 	public static final String error = "[ERROR]";
+	public static final String fatal = "[FATAL]";
 	public static final String severe = "[SEVERE]";
 	//======================================String Second Indexes===============================================//
 	public static final String dev = "[DEV]";
@@ -56,34 +57,34 @@ public class Notifier {
 	public static void notifyWarnCustomMod(String modname, String s)
 	{
 		modname = "["+modname+"]";
-		notify(Level.WARN,"",debug,modname,s);
+		notify(Level.WARN,"",warning,modname,s);
 	}
 	
 	public static void notifyWarn(String s)
 	{
-		notify(Level.WARN,"",debug,mod,s);
+		notify(Level.WARN,"",warning,mod,s);
 	}
 	
 	public static void notifyErrorCustomMod(String modname, String s)
 	{
 		modname = "["+modname+"]";
-		notify(Level.ERROR,"",debug,modname,s);
+		notify(Level.ERROR,"",error,modname,s);
 	}
 	
 	public static void notifyError(String s)
 	{
-		notify(Level.ERROR,"",debug,mod,s);
+		notify(Level.ERROR,"",error,mod,s);
 	}
 	
 	public static void notifyFatalCustomMod(String modname, String s)
 	{
 		modname = "["+modname+"]";
-		notify(Level.FATAL,"",debug,modname,s);
+		notify(Level.FATAL,"",fatal,modname,s);
 	}
 	
 	public static void notifyFatal(String s)
 	{
-		notify(Level.FATAL,"",debug,mod,s);
+		notify(Level.FATAL,"",fatal,mod,s);
 	}
 	
 	public static void notifySystem(String s)
@@ -94,6 +95,11 @@ public class Notifier {
 	public static void notifySimple(String s)
 	{
 		notify(Level.TRACE,"","",mod,s);
+	}
+	
+	public static void notifyInfo(String s)
+	{
+		notify(Level.INFO,"","",mod,s);
 	}
 	
 	public static void notifyCustomMod(String modname,String s)
