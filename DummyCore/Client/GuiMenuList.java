@@ -4,7 +4,6 @@ import org.lwjgl.opengl.GL11;
 
 import DummyCore.Utils.DummyConfig;
 import DummyCore.Utils.DummyData;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
@@ -53,7 +52,7 @@ public class GuiMenuList extends GuiScreen{
                 }
             }
         }
-        super.actionPerformed(button);
+        try{super.actionPerformed(button);}catch(Exception ex){}
     }
 
     public int drawLine(String line, int offset, int shifty)
