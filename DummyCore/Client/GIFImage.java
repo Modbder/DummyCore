@@ -1,4 +1,4 @@
-package DummyCore.Utils;
+package DummyCore.Client;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -23,7 +23,9 @@ public class GIFImage
 	public int frames;
 	public BufferedImage[] images;
 	public int[] imagesGLIDs;
+	public boolean errored;
 	
+	@SuppressWarnings("resource")
 	public GIFImage(ResourceLocation texture)
 	{
 		InputStream is = null;
@@ -51,7 +53,7 @@ public class GIFImage
 		}
 		catch(Exception e)
 		{
-			e.printStackTrace();
+			errored = true;
 		}
 		finally
 		{
