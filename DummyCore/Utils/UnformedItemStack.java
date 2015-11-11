@@ -126,7 +126,7 @@ public class UnformedItemStack {
 	{
 		int size = this.possibleStacks.size();
 		if(size <= 0)return null;
-		return this.possibleStacks.get((int)(((int)(time/30))%size));
+		return this.possibleStacks.get(((int)(time/30))%size);
 	}
 	
 	public void writeToNBTTagCompound(NBTTagCompound tag)
