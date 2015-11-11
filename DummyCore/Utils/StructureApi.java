@@ -1,10 +1,16 @@
 package DummyCore.Utils;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.UnsupportedCharsetException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Set;
 
-import cpw.mods.fml.common.registry.GameRegistry;
+import org.apache.commons.io.IOUtils;
+import org.apache.logging.log4j.LogManager;
+
+import DummyCore.Core.Core;
 import net.minecraft.block.Block;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagByte;
@@ -19,12 +25,20 @@ import net.minecraft.nbt.NBTTagLong;
 import net.minecraft.nbt.NBTTagShort;
 import net.minecraft.nbt.NBTTagString;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.registry.GameRegistry;
 
 public class StructureApi 
 {
-	
+	@Deprecated
 	public static NBTTagCompound createStructureTagIgnoreMetadata(World w,AxisAlignedBB aabb, boolean whitelist, Block... blocks)
+	{
+		return(createStructureTagIgnoreMetadata(w,new ExtendedAABB(aabb),whitelist,blocks));
+	}
+	
+	public static NBTTagCompound createStructureTagIgnoreMetadata(World w,ExtendedAABB aabb, boolean whitelist, Block... blocks)
 	{
 		NBTTagCompound tag = new NBTTagCompound();
 		
@@ -55,7 +69,7 @@ public class StructureApi
 			{
 				for(int dz = (int) aabb.minZ; dz <= aabb.maxZ; ++dz)
 				{
-					Block b = w.getBlock(dx, dy, dz);
+					Block b = w.getBlockState(new BlockPos(dx, dy, dz)).getBlock();
 					if(b != null)
 					{
 						boolean include = false;
@@ -96,7 +110,13 @@ public class StructureApi
 		return tag;
 	}
 	
+	@Deprecated
 	public static NBTTagCompound createStructureTag(World w,AxisAlignedBB aabb, boolean whitelist, Block... blocks)
+	{
+		return createStructureTag(w,new ExtendedAABB(aabb),whitelist,blocks);
+	}
+	
+	public static NBTTagCompound createStructureTag(World w,ExtendedAABB aabb, boolean whitelist, Block... blocks)
 	{
 		NBTTagCompound tag = new NBTTagCompound();
 		
@@ -127,7 +147,7 @@ public class StructureApi
 			{
 				for(int dz = (int) aabb.minZ; dz <= aabb.maxZ; ++dz)
 				{
-					Block b = w.getBlock(dx, dy, dz);
+					Block b = w.getBlockState(new BlockPos(dx, dy, dz)).getBlock();
 					if(b != null)
 					{
 						boolean include = false;
@@ -158,7 +178,7 @@ public class StructureApi
 						{
 							String coords = String.valueOf(dx-aabb.minX-(aabb.maxX-aabb.minX)/2)+"|"+String.valueOf(dy-aabb.minY)+"|"+String.valueOf(dz-aabb.minZ-(aabb.maxZ-aabb.minZ)/2);
 							if(!tag.hasKey(coords))
-								tag.setString(coords, GameRegistry.findUniqueIdentifierFor(b).toString()+"|"+w.getBlockMetadata(dx, dy, dz));
+								tag.setString(coords, GameRegistry.findUniqueIdentifierFor(b).toString()+"|"+w.getBlockState(new BlockPos(dx, dy, dz)).getBlock().getMetaFromState(w.getBlockState(new BlockPos(dx, dy, dz))));
 						}
 					}
 				}
@@ -171,7 +191,7 @@ public class StructureApi
 	@SuppressWarnings("unchecked")
 	public static void nbtStructureIntoWorld(World w, int x, int y, int z, NBTTagCompound structureTag)
 	{
-		Set<String> keySet = structureTag.func_150296_c();
+		Set<String> keySet = structureTag.getKeySet();
 		ArrayList<String> keys = new ArrayList<String>();
 		ArrayList<Pair<Coord3D,Pair<Block,Integer>>> structure = new ArrayList<Pair<Coord3D,Pair<Block,Integer>>>();
 		Iterator<String> $i = keySet.iterator();
@@ -212,7 +232,7 @@ public class StructureApi
 			int dy = (int) (c.y+y);
 			int dz = (int) (c.z+z);
 			Pair<Block,Integer> pa = put.getSecond();
-			w.setBlock(dx, dy, dz, pa.getFirst(), pa.getSecond(), 2);
+			w.setBlockState(new BlockPos(dx, dy, dz), pa.getFirst().getStateFromMeta(pa.getSecond()), 2);
 		}
 		
 		structure.clear();
@@ -225,7 +245,7 @@ public class StructureApi
 		if(tag1.hasNoTags() || tag2.hasNoTags())
 			return false;
 		
-		Set<String> keys = tag1.func_150296_c();
+		Set<String> keys = tag1.getKeySet();
 		Iterator<String> $i = keys.iterator();
 		
 		while($i.hasNext())
@@ -260,7 +280,7 @@ public class StructureApi
 			{
 				NBTTagByte byte1 = (NBTTagByte) base1;
 				NBTTagByte byte2 = (NBTTagByte) base2;
-				if(byte1.func_150290_f() != byte2.func_150290_f())
+				if(byte1.getByte() != byte2.getByte())
 					return false;
 				
 				return true;
@@ -269,7 +289,7 @@ public class StructureApi
 			{
 				NBTTagShort short1 = (NBTTagShort) base1;
 				NBTTagShort short2 = (NBTTagShort) base2;
-				if(short1.func_150289_e() != short2.func_150289_e())
+				if(short1.getShort() != short2.getShort())
 					return false;
 				
 				return true;
@@ -278,7 +298,7 @@ public class StructureApi
 			{
 				NBTTagInt int1 = (NBTTagInt) base1;
 				NBTTagInt int2 = (NBTTagInt) base2;
-				if(int1.func_150287_d() != int2.func_150287_d())
+				if(int1.getInt() != int2.getInt())
 					return false;
 				
 				return true;
@@ -287,7 +307,7 @@ public class StructureApi
 			{
 				NBTTagLong long1 = (NBTTagLong) base1;
 				NBTTagLong long2 = (NBTTagLong) base2;
-				if(long1.func_150291_c() != long2.func_150291_c())
+				if(long1.getLong() != long2.getLong())
 					return false;
 				
 				return true;
@@ -296,7 +316,7 @@ public class StructureApi
 			{
 				NBTTagFloat float1 = (NBTTagFloat) base1;
 				NBTTagFloat float2 = (NBTTagFloat) base2;
-				if(float1.func_150288_h() != float2.func_150288_h())
+				if(float1.getFloat() != float2.getFloat())
 					return false;
 				
 				return true;
@@ -305,7 +325,7 @@ public class StructureApi
 			{
 				NBTTagDouble double1 = (NBTTagDouble) base1;
 				NBTTagDouble double2 = (NBTTagDouble) base2;
-				if(double1.func_150286_g() != double2.func_150286_g())
+				if(double1.getDouble() != double2.getDouble())
 					return false;
 				
 				return true;
@@ -361,5 +381,40 @@ public class StructureApi
 			}
 		}
 	}
+	
+	public static String structureFromFile(String modid, String filename)
+	{
+		InputStream is = Core.class.getResourceAsStream("/assets/"+modid+"/structure/"+filename+".str");
+		if(is != null)
+		{
+			String st = "";
+			try
+			{
+				st = IOUtils.toString(is,"UTF-8");
+			}
+			catch(NullPointerException npe)
+			{
+				LogManager.getLogger(StructureApi.class).error("Can't find structure with name "+filename);
+			}
+			catch(IOException ioe)
+			{
+				LogManager.getLogger(StructureApi.class).error("Can't read structure with name "+filename);
+			}
+			catch(UnsupportedCharsetException uce)
+			{
+				FMLCommonHandler.instance().raiseException(uce, "UTF-8 Is not supported on this system! This is a critical error!", true);
+			}
+			finally
+			{
+				IOUtils.closeQuietly(is);
+			}
+			return st;
+		}
+		LogManager.getLogger(StructureApi.class).error("Can't find structure with name "+filename);
+		
+		return null;
+	}
+	
+	
 }
 
