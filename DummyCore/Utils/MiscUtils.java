@@ -8,9 +8,13 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.UUID;
 
+import DummyCore.Client.Icon;
+import DummyCore.Core.CoreInitialiser;
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
+import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -31,21 +35,20 @@ import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumChatFormatting;
-import net.minecraft.util.IIcon;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraft.world.chunk.Chunk;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
+import net.minecraftforge.fml.common.network.NetworkRegistry.TargetPoint;
+import net.minecraftforge.fml.relauncher.ReflectionHelper;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.oredict.OreDictionary;
-import DummyCore.Core.CoreInitialiser;
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.ObfuscationReflectionHelper;
-import cpw.mods.fml.common.network.NetworkRegistry.TargetPoint;
-import cpw.mods.fml.relauncher.ReflectionHelper;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 /**
  * 
@@ -143,7 +146,7 @@ public class MiscUtils {
 		//Was causing too much issues, had to add a try/catch statement...
 		try
 		{
-			IInventory inv = (IInventory)par1World.getTileEntity(par2, par3, par4);
+			IInventory inv = (IInventory)par1World.getTileEntity(new BlockPos(par2, par3, par4));
 	
 	        if (inv != null)
 	        {
@@ -167,7 +170,7 @@ public class MiscUtils {
 	                        }
 	
 	                        itemstack.stackSize -= k1;
-	                        EntityItem entityitem = new EntityItem(par1World, (double)((float)par2 + f), (double)((float)par3 + f1), (double)((float)par4 + f2), new ItemStack(itemstack.getItem(), k1, itemstack.getItemDamage()));
+	                        EntityItem entityitem = new EntityItem(par1World, par2 + f, par3 + f1, par4 + f2, new ItemStack(itemstack.getItem(), k1, itemstack.getItemDamage()));
 	
 	                        if (itemstack.hasTagCompound())
 	                        {
@@ -175,9 +178,9 @@ public class MiscUtils {
 	                        }
 	
 	                        float f3 = 0.05F;
-	                        entityitem.motionX = (double)((float)par1World.rand.nextGaussian() * f3);
-	                        entityitem.motionY = (double)((float)par1World.rand.nextGaussian() * f3 + 0.2F);
-	                        entityitem.motionZ = (double)((float)par1World.rand.nextGaussian() * f3);
+	                        entityitem.motionX = (float)par1World.rand.nextGaussian() * f3;
+	                        entityitem.motionY = (float)par1World.rand.nextGaussian() * f3 + 0.2F;
+	                        entityitem.motionZ = (float)par1World.rand.nextGaussian() * f3;
 	                        par1World.spawnEntityInWorld(entityitem);
 	                    }
 	                }
@@ -195,7 +198,7 @@ public class MiscUtils {
 	 * Used to check, if the Forge Ore Dictionary contains the given name in it. 
 	 * @version From DummyCore 1.4
 	 * @param oreName - the ore name to search
-	 * @return true if OreDictionary cantains the given ore, false if not.
+	 * @return true if OreDictionary contains the given ore, false if not.
 	 */
 	public static boolean oreDictionaryContains(String oreName)
 	{
@@ -284,7 +287,7 @@ public class MiscUtils {
 	@SuppressWarnings("unchecked")
 	public static void sendPacketToAllAround(World w,Packet pkt, int x, int y, int z, int dimId, double distance)
 	{
-		List<EntityPlayer> playerLst = w.getEntitiesWithinAABB(EntityPlayer.class, AxisAlignedBB.getBoundingBox(x-0.5D, y-0.5D, z-0.5D, x+0.5D, y+0.5D, z+0.5D).expand(distance, distance, distance));
+		List<EntityPlayer> playerLst = w.getEntitiesWithinAABB(EntityPlayer.class, AxisAlignedBB.fromBounds(x-0.5D, y-0.5D, z-0.5D, x+0.5D, y+0.5D, z+0.5D).expand(distance, distance, distance));
 		if(!playerLst.isEmpty())
 		{
 			for(int i = 0; i < playerLst.size(); ++i)
@@ -295,12 +298,12 @@ public class MiscUtils {
 					if(pkt instanceof S35PacketUpdateTileEntity)
 					{
 						NBTTagCompound tileTag = new NBTTagCompound();
-						w.getTileEntity(x, y, z).writeToNBT(tileTag);
+						w.getTileEntity(new BlockPos(x, y, z)).writeToNBT(tileTag);
 						CoreInitialiser.network.sendTo(new DummyPacketIMSG_Tile(tileTag,-10), (EntityPlayerMP) player);
 					}else
 					{
 						if(player.dimension == dimId)
-							((EntityPlayerMP)player).getServerForPlayer().func_73046_m().getConfigurationManager().sendPacketToAllPlayers(pkt);
+							((EntityPlayerMP)player).getServerForPlayer().getMinecraftServer().getConfigurationManager().sendPacketToAllPlayers(pkt);
 					}
 				}else
 				{
@@ -387,7 +390,7 @@ public class MiscUtils {
 	 */
 	@Deprecated
     @SideOnly(Side.CLIENT)
-    public static boolean drawScaledTexturedRect_Items(int x, int y, IIcon icon, int width, int height, float zLevel)
+    public static boolean drawScaledTexturedRect_Items(int x, int y, Icon icon, int width, int height, float zLevel)
     {
     	return DrawUtils.drawScaledTexturedRect_Items(x, y, icon, width, height, zLevel);
     }
@@ -397,7 +400,7 @@ public class MiscUtils {
 	 */
 	@Deprecated
     @SideOnly(Side.CLIENT)
-    public static boolean drawScaledTexturedRect(int x, int y, IIcon icon, int width, int height, float zLevel)
+    public static boolean drawScaledTexturedRect(int x, int y, Icon icon, int width, int height, float zLevel)
     {
 		return DrawUtils.drawScaledTexturedRect(x, y, icon, width, height, zLevel);
     }
@@ -407,7 +410,7 @@ public class MiscUtils {
 	 */
 	@Deprecated
     @SideOnly(Side.CLIENT)
-    public static void drawTexture(int x, int y, IIcon icon, int width, int height, float zLevel)
+    public static void drawTexture(int x, int y, Icon icon, int width, int height, float zLevel)
     {
 		DrawUtils.drawTexture(x, y, icon, width, height, zLevel);
     }
@@ -417,7 +420,7 @@ public class MiscUtils {
 	 */
 	@Deprecated
     @SideOnly(Side.CLIENT)
-    public static void drawTexture_Items(int x, int y, IIcon icon, int width, int height, float zLevel)
+    public static void drawTexture_Items(int x, int y, Icon icon, int width, int height, float zLevel)
     {
 		DrawUtils.drawTexture_Items(x, y, icon, width, height, zLevel);
     }
@@ -501,7 +504,7 @@ public class MiscUtils {
 	 */
 	public static void changeBiome(World w, BiomeGenBase biome, int x, int z)
 	{
-		Chunk chunk = w.getChunkFromBlockCoords(x,z);
+		Chunk chunk = w.getChunkFromBlockCoords(new BlockPos(x,w.getActualHeight(),z));
 		byte[] b = chunk.getBiomeArray();
 		byte cbiome = b[(z & 0xf) << 4 | x & 0xf]; //What is even going on here? Can this code be a little bit more readable?
 		cbiome = (byte)(biome.biomeID & 0xff);
@@ -517,8 +520,8 @@ public class MiscUtils {
 	 * @param posY - yCoord of the particle
 	 * @param posZ - zCoord of the particle
 	 * @param par5 - particle 1 gen int. Can be motion or color(depends on the particle).
-	 * @param par6 - particle 1 gen int. Can be motion or color(depends on the particle).
-	 * @param par7 - particle 1 gen int. Can be motion or color(depends on the particle).
+	 * @param par6 - particle 2 gen int. Can be motion or color(depends on the particle).
+	 * @param par7 - particle 3 gen int. Can be motion or color(depends on the particle).
 	 */
 	public static void spawnParticlesOnServer(String particleName, float posX, float posY, float posZ, double par5, double par6, double par7)
 	{
@@ -673,7 +676,7 @@ public class MiscUtils {
     	try
     	{
     		retEntity = e.getClass().getConstructor(World.class).newInstance(e.worldObj);
-    		retEntity.copyDataFrom(e, true);
+    		retEntity.copyDataFromOld(e);
     	}
     	catch(Exception exc)
     	{
@@ -704,7 +707,7 @@ public class MiscUtils {
     }
     
     /**
-     * Imitates the armor absorbption for the given damage. Can be used, if you damage your target inderectly, but still want the damage to get reduced by armor
+     * Imitates the armor absorbption for the given damage. Can be used, if you damage your target indirectly, but still want the damage to get reduced by armor
      * @param base - The damaged Entity
      * @param dam - the damage source
      * @param amount - the amount of the damage
@@ -715,7 +718,7 @@ public class MiscUtils {
         if (!dam.isUnblockable())
         {
             int i = 25 - base.getTotalArmorValue();
-            float f1 = amount * (float)i;
+            float f1 = amount * i;
             amount = f1 / 25.0F;
         }
         return amount;
@@ -734,43 +737,37 @@ public class MiscUtils {
         {
             return amount;
         }
-        else
-        {
-            int i;
-            int j;
-            float f1;
+		int i;
+		int j;
+		float f1;
 
-            if (base.isPotionActive(Potion.resistance) && dam != DamageSource.outOfWorld)
-            {
-                i = (base.getActivePotionEffect(Potion.resistance).getAmplifier() + 1) * 5;
-                j = 25 - i;
-                f1 = amount * (float)j;
-                amount = f1 / 25.0F;
-            }
+		if (base.isPotionActive(Potion.resistance) && dam != DamageSource.outOfWorld)
+		{
+		    i = (base.getActivePotionEffect(Potion.resistance).getAmplifier() + 1) * 5;
+		    j = 25 - i;
+		    f1 = amount * j;
+		    amount = f1 / 25.0F;
+		}
 
-            if (amount <= 0.0F)
-            {
-                return 0.0F;
-            }
-            else
-            {
-                i = EnchantmentHelper.getEnchantmentModifierDamage(base.getLastActiveItems(), dam);
+		if (amount <= 0.0F)
+		{
+		    return 0.0F;
+		}
+		i = EnchantmentHelper.getEnchantmentModifierDamage(base.getInventory(), dam);
 
-                if (i > 20)
-                {
-                    i = 20;
-                }
+		if (i > 20)
+		{
+		    i = 20;
+		}
 
-                if (i > 0 && i <= 20)
-                {
-                    j = 25 - i;
-                    f1 = amount * (float)j;
-                    amount = f1 / 25.0F;
-                }
+		if (i > 0 && i <= 20)
+		{
+		    j = 25 - i;
+		    f1 = amount * j;
+		    amount = f1 / 25.0F;
+		}
 
-                return amount;
-            }
-        }
+		return amount;
     }
     
     /**
@@ -781,7 +778,7 @@ public class MiscUtils {
      */
     public static void damageEntityIgnoreEvent(EntityLivingBase base, DamageSource dam, float amount)
     {
-        if (!base.isEntityInvulnerable())
+        if (!base.isEntityInvulnerable(dam))
         {
             if (amount <= 0) return;
             amount = multiplyDamageByArmorAbsorbption(base,dam,amount);
@@ -794,7 +791,7 @@ public class MiscUtils {
             {
                 float f2 = base.getHealth();
                 base.setHealth(f2 - amount);
-                base.func_110142_aN().func_94547_a(dam, f2, amount);
+                base.getCombatTracker().func_94547_a(dam, f2, amount);
                 base.setAbsorptionAmount(base.getAbsorptionAmount() - amount);
             }
         }
@@ -863,7 +860,7 @@ public class MiscUtils {
     		for(int i = 0; i < unbreakableBlocks.size(); ++i)
 	        {
 	        	BlockPosition pos = unbreakableBlocks.get(i);
-	        	if(pos.x == x && pos.y == y && pos.z == z && pos.wrld.provider.dimensionId == w.provider.dimensionId)
+	        	if(pos.x == x && pos.y == y && pos.z == z && pos.wrld.provider.getDimensionId() == w.provider.getDimensionId())
 	        	{
 	        		unbreakableBlocks.remove(pos);
 	        		break;
@@ -885,7 +882,7 @@ public class MiscUtils {
     	for(int i = 0; i < unbreakableBlocks.size(); ++i)
     	{
     		BlockPosition pos = unbreakableBlocks.get(i);
-    		if(pos.x == x && pos.y == y && pos.z == z && pos.wrld.provider.dimensionId == w.provider.dimensionId)
+    		if(pos.x == x && pos.y == y && pos.z == z && pos.wrld.provider.getDimensionId() == w.provider.getDimensionId())
     			return true;
     	}
     	return false;
@@ -919,7 +916,7 @@ public class MiscUtils {
 		DummyData id = new DummyData("id",buttonID);
 		DummyData parent = new DummyData("parent",parentClass.getName());
 		DummyData button = new DummyData("button",buttonClass.getName());
-		DummyData player = new DummyData("player",presser.getCommandSenderName());
+		DummyData player = new DummyData("player",presser.getName());
 		DummyData dx = new DummyData("x",bX);
 		DummyData dy = new DummyData("y",bY);
 		DummyData dz = new DummyData("z",bZ);
@@ -953,8 +950,8 @@ public class MiscUtils {
     	int y = maxY;
     	while(y > minY)
     	{
-    		Block b = w.getBlock(x, y, z);
-    		int meta = w.getBlockMetadata(x, y, z);
+    		Block b = w.getBlockState(new BlockPos(x, y, z)).getBlock();
+    		int meta = w.getBlockState(new BlockPos(x, y, z)).getBlock().getMetaFromState(w.getBlockState(new BlockPos(x, y, z)));
     		if(b != null && b != Blocks.air)
     		{
     			if(b == toSearch && (metadata == -1 || metadata == OreDictionary.WILDCARD_VALUE || metadata == meta))
@@ -998,12 +995,12 @@ public class MiscUtils {
     	}
     }
     
-	public static EntityLivingBase getClosestEntity(List<EntityLivingBase> mobs, double x, double y, double z)
+	public static Entity getClosestEntity(List<Entity> mobs, double x, double y, double z)
 	{
 		double minDistance = Double.MAX_VALUE;
-		EntityLivingBase retEntity = null;
+		Entity retEntity = null;
 		
-		for(EntityLivingBase elb : mobs)
+		for(Entity elb : mobs)
 		{
 			double distance = elb.getDistance(x, y, z);
 			if(distance < minDistance)
@@ -1015,4 +1012,92 @@ public class MiscUtils {
 		
 		return retEntity;
 	}
+	
+	public static boolean compareItemStacks(ItemStack is1, ItemStack is2)
+	{
+		return is1.getItemDamage() == OreDictionary.WILDCARD_VALUE && is2.getItemDamage() == OreDictionary.WILDCARD_VALUE ? Item.getIdFromItem(is1.getItem()) == Item.getIdFromItem(is2.getItem()) || oreDictionaryCompare(is1,is2) : is1.isItemEqual(is2) && ItemStack.areItemStacksEqual(is1, is2) || oreDictionaryCompare(is1,is2);
+	}
+	
+	public static Enchantment[] enchantmentList()
+	{
+		try
+		{
+			Class<Enchantment> enchclazz = Enchantment.class;
+			Field fld = enchclazz.getDeclaredFields()[0];
+			fld.setAccessible(true);
+			return Enchantment[].class.cast(fld.get(null));
+				
+		}catch(Exception e){e.printStackTrace();}
+		return null;
+	}
+	
+	public static boolean checkSameAndNullStrings(String par1, String par2)
+	{
+		if(par1 == par2)
+		{
+			if(par1 == null && par2 == null)
+				return true;
+			else
+				if(par1 != null && par2 != null)
+					if(par1.isEmpty() && par2.isEmpty())
+						return true;
+		}
+		
+		return false;
+	}
+	
+    public static float getGrowthChance(Block blockIn, World worldIn, BlockPos pos)
+    {
+        float f = 1.0F;
+        BlockPos blockpos1 = pos.down();
+
+        for (int i = -1; i <= 1; ++i)
+        {
+            for (int j = -1; j <= 1; ++j)
+            {
+                float f1 = 0.0F;
+                IBlockState iblockstate = worldIn.getBlockState(blockpos1.add(i, 0, j));
+
+                if (iblockstate.getBlock().canSustainPlant(worldIn, blockpos1.add(i, 0, j), net.minecraft.util.EnumFacing.UP, (net.minecraftforge.common.IPlantable)blockIn))
+                {
+                    f1 = 1.0F;
+
+                    if (iblockstate.getBlock().isFertile(worldIn, blockpos1.add(i, 0, j)))
+                    {
+                        f1 = 3.0F;
+                    }
+                }
+
+                if (i != 0 || j != 0)
+                {
+                    f1 /= 4.0F;
+                }
+
+                f += f1;
+            }
+        }
+
+        BlockPos blockpos2 = pos.north();
+        BlockPos blockpos3 = pos.south();
+        BlockPos blockpos4 = pos.west();
+        BlockPos blockpos5 = pos.east();
+        boolean flag = blockIn == worldIn.getBlockState(blockpos4).getBlock() || blockIn == worldIn.getBlockState(blockpos5).getBlock();
+        boolean flag1 = blockIn == worldIn.getBlockState(blockpos2).getBlock() || blockIn == worldIn.getBlockState(blockpos3).getBlock();
+
+        if (flag && flag1)
+        {
+            f /= 2.0F;
+        }
+        else
+        {
+            boolean flag2 = blockIn == worldIn.getBlockState(blockpos4.north()).getBlock() || blockIn == worldIn.getBlockState(blockpos5.north()).getBlock() || blockIn == worldIn.getBlockState(blockpos5.south()).getBlock() || blockIn == worldIn.getBlockState(blockpos4.south()).getBlock();
+
+            if (flag2)
+            {
+                f /= 2.0F;
+            }
+        }
+
+        return f;
+    }
 }
