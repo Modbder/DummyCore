@@ -10,14 +10,7 @@ import java.util.Random;
  *
  */
 public class MathUtils {
-	/**
-	 * Used to get the size of a texture in pixels using current values. Very useful in any kind of progress bars in GUI
-	 * @version From DummyCore 1.0
-	 * @param current - the current value
-	 * @param max - the maximum value
-	 * @param textureSize - the maximum texture size
-	 * @return Percentage-based int. For example, if the textureSize is 50, current is 100 and max is 200 this will return 25 - that is 50% of your texture size.
-	 */
+
 	public static int pixelatedTextureSize(int current, int max, int textureSize)
 	{
 		if(current > max)
@@ -27,13 +20,6 @@ public class MathUtils {
     	return (int)n;
 	}
 	
-	/**
-	 * Used to get the persentage between 2 numbers
-	 * @version From DummyCore 1.0
-	 * @param current - the current value
-	 * @param max - the maximum value
-	 * @return Percentage-based int. For example, if current is 100 and max is 200 this will return 50.
-	 */
 	public static int getPercentage(int current, int max)
 	{
     	float m = (float)current/max*100;
