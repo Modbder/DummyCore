@@ -32,6 +32,7 @@ import DummyCore.Client.ISBRH.RenderCube;
 import DummyCore.Client.ISBRH.RenderCubeAndCrossedSquares;
 import DummyCore.Client.ISBRH.RenderFacesWithOffset;
 import DummyCore.Client.ISBRH.RenderHorizontalCross;
+import DummyCore.Client.ISBRH.RenderNull;
 import DummyCore.Client.obj.ObjModelLoader;
 import DummyCore.Client.techne.TechneModelLoader;
 import DummyCore.Core.CoreInitialiser;
@@ -51,7 +52,15 @@ import net.minecraft.inventory.Container;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.INetHandler;
+import net.minecraft.network.NetworkManager;
+import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.tileentity.TileEntityBanner;
+import net.minecraft.tileentity.TileEntityBeacon;
+import net.minecraft.tileentity.TileEntityCommandBlock;
+import net.minecraft.tileentity.TileEntityFlowerPot;
+import net.minecraft.tileentity.TileEntityMobSpawner;
+import net.minecraft.tileentity.TileEntitySkull;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
@@ -61,6 +70,35 @@ public class NetProxy_Client extends NetProxy_Server{
 	
 	public static final Hashtable<String, ShaderGroup> shaders = new Hashtable<String, ShaderGroup>();
 	public static final Hashtable<Block,Integer[]> cachedMeta = new Hashtable<Block,Integer[]>();
+	
+	//Why vanilla's(or is it forge?) thread checking?
+	public void handlePacketS35(S35PacketUpdateTileEntity packetIn)
+	{
+        if (Minecraft.getMinecraft().theWorld.isBlockLoaded(packetIn.func_179823_a()))
+        {
+            TileEntity tileentity = Minecraft.getMinecraft().theWorld.getTileEntity(packetIn.func_179823_a());
+            
+            if(tileentity == null)
+            	return;
+            int i = packetIn.getTileEntityType();
+
+            if (i == 1 && tileentity instanceof TileEntityMobSpawner || i == 2 && tileentity instanceof TileEntityCommandBlock || i == 3 && tileentity instanceof TileEntityBeacon || i == 4 && tileentity instanceof TileEntitySkull || i == 5 && tileentity instanceof TileEntityFlowerPot || i == 6 && tileentity instanceof TileEntityBanner)
+            {
+                tileentity.readFromNBT(packetIn.getNbtCompound());
+            }
+            else
+            {
+            	NetworkManager nm = null;
+            	try{
+            		Field f = Minecraft.class.getDeclaredField(ASMManager.chooseByEnvironment("myNetworkManager", "field_71453_ak"));
+            		f.setAccessible(true);
+            		nm = NetworkManager.class.cast(f.get(Minecraft.getMinecraft().theWorld));
+            	}catch(Exception e){
+            	}
+                tileentity.onDataPacket(nm, packetIn);
+            }
+        }
+	}
 	
 	public static int getIndex(Item item, int meta)
 	{
@@ -143,6 +181,7 @@ public class NetProxy_Client extends NetProxy_Server{
 		MainMenuRegistry.registerNewGui(GuiMainMenuOld.class,"[DC] Old Vanilla","An old MC gui.");
 		TimerHijack.initMCTimer();
 		
+		RenderAccessLibrary.registerRenderingHandler(new RenderNull());
 		RenderAccessLibrary.registerRenderingHandler(new RenderCube());
 		RenderAccessLibrary.registerRenderingHandler(new RenderCrossedSquares());
 		RenderAccessLibrary.registerRenderingHandler(new RenderCubeAndCrossedSquares());
@@ -286,7 +325,7 @@ public class NetProxy_Client extends NetProxy_Server{
 	public void choseDisplayStack(CreativePageBlocks blocks)
 	{
 		World w = Minecraft.getMinecraft().theWorld;
-    	if(w.isRemote && w.getWorldTime() % 60 == 0)
+    	if(Minecraft.getMinecraft().thePlayer != null && w.isRemote && Minecraft.getMinecraft().thePlayer.ticksExisted % 60 == 0)
     	{
     		blocks.delayTime = 0;
     		blocks.blockList = blocks.initialiseBlocksList();
@@ -294,7 +333,7 @@ public class NetProxy_Client extends NetProxy_Server{
     		{
     			Random rand;
     			if(DummyConfig.shouldChangeImage)
-    				rand = new Random(w.getWorldTime());
+    				rand = new Random(Minecraft.getMinecraft().thePlayer.ticksExisted);
     			else
     				rand = new Random(0);
     			int random = rand.nextInt(blocks.blockList.size());
@@ -309,7 +348,7 @@ public class NetProxy_Client extends NetProxy_Server{
 	public void choseDisplayStack(CreativePageItems items)
 	{
 		World w = Minecraft.getMinecraft().theWorld;
-    	if(w.isRemote && w.getWorldTime() % 60 == 0)
+    	if(Minecraft.getMinecraft().thePlayer != null && w.isRemote && Minecraft.getMinecraft().thePlayer.ticksExisted % 60 == 0)
     	{
     		items.delayTime = 0;
     		items.itemList = items.initialiseItemsList();
@@ -317,7 +356,7 @@ public class NetProxy_Client extends NetProxy_Server{
     		{
     			Random rand;
     			if(DummyConfig.shouldChangeImage)
-    				rand = new Random(w.getWorldTime());
+    				rand = new Random(Minecraft.getMinecraft().thePlayer.ticksExisted);
     			else
     				rand = new Random(0);
     			int random = rand.nextInt(items.itemList.size());

@@ -24,14 +24,12 @@ public class DummyTilePacketHandler implements IMessageHandler<DummyPacketIMSG_T
 			packetID = message.dataTag.getInteger("packetID");
 			message.dataTag.removeTag("packetID");
 		}
+		
 		S35PacketUpdateTileEntity genPkt = new S35PacketUpdateTileEntity(new BlockPos(message.dataTag.getInteger("x"),message.dataTag.getInteger("y"),message.dataTag.getInteger("z")),packetID,message.dataTag);
+		
 		if(s == Side.CLIENT)
-		{
-			ctx.getClientHandler().handleUpdateTileEntity(genPkt);
-		}else
-		{
-			
-		}
+			CoreInitialiser.proxy.handlePacketS35(genPkt);
+		
 		return null;
 	}
 	

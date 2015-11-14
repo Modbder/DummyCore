@@ -9,6 +9,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.network.INetHandler;
 import net.minecraft.network.NetHandlerPlayServer;
+import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.ResourceLocation;
@@ -19,6 +20,11 @@ import net.minecraftforge.fml.common.network.IGuiHandler;
 public class NetProxy_Server implements IGuiHandler{
 	
 	public void injectOldItemBlockModel(Block b){}
+	
+	public void handlePacketS35(S35PacketUpdateTileEntity pkt)
+	{
+		
+	}
 	
 	public EntityPlayer getPlayerOnSide(INetHandler handler)
 	{
