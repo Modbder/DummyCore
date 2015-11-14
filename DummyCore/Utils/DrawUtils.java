@@ -178,6 +178,8 @@ public class DrawUtils {
         GlStateManager.enableBlend();
         GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
         GlStateManager.pushMatrix();
+        GlStateManager.translate(offsetX, offsetY, offsetZ);
+       
         IBakedModel ibakedmodel = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getItemModel(itemstack);
         int i = getISRenderPasses(itemstack, screenPosX, screenPosY, screenPosZ, TimerHijack.mcTimer.renderPartialTicks, ibakedmodel,force3DRender,rotation,rotationZ);
 
@@ -196,6 +198,7 @@ public class DrawUtils {
                 }
 
                 GlStateManager.scale(0.5F, 0.5F, 0.5F);
+                GlStateManager.rotate(rotation, 0, 1, 0);
                 Minecraft.getMinecraft().getRenderItem().renderItem(itemstack, ibakedmodel);
                 GlStateManager.popMatrix();
             }
@@ -208,6 +211,7 @@ public class DrawUtils {
                     float f3 = (itemRand.nextFloat() * 2.0F - 1.0F) * 0.15F;
                     GlStateManager.translate(f2, f3, 0);
                 }
+                GlStateManager.rotate(rotation, 0, 1, 0);
                 Minecraft.getMinecraft().getRenderItem().renderItem(itemstack, ibakedmodel);
                 GlStateManager.translate(0.0F, 0.0F, 0.046875F);
             }
