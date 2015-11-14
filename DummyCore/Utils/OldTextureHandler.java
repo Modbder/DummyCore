@@ -71,6 +71,9 @@ public class OldTextureHandler {
 		{
 			if(is.getItem() instanceof ItemBlock)
 			{
+				if(RenderAccessLibrary.irenderers.containsKey(is.getItem()))
+					return getIIRModel(is);
+				
 				int meta = metadataIgnorantStacks.contains(is.getItem()) ? 0 : is.getMetadata();
 				List<Object> l = Arrays.asList(is.getItem(),meta);
 				if(itemblockModels.containsKey(l))

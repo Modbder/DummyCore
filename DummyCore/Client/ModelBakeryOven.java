@@ -16,8 +16,14 @@ public class ModelBakeryOven {
 	
 	public void start(EnumFacing face)
 	{
+		this.start(face,-1);
+	}
+	
+	public void start(EnumFacing face, int shadeColor)
+	{
 		workedWith = face;
 		quad = 0;
+		this.shadeColor = shadeColor;
 		data = new int[28];
 	}
 	

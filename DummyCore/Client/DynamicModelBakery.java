@@ -263,7 +263,7 @@ public class DynamicModelBakery {
 	    	    	double maxV = drawn.getMaxV();
 	    	    	double minV = drawn.getMinV();
 	    	    	
-	    			oven.start(EnumFacing.WEST);
+	    			oven.start(EnumFacing.WEST,faceTint);
 	    	    	
 	    	    	oven.addVertexWithUV(minRX, maxRY, minRZ, maxU, minV);
 	    	    	oven.addVertexWithUV(maxRX, maxRY, maxRZ, minU, minV);
@@ -278,7 +278,7 @@ public class DynamicModelBakery {
 	    	    	maxV = drawn.getMaxV();
 	    	    	minV = drawn.getMinV();
 	    	    	
-	    			oven.start(EnumFacing.EAST);
+	    			oven.start(EnumFacing.EAST,faceTint);
 	    	    	
 	    	    	oven.addVertexWithUV(maxRX, maxRY, maxRZ, maxU, minV);
 	    	    	oven.addVertexWithUV(minRX, maxRY, minRZ, minU, minV);
@@ -293,7 +293,7 @@ public class DynamicModelBakery {
 	    	    	maxV = drawn.getMaxV();
 	    	    	minV = drawn.getMinV();
 	    	    	
-	    			oven.start(EnumFacing.NORTH);
+	    			oven.start(EnumFacing.NORTH,faceTint);
 	    	    	
 	    	    	oven.addVertexWithUV(maxRX, maxRY, minRZ, maxU, minV);
 	    	    	oven.addVertexWithUV(minRX, maxRY, maxRZ, minU, minV);
@@ -308,7 +308,7 @@ public class DynamicModelBakery {
 	    	    	maxV = drawn.getMaxV();
 	    	    	minV = drawn.getMinV();
 	    	    	
-	    			oven.start(EnumFacing.SOUTH);
+	    			oven.start(EnumFacing.SOUTH,faceTint);
 	    	    	
 	    	    	oven.addVertexWithUV(minRX, maxRY, maxRZ, maxU, minV);
 	    	    	oven.addVertexWithUV(maxRX, maxRY, minRZ, minU, minV);
@@ -345,7 +345,7 @@ public class DynamicModelBakery {
 	    	    	    	minU = drawn.getMinU();
 	    	    	    	maxU = drawn.getMaxU();
 	    	    		}
-	    	    		oven.start(EnumFacing.NORTH);
+	    	    		oven.start(EnumFacing.NORTH,faceTint);
 	    	        	
 	    	        	oven.addVertexWithUV(maxRX, maxRY, medRZ, maxU, minV);
 	    	        	oven.addVertexWithUV(minRX, maxRY, medRZ, minU, minV);
@@ -354,7 +354,7 @@ public class DynamicModelBakery {
 	    	        	
 	    	        	addFace(oven.done(),EnumFacing.NORTH);
 	    	        	
-	    	    		oven.start(EnumFacing.SOUTH);
+	    	    		oven.start(EnumFacing.SOUTH,faceTint);
 	    	        	
 	    	        	oven.addVertexWithUV(minRX, maxRY, medRZ, minU, minV);
 	    	        	oven.addVertexWithUV(maxRX, maxRY, medRZ, maxU, minV);
@@ -375,7 +375,7 @@ public class DynamicModelBakery {
 	    	    	    	minU = drawn.getMinU();
 	    	    	    	maxU = drawn.getMaxU();
 	    	    		}
-	    	    		oven.start(EnumFacing.WEST);
+	    	    		oven.start(EnumFacing.WEST,faceTint);
 	    	        	
 	    	        	oven.addVertexWithUV(medRX, maxRY, minRZ, minU, minV);
 	    	        	oven.addVertexWithUV(medRX, maxRY, maxRZ, maxU, minV);
@@ -384,7 +384,7 @@ public class DynamicModelBakery {
 	    	        	
 	    	        	addFace(oven.done(),EnumFacing.WEST);
 	    	        	
-	    	    		oven.start(EnumFacing.EAST);
+	    	    		oven.start(EnumFacing.EAST,faceTint);
 	    	        	
 	    	        	oven.addVertexWithUV(medRX, maxRY, maxRZ, maxU, minV);
 	    	        	oven.addVertexWithUV(medRX, maxRY, minRZ, minU, minV);
@@ -481,7 +481,7 @@ public class DynamicModelBakery {
     	double medRZ = (minRZ+maxRZ) / 2;
     	
 		ModelBakeryOven oven = ModelBakeryOven.instance;
-		oven.start(EnumFacing.WEST);
+		oven.start(EnumFacing.WEST,faceTint);
     	
     	oven.addVertexWithUV(medRX, maxRY, minRZ, minU, minV);
     	oven.addVertexWithUV(medRX, maxRY, maxRZ, maxU, minV);
@@ -490,7 +490,7 @@ public class DynamicModelBakery {
     	
     	addFace(oven.done(),EnumFacing.WEST);
     	
-		oven.start(EnumFacing.EAST);
+		oven.start(EnumFacing.EAST,faceTint);
     	
     	oven.addVertexWithUV(medRX, maxRY, maxRZ, maxU, minV);
     	oven.addVertexWithUV(medRX, maxRY, minRZ, minU, minV);
@@ -499,7 +499,7 @@ public class DynamicModelBakery {
     	
     	addFace(oven.done(),EnumFacing.EAST);
     	
-		oven.start(EnumFacing.NORTH);
+		oven.start(EnumFacing.NORTH,faceTint);
     	
     	oven.addVertexWithUV(maxRX, maxRY, medRZ, maxU, minV);
     	oven.addVertexWithUV(minRX, maxRY, medRZ, minU, minV);
@@ -508,7 +508,7 @@ public class DynamicModelBakery {
     	
     	addFace(oven.done(),EnumFacing.NORTH);
     	
-		oven.start(EnumFacing.SOUTH);
+		oven.start(EnumFacing.SOUTH,faceTint);
     	
     	oven.addVertexWithUV(minRX, maxRY, medRZ, minU, minV);
     	oven.addVertexWithUV(maxRX, maxRY, medRZ, maxU, minV);
@@ -546,7 +546,7 @@ public class DynamicModelBakery {
     	double maxV = drawn.getMaxV();
     	double minV = drawn.getMinV();
 		
-		oven.start(EnumFacing.WEST);
+		oven.start(EnumFacing.WEST,faceTint);
     	
     	oven.addVertexWithUV(minRX, maxRY, minRZ, maxU, minV);
     	oven.addVertexWithUV(maxRX, maxRY, maxRZ, minU, minV);
@@ -561,7 +561,7 @@ public class DynamicModelBakery {
     	maxV = drawn.getMaxV();
     	minV = drawn.getMinV();
     	
-		oven.start(EnumFacing.EAST);
+		oven.start(EnumFacing.EAST,faceTint);
     	
     	oven.addVertexWithUV(maxRX, maxRY, maxRZ, maxU, minV);
     	oven.addVertexWithUV(minRX, maxRY, minRZ, minU, minV);
@@ -576,7 +576,7 @@ public class DynamicModelBakery {
     	maxV = drawn.getMaxV();
     	minV = drawn.getMinV();
     	
-		oven.start(EnumFacing.NORTH);
+		oven.start(EnumFacing.NORTH,faceTint);
     	
     	oven.addVertexWithUV(maxRX, maxRY, minRZ, maxU, minV);
     	oven.addVertexWithUV(minRX, maxRY, maxRZ, minU, minV);
@@ -591,7 +591,7 @@ public class DynamicModelBakery {
     	maxV = drawn.getMaxV();
     	minV = drawn.getMinV();
     	
-		oven.start(EnumFacing.SOUTH);
+		oven.start(EnumFacing.SOUTH,faceTint);
     	
     	oven.addVertexWithUV(minRX, maxRY, maxRZ, maxU, minV);
     	oven.addVertexWithUV(maxRX, maxRY, minRZ, minU, minV);
@@ -649,7 +649,7 @@ public class DynamicModelBakery {
     	}
     	
 		ModelBakeryOven oven = ModelBakeryOven.instance;
-		oven.start(EnumFacing.EAST);
+		oven.start(EnumFacing.EAST,faceTint);
     	
     	oven.addVertexWithUV(maxRX, minRY, maxRZ, minU, minV);
     	oven.addVertexWithUV(maxRX, minRY, minRZ, maxU, minV);
@@ -695,7 +695,7 @@ public class DynamicModelBakery {
     	}
     	
 		ModelBakeryOven oven = ModelBakeryOven.instance;
-		oven.start(EnumFacing.WEST);
+		oven.start(EnumFacing.WEST,faceTint);
     	
     	oven.addVertexWithUV(minRX, maxRY, maxRZ, maxU, maxV);
     	oven.addVertexWithUV(minRX, maxRY, minRZ, minU, maxV);
@@ -741,7 +741,7 @@ public class DynamicModelBakery {
     	}
     	
 		ModelBakeryOven oven = ModelBakeryOven.instance;
-		oven.start(EnumFacing.SOUTH);
+		oven.start(EnumFacing.SOUTH,faceTint);
     	
     	oven.addVertexWithUV(minRX, maxRY, maxRZ, minU, maxV);
     	oven.addVertexWithUV(minRX, minRY, maxRZ, minU, minV);
@@ -786,7 +786,7 @@ public class DynamicModelBakery {
     	}
     	
 		ModelBakeryOven oven = ModelBakeryOven.instance;
-		oven.start(EnumFacing.NORTH);
+		oven.start(EnumFacing.NORTH,faceTint);
     	
     	oven.addVertexWithUV(minRX, maxRY, minRZ, maxU, maxV);
     	oven.addVertexWithUV(maxRX, maxRY, minRZ, minU, maxV);
@@ -831,7 +831,7 @@ public class DynamicModelBakery {
     	}
     	
 		ModelBakeryOven oven = ModelBakeryOven.instance;
-		oven.start(EnumFacing.UP);
+		oven.start(EnumFacing.UP,faceTint);
     	
     	oven.addVertexWithUV(maxRX, maxRY, maxRZ, maxU, maxV);
     	oven.addVertexWithUV(maxRX, maxRY, minRZ, maxU, minV);
@@ -876,7 +876,7 @@ public class DynamicModelBakery {
     	}
     	
 		ModelBakeryOven oven = ModelBakeryOven.instance;
-		oven.start(EnumFacing.DOWN);
+		oven.start(EnumFacing.DOWN,faceTint);
     	
     	oven.addVertexWithUV(minRX, minRY, maxRZ, maxU, maxV);
     	oven.addVertexWithUV(minRX, minRY, minRZ, maxU, minV);
@@ -931,7 +931,7 @@ public class DynamicModelBakery {
 	{
 		int id = workedWith.interfaced.getDCRenderID();
 		if(!RenderAccessLibrary.renderers.containsKey(id))
-			id = 0;
+			id = -1;
 		
 		ArrayList<ISimpleBlockRenderingHandler> isbrhal = RenderAccessLibrary.renderers.get(id);
 		for(ISimpleBlockRenderingHandler isbrh : isbrhal)
