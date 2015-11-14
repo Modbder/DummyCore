@@ -105,6 +105,8 @@ public class RPAwareModel implements ISmartItemModel, IPerspectiveAwareModel{
 
 	@Override
 	public Pair<IBakedModel, Matrix4f> handlePerspective(TransformType cameraTransformType) {
+		if(RenderAccessLibrary.mHandlers.containsKey(rendered))
+			return Pair.of(this, RenderAccessLibrary.mHandlers.get(rendered).handlePerspective(cameraTransformType, renderedFor));
 		if(cameraTransformType == TransformType.FIRST_PERSON)
 			return Pair.of(this, FIRST_PERSON_FIX);
 		
