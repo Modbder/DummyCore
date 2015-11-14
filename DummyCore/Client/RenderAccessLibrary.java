@@ -19,6 +19,7 @@ import net.minecraftforge.fml.common.Loader;
 @SuppressWarnings("deprecation")
 public class RenderAccessLibrary {
 
+	public static final int RENDER_ID_NONE = 0xffffffff;
 	public static final int RENDER_ID_CUBE = 0x00;
 	public static final int RENDER_ID_CROSS = 0x01;
 	public static final int RENDER_ID_CUBE_AND_CROSS = 0x02;
@@ -32,6 +33,15 @@ public class RenderAccessLibrary {
 	
 	public static final Hashtable<Integer,ArrayList<ISimpleBlockRenderingHandler>> renderers = new Hashtable<Integer,ArrayList<ISimpleBlockRenderingHandler>>();
 	public static final Hashtable<Item,ArrayList<IItemRenderer>> irenderers = new Hashtable<Item,ArrayList<IItemRenderer>>();
+	public static final Hashtable<Item,IModelMatrixHandler> mHandlers = new Hashtable<Item,IModelMatrixHandler>();
+	
+	public static void registerItemMatrixHandler(Item i, IModelMatrixHandler immh)
+	{
+		if(mHandlers.containsKey(i))
+			Notifier.notifyErrorCustomMod("DCRenderLibrary", "Some mod has already registered "+i+" for it's IMMH"+irenderers.get(i)+"! DC will now override the registered handler, but this might cause problems! Contact the respective mod author!(Suspected:"+Loader.instance().activeModContainer().getModId()+"@"+Loader.instance().activeModContainer().getName()+"#"+Loader.instance().activeModContainer().getDisplayVersion()+")");
+		
+		mHandlers.put(i, immh);
+	}
 	
 	public static void registerItemRenderingHandler(Item i, IItemRenderer iir)
 	{
