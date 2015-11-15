@@ -42,15 +42,14 @@ import net.minecraftforge.fml.relauncher.Side;
  */
 @Mod(modid = modid, name = modname, version = version, useMetadata = false,acceptedMinecraftVersions=mcVersion)
 public class CoreInitialiser{
-	
 	public static final String modid = "DummyCore";
 	public static final String modname = "DummyCore";
 	public static final String globalVersion = "2";
 	public static final String modVersion = "1";
 	public static final String mcVersion = "1.8";
 	public static final String modmcVersion = "18";
-	public static final String buildVersion = "0";
-	public static final String buildPostfix = "A";
+	public static final String buildVersion = "4";
+	public static final String buildPostfix = "";
 	public static final String version = globalVersion+'.'+modVersion+'.'+modmcVersion+'.'+buildVersion+'.'+buildPostfix;
 	
 	public static CoreInitialiser instance;
