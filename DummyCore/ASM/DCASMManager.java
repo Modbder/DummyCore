@@ -40,6 +40,7 @@ public class DCASMManager implements IClassTransformer{
 	@Override
 	public byte[] transform(String name, String transformedName,byte[] basicClass) 
 	{
+		name = transformedName;
 		if(ASMManager.strictCompareByEnvironment(name, "net.minecraft.client.renderer.BlockModelShapes", "net.minecraft.client.renderer.BlockModelShapes"))
 			return handleBlockModelShapes(name,basicClass);
 		if(ASMManager.strictCompareByEnvironment(name, "net.minecraft.client.renderer.BlockRendererDispatcher", "net.minecraft.client.renderer.BlockRendererDispatcher"))
@@ -76,7 +77,7 @@ public class DCASMManager implements IClassTransformer{
 			classReader.accept(classNode, ClassReader.EXPAND_FRAMES);
 			ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 
-			MethodNode mn = ASMManager.getMethod(classNode, "renderByItem", "func_179022_a", "(Lnet/minecraft/item/ItemStack;)V", "(Lnet/minecraft/item/ItemStack;)V");
+			MethodNode mn = ASMManager.getMethod(classNode, "renderByItem", "func_179022_a!&!a", "(Lnet/minecraft/item/ItemStack;)V", "(Lnet/minecraft/item/ItemStack;)V!&!(Lamj;)V");
 			
 			LabelNode iflabel = new LabelNode();
 			InsnList lst = new InsnList();
@@ -120,7 +121,7 @@ public class DCASMManager implements IClassTransformer{
 			classReader.accept(classNode, ClassReader.EXPAND_FRAMES);
 			ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 			
-			MethodNode mn = ASMManager.getMethod(classNode, "getItemModel", "func_178089_a", "(Lnet/minecraft/item/ItemStack;)Lnet/minecraft/client/resources/model/IBakedModel;", "(Lnet/minecraft/item/ItemStack;)Lnet/minecraft/client/resources/model/IBakedModel;");
+			MethodNode mn = ASMManager.getMethod(classNode, "getItemModel", "func_178089_a!&!a", "(Lnet/minecraft/item/ItemStack;)Lnet/minecraft/client/resources/model/IBakedModel;", "(Lnet/minecraft/item/ItemStack;)Lnet/minecraft/client/resources/model/IBakedModel;!&!(Lamj;)Lcxe;");
 			
 			AbstractInsnNode insertAfter = null;
 			for(int i = 0; i < mn.instructions.size(); ++i)
@@ -172,7 +173,7 @@ public class DCASMManager implements IClassTransformer{
 			classReader.accept(classNode, ClassReader.EXPAND_FRAMES);
 			ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 			
-			MethodNode mn = ASMManager.getMethod(classNode, "getModelFromBlockState", "func_175022_a", "(Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/util/BlockPos;)Lnet/minecraft/client/resources/model/IBakedModel;", "(Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/util/BlockPos;)Lnet/minecraft/client/resources/model/IBakedModel;");
+			MethodNode mn = ASMManager.getMethod(classNode, "getModelFromBlockState", "func_175022_a!&!a", "(Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/util/BlockPos;)Lnet/minecraft/client/resources/model/IBakedModel;", "(Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/util/BlockPos;)Lnet/minecraft/client/resources/model/IBakedModel;!&!(Lbec;Lard;Ldt;)Lcxe;");
 			
 			InsnList lst = new InsnList();
 			
@@ -213,7 +214,7 @@ public class DCASMManager implements IClassTransformer{
 			classReader.accept(classNode, ClassReader.EXPAND_FRAMES);
 			ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 			
-			MethodNode mn = ASMManager.getMethod(classNode, "reloadModels", "func_178124_c", "()V", "()V");
+			MethodNode mn = ASMManager.getMethod(classNode, "reloadModels", "func_178124_c!&!c", "()V", "()V!&!()V");
 			
 			InsnList lst = new InsnList();
 			lst.add(new LabelNode());

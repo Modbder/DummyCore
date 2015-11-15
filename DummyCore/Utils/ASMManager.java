@@ -9,6 +9,23 @@ import net.minecraftforge.classloading.FMLForgePlugin;
 
 public class ASMManager {
 
+	/**
+	 * Use this to determine the notch obf names in your mappings. This is only usefull ever for ASM, since the code after ASM modifications is changed to MCP maapings
+	 * <br>Example
+	 * <br>To transform a net/minecraft/client/renderer/tileentity/TileEntityItemStackRenderer/renderByItem you would use a getMethod helper
+	 * <br>To take notch names into account you would make it like this:
+	 * <br>ASMManager.getMethod(classNode, "renderByItem", "func_179022_a!&!a", "(Lnet/minecraft/item/ItemStack;)V", "(Lnet/minecraft/item/ItemStack;)V!&!(Lamj;)V");
+	 * <br>Where
+	 * <br>classNode is your class
+	 * <br>renderByItem is a DEOBFUSCATED(FML) name of the method
+	 * <br>func_179022_a!&!a is our combination of both OBFUSCATED(MCP) and OBFUSCATED(Notch) names
+	 * <br>func_179022_a!&!a translates to [func_179022_a , a], where func_179022_a is an MCP name and a is notch's name
+	 * <br>(Lnet/minecraft/item/ItemStack;)V is a DEOBFUSCATED(FML) description of the method
+	 * <br>(Lnet/minecraft/item/ItemStack;)V!&!(Lamj;)V is our combination of both OBFUSCATED(MCP) and OBFUSCATED(Notch) descriptions
+	 * <br>(Lnet/minecraft/item/ItemStack;)V!&!(Lamj;)V translates to [(Lnet/minecraft/item/ItemStack;)V, (Lamj;)V], where (Lnet/minecraft/item/ItemStack;)V is an MCP desc, and (Lamj;)V is notch's desc 
+	 */
+	public static String REGEX_NOTCH_FROM_MCP = "!&!";
+	
 	public static boolean obf(){
 		return FMLForgePlugin.RUNTIME_DEOBF;
 	}
@@ -20,14 +37,14 @@ public class ASMManager {
 	
 	public static boolean strictCompareByEnvironment(String name, String deobf, String obf)
 	{
-		String comparedTo = chooseByEnvironment(deobf,obf);
-		return comparedTo.equalsIgnoreCase(name);
+		String comparedTo = chooseByEnvironment(deobf.replace('/', '.'),obf.replace('/', '.'));
+		return comparedTo.equalsIgnoreCase(name.replace('/', '.'));
 	}
 	
 	public static boolean compareByEnvironment(String name, String deobf, String obf)
 	{
-		String comparedTo = chooseByEnvironment(deobf,obf);
-		return comparedTo.toLowerCase().contains(name.toLowerCase());
+		String comparedTo = chooseByEnvironment(deobf.replace('/', '.'),obf.replace('/', '.'));
+		return comparedTo.toLowerCase().contains(name.replace('/', '.').toLowerCase());
 	}
 	
 	public static boolean checkClassForFieldByName(ClassNode cn, String name)
@@ -75,11 +92,29 @@ public class ASMManager {
 		if(!MiscUtils.checkSameAndNullStrings(deobfDesc,obfDesc))
 			fieldDesc = chooseByEnvironment(deobfDesc,obfDesc);
 		
+		String additionalFN = "";
+		
+		if(fieldName != null && fieldName.indexOf(REGEX_NOTCH_FROM_MCP) != -1)
+		{
+			String[] sstr = fieldName.split(REGEX_NOTCH_FROM_MCP);
+			fieldName = sstr[0];
+			additionalFN = sstr[1];
+		}
+		
+		String additionalFD = "";
+		
+		if(fieldDesc != null && fieldDesc.indexOf(REGEX_NOTCH_FROM_MCP) != -1)
+		{
+			String[] sstr = fieldDesc.split(REGEX_NOTCH_FROM_MCP);
+			fieldDesc = sstr[0];
+			additionalFD = sstr[1];
+		}
+		
 		if(MiscUtils.checkSameAndNullStrings(fieldName, fieldDesc))
 			return null;
 		
 		for(FieldNode fn : cn.fields)
-			if((fieldName == null || fn.name.equals(fieldName)) && (fieldDesc == null || fn.desc.equals(fieldDesc)))
+			if((fieldName == null || fn.name.equals(fieldName) || fn.name.equals(additionalFN)) && (fieldDesc == null || fn.desc.equals(fieldDesc) || fn.desc.equals(additionalFD)))
 				return fn;
 		
 		return null;
@@ -144,10 +179,26 @@ public class ASMManager {
 		if(!MiscUtils.checkSameAndNullStrings(deobfDesc,obfDesc))
 			methodDesc = chooseByEnvironment(deobfDesc,obfDesc);
 		
+		String additionalMN = "";
+		if(methodName != null && methodName.contains(REGEX_NOTCH_FROM_MCP))
+		{
+			String[] sstr = methodName.split(REGEX_NOTCH_FROM_MCP);
+			methodName = sstr[0];
+			additionalMN = sstr[1];
+		}
+		
+		String additionalMD = "";
+		if(methodDesc != null && methodDesc.contains(REGEX_NOTCH_FROM_MCP))
+		{
+			String[] sstr = methodDesc.split(REGEX_NOTCH_FROM_MCP);
+			methodDesc = sstr[0];
+			additionalMD = sstr[1];
+		}
+		
 		if(MiscUtils.checkSameAndNullStrings(methodName, methodDesc))
 			return null;
 		for(MethodNode mn : cn.methods)
-			if((methodName == null || methodName.equals(mn.name)) && (methodDesc == null || methodDesc.equals(mn.desc)))
+			if((methodName == null || methodName.equals(mn.name) || additionalMN.equals(mn.name)) && (methodDesc == null || methodDesc.equals(mn.desc) || additionalMD.equals(mn.desc)))
 				return mn;
 		
 		return null;

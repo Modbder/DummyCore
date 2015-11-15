@@ -2,12 +2,8 @@ package DummyCore.ASM;
 
 import static DummyCore.Core.CoreInitialiser.mcVersion;
 
-import java.io.File;
 import java.util.Map;
 
-import DummyCore.Core.Core;
-import net.minecraftforge.fml.relauncher.FMLInjectionData;
-import net.minecraftforge.fml.relauncher.IFMLCallHook;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin.MCVersion;
 
@@ -17,19 +13,16 @@ import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin.MCVersion;
  * @Description Internal
  */
 @MCVersion(value=mcVersion)
-public class DCLoadingPlugin implements IFMLLoadingPlugin, IFMLCallHook{
+public class DCLoadingPlugin implements IFMLLoadingPlugin{
 
 	public DCLoadingPlugin()
 	{
-		if(Core.mcDir != null)
-			return;
-		
-		Core.mcDir = (File) FMLInjectionData.data()[6];
+
 	}
 	
 	@Override
 	public String[] getASMTransformerClass() {
-		return new String[]{DCASMManager.class.getName()};
+		return new String[]{"DummyCore.ASM.DCASMManager"};
 	}
 
 	@Override
@@ -51,10 +44,4 @@ public class DCLoadingPlugin implements IFMLLoadingPlugin, IFMLCallHook{
 	public String getAccessTransformerClass() {
 		return null;
 	}
-
-	@Override
-	public Void call() throws Exception {
-		return null;
-	}
-
 }
