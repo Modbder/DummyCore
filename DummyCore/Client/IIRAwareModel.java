@@ -74,7 +74,7 @@ public class IIRAwareModel implements IPerspectiveAwareModel,ISmartItemModel{
 
 	@Override
 	public Pair<IBakedModel, Matrix4f> handlePerspective(TransformType cameraTransformType) {
-		return Pair.of(this, RenderAccessLibrary.handleTransformationFor(rendered, cameraTransformType));
+		return Pair.of(IBakedModel.class.cast(this), RenderAccessLibrary.handleTransformationFor(rendered, cameraTransformType));
 	}
 
 }

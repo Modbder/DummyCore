@@ -106,18 +106,18 @@ public class RPAwareModel implements ISmartItemModel, IPerspectiveAwareModel{
 	@Override
 	public Pair<IBakedModel, Matrix4f> handlePerspective(TransformType cameraTransformType) {
 		if(RenderAccessLibrary.mHandlers.containsKey(rendered))
-			return Pair.of(this, RenderAccessLibrary.mHandlers.get(rendered).handlePerspective(cameraTransformType, renderedFor));
+			return Pair.of(IBakedModel.class.cast(this), RenderAccessLibrary.mHandlers.get(rendered).handlePerspective(cameraTransformType, renderedFor));
 		if(cameraTransformType == TransformType.FIRST_PERSON)
-			return Pair.of(this, FIRST_PERSON_FIX);
+			return Pair.of(IBakedModel.class.cast(this), FIRST_PERSON_FIX);
 		
 		if(cameraTransformType == TransformType.THIRD_PERSON)
 		{
 			if(interfaced.render3D(renderedFor))
-				return Pair.of(this, THIRD_PERSON_3D);
+				return Pair.of(IBakedModel.class.cast(this), THIRD_PERSON_3D);
 			
-			return Pair.of(this, THIRD_PERSON_2D);
+			return Pair.of(IBakedModel.class.cast(this), THIRD_PERSON_2D);
 		}
-		return Pair.of(this, null);
+		return Pair.of(IBakedModel.class.cast(this), null);
 	}
 	
 	public static final Matrix4f THIRD_PERSON_3D = ForgeHooksClient.getMatrix(new ItemTransformVec3f(new Vector3f(0,1.5F,-0.7F),new Vector3f(0,0.03F,-0.2F),new Vector3f(1,1,1)));

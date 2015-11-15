@@ -137,9 +137,9 @@ public class SBRHAwareModel implements ISmartBlockModel, ISmartItemModel, IPosAw
 	@Override
 	public Pair<IBakedModel, Matrix4f> handlePerspective(TransformType cameraTransformType) {
 		if(cameraTransformType == TransformType.THIRD_PERSON)
-			return Pair.of(this, OLDBLOCKTHIRDPERSON);
+			return Pair.of(IBakedModel.class.cast(this), OLDBLOCKTHIRDPERSON);
 		
-		return Pair.of(this, null);
+		return Pair.of(IBakedModel.class.cast(this), null);
 	}
 
 	public static final Matrix4f OLDBLOCKTHIRDPERSON = ForgeHooksClient.getMatrix(new ItemTransformVec3f(new Vector3f(3.3F,1,-0.3F), new Vector3f(0F,0.1F,-0.15F), new Vector3f(0.35F, 0.35F, 0.35F)));
