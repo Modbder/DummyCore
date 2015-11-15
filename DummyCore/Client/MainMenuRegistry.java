@@ -482,6 +482,7 @@ public class MainMenuRegistry {
 	{
 		try
 		{
+			Core.mcDir = Minecraft.getMinecraft().mcDataDir;
 			File dir = new File(Core.mcDir,"config");
 			dir.mkdirs();
 			dir = new File(dir,"dcMainMenu");
