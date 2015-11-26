@@ -1,5 +1,9 @@
 package DummyCore.Utils;
 
+/**
+ * Is just a pair of 2 objects, duh
+ * @author modbder
+ */
 public class Pair<T1, T2>{
 	
 	public T1 obj1;

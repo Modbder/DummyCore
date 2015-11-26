@@ -6,6 +6,14 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 
+/**
+ * This used to be a helper in 1.7 code
+ * <br>I guess it can still be used in 1.8
+ * <br>Objects of this class represent a full data about a block in the given location
+ * <br>Can be used to store some info
+ * @author modbder
+ *
+ */
 public class BlockPosition {
 	
 	public int x;

@@ -1,5 +1,8 @@
 package DummyCore.Core;
 
+/**
+ * Internal
+ */
 import DummyCore.Utils.LoadingUtils;
 import net.minecraftforge.fml.common.ICrashCallable;
 

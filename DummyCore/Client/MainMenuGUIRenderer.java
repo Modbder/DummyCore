@@ -2,6 +2,11 @@ package DummyCore.Client;
 
 import DummyCore.Utils.IMainMenu;
 
+/**
+ * Internal. Undocumented.
+ * @author modbder
+ *
+ */
 public class MainMenuGUIRenderer {
 	
 	public static IMainMenu currentScreenBeingRendered;

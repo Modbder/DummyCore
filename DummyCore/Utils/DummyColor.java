@@ -8,9 +8,9 @@ package DummyCore.Utils;
  */
 public class DummyColor {
 	
-	private int[] color = new int[3];
+	private byte[] color = new byte[3];
 	
-	public DummyColor(int red, int green, int blue)
+	public DummyColor(byte red, byte green, byte blue)
 	{
 		color[0] = red;
 		color[1] = green;
@@ -34,14 +34,11 @@ public class DummyColor {
 	
 	public int getColorInHex()
 	{
-		int ret = 0x000000;
-		int rHex = MathUtils.convertToHex(getRed());
-		int gHex = MathUtils.convertToHex(getGreen());
-		int bHex = MathUtils.convertToHex(getBlue());
-		rHex *= 10000;
-		gHex *= 100;
-		ret = rHex+gHex+bHex;
-		return ret;
+		double aR = color[0]/255D;
+		double aG = color[1]/255D;
+		double aB = color[2]/255D;
+		int aColor = ((int)(aR * 0xff) << 16) + ((int)(aG * 0xff) << 8) + ((int)(aB * 0xff));
+		return aColor;
 	}
 
 }

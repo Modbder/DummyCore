@@ -10,7 +10,11 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainer;
 
-
+/**
+ * Internal
+ * @author modbder
+ *
+ */
 public class LoadingUtils {
 	
 	public static final ArrayList<String> knownBigASMModifiers = new ArrayList<String>();

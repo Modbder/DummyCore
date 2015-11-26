@@ -1,6 +1,10 @@
 package DummyCore.Utils;
 
-@Deprecated
+/**
+ * A simple Enum for... something? Convinience!
+ * @author modbder
+ *
+ */
 public enum EnumGuiPosition {
 	TOPLEFT,
 	TOPRIGHT,
@@ -8,8 +12,6 @@ public enum EnumGuiPosition {
 	BOTRIGHT,
 	CENTER;
 	
-	public int x;
-	public int y;
 	EnumGuiPosition()
 	{
 	}

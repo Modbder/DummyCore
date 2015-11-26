@@ -20,6 +20,11 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.IBlockAccess;
 
+/**
+ * Internal. Undocumented. Allows kinda 1.7 rendering in 1.8
+ * @author modbder
+ *
+ */
 @SuppressWarnings("deprecation")
 public class OldTextureHandler {
 

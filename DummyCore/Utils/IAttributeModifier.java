@@ -4,6 +4,7 @@ import net.minecraft.entity.ai.attributes.IAttribute;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 
+@Deprecated
 public interface IAttributeModifier {
 	
 	public abstract String getType(ItemStack stack, EntityPlayer p);

@@ -35,7 +35,7 @@ public class DummyDataUtils {
 	private static final Class<DummyDataUtils> clazz = DummyDataUtils.class;
 	
 	/**
-	 * A new version of world loads, better server compathabilities.
+	 * A new version of world loads, better server compatibilities.
 	 */
 	@SubscribeEvent
 	public void serverWorldLoad(WorldEvent.Load event)

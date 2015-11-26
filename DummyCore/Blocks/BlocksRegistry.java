@@ -47,10 +47,10 @@ public class BlocksRegistry {
 		{
 			b.setCreativeTab(Core.getBlockTabForMod(modClass));
 			blocksList.put(b, Core.getBlockTabForMod(modClass).getTabLabel());
+			
+			if(b instanceof IOldCubicBlock)
+				OldTextureHandler.addOldBlock(Core.getModFromClass(modClass).modid+":"+name, b);
 		}
-		
-		if(b instanceof IOldCubicBlock)
-			OldTextureHandler.addOldBlock(Core.getModFromClass(modClass).modid+":"+name, b);
 	}
 
 }

@@ -27,6 +27,11 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 
+/**
+ * An old(alpha and beta) main menu GUI 
+ * @author modbder
+ *
+ */
 public class GuiMainMenuOld extends GuiMainMenu implements IMainMenu{
 
 	private static final ResourceLocation minecraftTitleTextures = new ResourceLocation("textures/gui/title/minecraft.png");

@@ -3,6 +3,11 @@ package DummyCore.Client;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.util.ResourceLocation;
 
+/**
+ * This registers all your needed icons.
+ * @author modbder
+ *
+ */
 public class IconRegister{
 	
 	public static final IconRegister instance = new IconRegister();

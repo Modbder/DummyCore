@@ -18,6 +18,11 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
+/**
+ * Allows to render a .gif image in minecraft
+ * @author modbder
+ *
+ */
 public class GIFImage
 {
 	public int frames;
@@ -25,6 +30,10 @@ public class GIFImage
 	public int[] imagesGLIDs;
 	public boolean errored;
 	
+	/**
+	 * Creates a new .gif image from the given ResourceLocation
+	 * @param texture
+	 */
 	@SuppressWarnings("resource")
 	public GIFImage(ResourceLocation texture)
 	{
@@ -61,6 +70,16 @@ public class GIFImage
 		}
 	}
 		
+	/**
+	 * Draws the image on the screen. Before using this always check for the errored boolean!
+	 * @param frame - current frame of the .gif image. 
+	 * @param minU - basically a start X of the image
+	 * @param minV - basically a start Y of the image
+	 * @param maxU - basically an end X of the image
+	 * @param maxV - basically an end Z of the image
+	 * @param sizeX - XSize of the image in pixels
+	 * @param sizeY - YSize of the image in pixels
+	 */
 	public void drawOnScreen(int frame, double minU, double minV, double maxU, double maxV, int sizeX, int sizeY)
 	{
     	GL11.glBindTexture(GL11.GL_TEXTURE_2D, imagesGLIDs[frame]);
@@ -81,6 +100,9 @@ public class GIFImage
         GL11.glEnd();
 	}		
 	
+	/**
+	 * Private method for the constructor. Fills all the necessary render data
+	 */
 	public static final int PIXEL_FORMAT_RGBA = 4;
 	private int loadTexture(BufferedImage image)
 	{

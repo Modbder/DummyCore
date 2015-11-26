@@ -4,6 +4,11 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * A small logging wrapper of mine. You should use org.apache.logging
+ * @author modbder
+ *
+ */
 public class Notifier {
 	
 	//======================================String Beginning Indexes===============================================//

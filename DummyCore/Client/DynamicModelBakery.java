@@ -153,6 +153,10 @@ public class DynamicModelBakery {
     	offsetZ = z;
     }
     
+    /**
+     * Sets the render AABB from the given block's bounds
+     * @param b - the block to take the bounds from
+     */
     public void setRenderBoundsFromBlock(Block b)
     {
     	if(inWorldRendering)
@@ -160,71 +164,125 @@ public class DynamicModelBakery {
     	renderBB = new ExtendedAABB(b.getBlockBoundsMinX(),b.getBlockBoundsMinY(),b.getBlockBoundsMinZ(),b.getBlockBoundsMaxX(),b.getBlockBoundsMaxY(),b.getBlockBoundsMaxZ());
     }
     
+    /**
+     * Clears the render AABB to default(0,0,0,1,1,1)
+     */
     public void clearRenderBounds()
     {
     	renderBB = new ExtendedAABB(0,0,0,1,1,1);
     }
     
+    /**
+     * Sets the render AABB to the given coords. See {@link net.minecraft.util.AxisAlignedBB#fromBounds(double, double, double, double, double, double)}
+     * @param minX - min X
+     * @param minY - min Y
+     * @param minZ - min Z
+     * @param maxX - max X
+     * @param maxY - max Y
+     * @param maxZ - max Z
+     */
     public void setRenderBounds(double minX, double minY, double minZ, double maxX, double maxY, double maxZ)
     {
     	renderBB = new ExtendedAABB(minX,minY,minZ,maxX,maxY,maxZ);
     }
     
+    /**
+     * Choose an Icon based on the given face
+     * @param face - the face to chose the icon for
+     * @return the Icon object. This might be null, but the code assumes it is not.
+     */
     public Icon chooseIcon(EnumFacing face)
     {
     	return overrideBlockIcon == null ? inWorldRendering ? workedWith.interfaced.getIcon(world, x, y, z, face.ordinal()) : workedWith.interfaced.getIcon(face.ordinal(), workedWith.rendered.getMetaFromState(workedWith.blockState)) : overrideBlockIcon;
     }
     
+    /**
+     * Sets the override Icon to use as texture for ANY face.
+     * @param icon - the Icon object to override the current texture with
+     */
     public void setOverrideBlockTexture(Icon icon)
     {
     	overrideBlockIcon = icon;
     }
     
+    /**
+     * Clears the override Icon. You *should* call this after your rendering, however you might not.
+     */
     public void clearOverrideBlockTexture()
     {
     	overrideBlockIcon = null;
     }
     
+    /**
+     * This checks if there currently is an override Icon for the block or not
+     * @return true if there is an Icon to override the block's icon with, false otherwise
+     */
     public boolean hasOverrideBlockIcon()
     {
     	return overrideBlockIcon != null;
     }
     
+    /**
+     * Sets the color to render the block with. Is a HEX RGB format. Example: 0xffffff is white, 0x000000 is black and 0xff0000 is bright red
+     * @param color the int hex RGB color
+     */
     public void setOverrideBlockColor(int color)
     {
     	faceTint = color;
     }
     
+    /**
+     * Clears the block's override color to use the default one(0xffffff)
+     */
     public void clearOverrideBlockColor()
     {
     	faceTint = -1;
     }
     
+    /**
+     * Adds the horizontal(XZ) only faces with a default(0.1) offset
+     */
     public void addHorizontalFacesWithOffset()
     {
     	addHorizontalFacesWithOffset(0.1);
     }
     
+    /**
+     * Inverts the rendering, so it is done "from the inside"(swaps the minX <-> maxX(or minZ <-> maxZ) and minU <-> maxU)
+     */
     public void invertRenderPoints()
     {
     	inverseRender = !inverseRender;
     }
     
+    /**
+     * Clears the render inversion, so it is no longer inversed
+     */
     public void clearRenderInversion()
     {
     	inverseRender = false;
     }
     
+    /**
+     * Disables the rendering of all faces of the block, even once which should not be rendered
+     */
     public void disableRenderAllFaces()
     {
     	renderAllFaces = false;
     }
     
+    /**
+     * Forces the renderer to render all faces of the block, even once which should not be rendered
+     */
     public void forceRenderAllFaces()
     {
     	renderAllFaces = true;
     }
     
+    /**
+     * Renders a block connected to another block.
+     * @see {@link DummyCore.Client.IBlockConnector}
+     */
     public void addConnectedBlockFaces()
     {
     	this.setRenderBounds(0, 0, 0, 1, 1, 1);
@@ -403,11 +461,18 @@ public class DynamicModelBakery {
     	this.clearRenderBounds();
     }
     
+    /**
+     * Renders all faces, but offsets the horizontal(XZ) by a default amount(0.0625, or 1/16)
+     */
     public void addFacesWithOffsetOnHorizontalAxis()
     {
     	addFacesWithOffsetOnHorizontalAxis(0.0625D);
     }
     
+    /**
+     * Renders all faces, but offsets the horizontal(XZ) by a specified amount
+     * @param offset - how much should the faces on the horizontal axis be offset
+     */
     public void addFacesWithOffsetOnHorizontalAxis(double offset)
     {
     	this.addFaceYNeg();
@@ -426,6 +491,10 @@ public class DynamicModelBakery {
     	this.clearRenderOffsets();
     }
     
+    /**
+     * Renders only the horizontal(XZ) faces of a block ofset by a specified amount
+     * @param offset - how much should the faces on the horizontal axis be offset
+     */
     public void addHorizontalFacesWithOffset(double offset)
     {
     	this.setRenderBounds(0, 0, 0, 1, 1, 1);
@@ -453,6 +522,9 @@ public class DynamicModelBakery {
     	this.clearRenderOffsets();
     }
     
+    /**
+     * Renders all horizontal(XZ) faces of a block in a cross(+).
+     */
     public void addHorizontalCrossedSquares()
     {
     	Icon drawn = chooseIcon(EnumFacing.UP);
@@ -518,6 +590,9 @@ public class DynamicModelBakery {
     	addFace(oven.done(),EnumFacing.SOUTH);
     }
     
+    /**
+     * Renders all horizontal(XZ) faces of a block in an X pattern(x).
+     */
     public void addCrossedSquares()
     {
     	double minRX = offsetX + renderBB.minX;
@@ -601,6 +676,9 @@ public class DynamicModelBakery {
     	addFace(oven.done(),EnumFacing.SOUTH);
     }
 
+    /**
+     * Renders a standard 6 faces cube with a given offset and AABB
+     */
     public void addCube()
     {
     	addFaceYNeg();
@@ -613,6 +691,9 @@ public class DynamicModelBakery {
     	addFaceXPos();
     }
     
+    /**
+     * Renders an EAST(positive on the X axis) face of a block
+     */
     public void addFaceXPos()
     {
     	Icon drawn = chooseIcon(EnumFacing.EAST);
@@ -659,6 +740,9 @@ public class DynamicModelBakery {
     	addFace(oven.done(),EnumFacing.EAST);
     }
     
+    /**
+     * Renders an WEST(negative on the X axis) face of a block
+     */
     public void addFaceXNeg()
     {
     	Icon drawn = chooseIcon(EnumFacing.WEST);
@@ -705,6 +789,9 @@ public class DynamicModelBakery {
     	addFace(oven.done(),EnumFacing.WEST);
     }
     
+    /**
+     * Renders an SOUTH(positive on the Z axis) face of a block
+     */
     public void addFaceZPos()
     {
     	Icon drawn = chooseIcon(EnumFacing.SOUTH);
@@ -751,6 +838,9 @@ public class DynamicModelBakery {
     	addFace(oven.done(),EnumFacing.SOUTH);
     }
     
+    /**
+     * Renders an NORTH(negative on the Z axis) face of a block
+     */
     public void addFaceZNeg()
     {
     	Icon drawn = chooseIcon(EnumFacing.NORTH);
@@ -796,6 +886,9 @@ public class DynamicModelBakery {
     	addFace(oven.done(),EnumFacing.NORTH);
     }
     
+    /**
+     * Renders an UP(positive on the Y axis) face of a block
+     */
     public void addFaceYPos()
     {
     	Icon drawn = chooseIcon(EnumFacing.UP);
@@ -841,6 +934,9 @@ public class DynamicModelBakery {
     	addFace(oven.done(),EnumFacing.UP);
     }
 	
+    /**
+     * Renders a DOWN(negative on the Y axis) face of a block
+     */
     public void addFaceYNeg()
     {
     	Icon drawn = chooseIcon(EnumFacing.DOWN);
@@ -887,6 +983,12 @@ public class DynamicModelBakery {
     	
     }   
     
+    /**
+     * Adds a formed vertexData array to the model
+     * @param vertexData - the formed data
+     * @param face - the side to add for
+     * @see {@link DummyCore.Client.ModelBakeryOven}
+     */
 	public void addFace(int[] vertexData, EnumFacing face)
 	{
 		if(renderAllFaces)
@@ -899,12 +1001,23 @@ public class DynamicModelBakery {
 		}
 	}
 	
+	/**
+	 * Adds a formed vertexData array to the model. The difference between this method and the other one is that adding vertexes using this one will make the model's faces always be rendered
+	 * @param vertexData - the formed data
+	 * @see {@link DummyCore.Client.ModelBakeryOven}
+	 */
 	public void addQuad(int[] vertexData)
 	{
 		BakedQuad bq = new BakedQuad(vertexData, faceTint, EnumFacing.UP);
 		workedWith.quads.add(bq);
 	}
 	
+	/**
+	 * A generic function that does a recursive search through all ISBRH to render a given ItemStack. 
+	 * This should not be called by a developer, since this is considered to be an internal DC's method.
+	 * However it is left public for possible render haxes.
+	 * @param stk - the ItemStack to render
+	 */
 	public void doBakeModelForIS(ItemStack stk)
 	{
 		int id = workedWith.interfaced.getDCRenderID();
@@ -927,6 +1040,14 @@ public class DynamicModelBakery {
 		}
 	}
 	
+	/**
+	 * A generic function that does a recursive search through all ISBRH to render a given Block. 
+	 * This should not be called by a developer, since this is considered to be an internal DC's method.
+	 * However it is left public for possible render haxes.
+	 * @param state - the BlockState of the block to render(metadata)
+	 * @param world - the world the rendering is in
+	 * @param pos - current position of a block
+	 */
 	public void doBakeModelInWorld(IBlockState state, IBlockAccess world, BlockPos pos)
 	{
 		int id = workedWith.interfaced.getDCRenderID();

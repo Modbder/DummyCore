@@ -195,14 +195,12 @@ public class MiscUtils {
 	}
 	
 	/**
-	 * Used to check, if the Forge Ore Dictionary contains the given name in it. 
-	 * @version From DummyCore 1.4
-	 * @param oreName - the ore name to search
-	 * @return true if OreDictionary contains the given ore, false if not.
+	 * Deprecated. Use {@link OreDictUtils#oreDictionaryContains(String)}
 	 */
+	@Deprecated
 	public static boolean oreDictionaryContains(String oreName)
 	{
-		return !OreDictionary.getOres(oreName).isEmpty();
+		return OreDictUtils.oreDictionaryContains(oreName);
 	}
 	
 	/**
@@ -225,23 +223,16 @@ public class MiscUtils {
 		}
 	}  
 	
+	/**
+	 * Sends a given NBT as a packet
+	 * @param tileTag - the NBT to send
+	 * @param packetID - the ID of the packet
+	 */
 	public static void syncTileEntity(NBTTagCompound tileTag, int packetID)
 	{
 		DummyPacketIMSG_Tile simplePacket = new DummyPacketIMSG_Tile(tileTag);
 		CoreInitialiser.network.sendToAll(simplePacket);
 	}  
-	
-	/**
-	 * No longer functional. Please, remove the references from your code and use Minecraft's attrubute system instead! 
-	 * */
-	@Deprecated
-	public static void makeItemIgnoreDamage(Item i){}
-	
-	/**
-	 * No longer functional. Please, remove the references from your code and use Minecraft's attrubute system instead! 
-	 * */
-	@Deprecated
-	public static void registerItemModifier(Item id, int meta,String type, String last5ofUUID,double value,IAttribute attrib,int operation){}
 	
 	/**
 	 * Used to apply any attribute to the Player.
@@ -266,12 +257,6 @@ public class MiscUtils {
 				p.getAttributeMap().getAttributeInstance(attrib).removeModifier(p.getAttributeMap().getAttributeInstance(attrib).getModifier(UUID.fromString(genUUIDString+uuidLast5Symbols)));
 		}
 	}
-	
-	@Deprecated
-	public static void registerDescriptionFor(String unlocalisedName, String descr, EnumChatFormatting color){}
-
-	@Deprecated
-	public static void registerDescriptionFor(String id, int meta, String descr, EnumChatFormatting color){}
 	
 	/**
 	 * Used to send packets from SERVER to CLIENT.
@@ -594,34 +579,14 @@ public class MiscUtils {
 		}
 	}
 	
+
 	/**
-	 * Compares if 2 itemstacks are equal on the oredict side
-	 * @param stk
-	 * @param stk1
-	 * @return
-	 * @version From DummyCore 2.0
+	 * Deprecated. Use {@link OreDictUtils#oreDictionaryCompare(ItemStack, ItemStack)}
 	 */
+	@Deprecated
 	public static boolean oreDictionaryCompare(ItemStack stk, ItemStack stk1)
 	{
-		if(stk == null || stk1 == null)
-			return false;
-		
-		if(OreDictionary.getOreIDs(stk) == null || OreDictionary.getOreIDs(stk).length == 0 || OreDictionary.getOreIDs(stk1) == null || OreDictionary.getOreIDs(stk1).length == 0)
-			return false;
-		
-		int[] ids = OreDictionary.getOreIDs(stk);
-		int[] ids1 = OreDictionary.getOreIDs(stk1);
-		
-		for(int i = 0; i < ids.length; ++i)
-		{
-			for(int j = 0; j < ids1.length; ++j)
-			{
-				if(ids[i] == ids1[j])
-					return true;
-			}
-		}
-		
-		return false;
+		return OreDictUtils.oreDictionaryCompare(stk, stk1);
 	}
 	
 	/**
@@ -967,22 +932,44 @@ public class MiscUtils {
     	return -1;
     }
     
+    /**
+     * Opens a GUI for the ID from your GuiContainerLibrary
+     * @param w - the world we are in
+     * @param x - x pos of the block
+     * @param y - y pos of the block
+     * @param z - z pos of the block
+     * @param player - the player opening the GUI
+     * @param guiID - the GUI id from the GuiContainerLibrary
+     */
     public static void openGui(World w, int x, int y, int z, EntityPlayer player, int guiID)
     {
     	player.openGui(CoreInitialiser.instance, guiID, w, x, y, z);
     }
     
+    /**
+     * Sets the current shader as a given ID
+     * @param shaderID - the ID of the default shader, or -1 to reset them
+     */
     public static void setShaders(int shaderID)
     {
     	if(shaderID >= defaultShaders.length)shaderID = defaultShaders.length-1;
     	if(shaderID < 0)setShaders(null);else CoreInitialiser.proxy.initShaders(defaultShaders[shaderID]);
     }
     
+    /**
+     * Sets the current shader from a given ResourceLocation
+     * @param shaders - the shader.json file
+     */
     public static void setShaders(ResourceLocation shaders)
     {
     	CoreInitialiser.proxy.initShaders(shaders);
     }
     
+    /**
+     * Checks if the class with the given name exists
+     * @param className - the name to check for
+     * @return true if the class exists, false otherwise
+     */
     public static boolean classExists(String className)
     {
     	try
@@ -995,6 +982,14 @@ public class MiscUtils {
     	}
     }
     
+    /**
+     * Gets the closest Entity from the given list relative to the given coords
+     * @param mobs -the list of entities
+     * @param x - x
+     * @param y - y
+     * @param z - z
+     * @return The closest entity to the given point
+     */
 	public static Entity getClosestEntity(List<Entity> mobs, double x, double y, double z)
 	{
 		double minDistance = Double.MAX_VALUE;
@@ -1013,11 +1008,21 @@ public class MiscUtils {
 		return retEntity;
 	}
 	
+	/**
+	 * Checks if 2 ItemStacks are equal or if their metadata is an OreDictionary.WILDCARD_VALUE checks for their OreDict entry
+	 * @param is1
+	 * @param is2
+	 * @return
+	 */
 	public static boolean compareItemStacks(ItemStack is1, ItemStack is2)
 	{
-		return is1.getItemDamage() == OreDictionary.WILDCARD_VALUE && is2.getItemDamage() == OreDictionary.WILDCARD_VALUE ? Item.getIdFromItem(is1.getItem()) == Item.getIdFromItem(is2.getItem()) || oreDictionaryCompare(is1,is2) : is1.isItemEqual(is2) && ItemStack.areItemStacksEqual(is1, is2) || oreDictionaryCompare(is1,is2);
+		return is1.getItemDamage() == OreDictionary.WILDCARD_VALUE && is2.getItemDamage() == OreDictionary.WILDCARD_VALUE ? Item.getIdFromItem(is1.getItem()) == Item.getIdFromItem(is2.getItem()) || OreDictUtils.oreDictionaryCompare(is1,is2) : is1.isItemEqual(is2) && ItemStack.areItemStacksEqual(is1, is2) || OreDictUtils.oreDictionaryCompare(is1,is2);
 	}
 	
+	/**
+	 * Since Enchantment.enchantmentsList is now private(why?) here is a method to get it's object
+	 * @return - the Enchantment.enchantmentsList
+	 */
 	public static Enchantment[] enchantmentList()
 	{
 		try
@@ -1031,6 +1036,12 @@ public class MiscUtils {
 		return null;
 	}
 	
+	/**
+	 * Checks if 2 strings are equal and null || empty
+	 * @param par1 - the first string
+	 * @param par2 - the second string
+	 * @return True if both strings are empty or null, false otherwise
+	 */
 	public static boolean checkSameAndNullStrings(String par1, String par2)
 	{
 		if(par1 == par2)
@@ -1046,6 +1057,13 @@ public class MiscUtils {
 		return false;
 	}
 	
+	/**
+	 * Crop helper. Gets a growth chance for the given crop based on it's surroundings
+	 * @param blockIn - the crop block
+	 * @param worldIn - the world
+	 * @param pos - the pos of the crop block
+	 * @return The growth chance for the given crop based on it's surroundings
+	 */
     public static float getGrowthChance(Block blockIn, World worldIn, BlockPos pos)
     {
         float f = 1.0F;

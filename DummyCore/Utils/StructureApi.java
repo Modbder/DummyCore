@@ -30,6 +30,11 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 
+/**
+ * This is an API for structure-like code. Allows storing structures from world into .str files to parse later
+ * @author modbder
+ *
+ */
 public class StructureApi 
 {
 	@Deprecated
@@ -38,6 +43,14 @@ public class StructureApi
 		return(createStructureTagIgnoreMetadata(w,new ExtendedAABB(aabb),whitelist,blocks));
 	}
 	
+	/**
+	 * Creates an NBTTag with all structure information in the given cuboid, world and blocks
+	 * @param w - the world
+	 * @param aabb - the cuboid
+	 * @param whitelist - if the array of blocks below is a whitelist rather than a blacklist
+	 * @param blocks an array of blocks
+	 * @return a formed StructureNBTTag
+	 */
 	public static NBTTagCompound createStructureTagIgnoreMetadata(World w,ExtendedAABB aabb, boolean whitelist, Block... blocks)
 	{
 		NBTTagCompound tag = new NBTTagCompound();
@@ -116,6 +129,15 @@ public class StructureApi
 		return createStructureTag(w,new ExtendedAABB(aabb),whitelist,blocks);
 	}
 	
+	
+	/**
+	 * Creates an NBTTag with all structure information in the given cuboid, world and blocks
+	 * @param w - the world
+	 * @param aabb - the cuboid
+	 * @param whitelist - if the array of blocks below is a whitelist rather than a blacklist
+	 * @param blocks an array of blocks
+	 * @return a formed StructureNBTTag respecting metadata
+	 */
 	public static NBTTagCompound createStructureTag(World w,ExtendedAABB aabb, boolean whitelist, Block... blocks)
 	{
 		NBTTagCompound tag = new NBTTagCompound();
@@ -188,6 +210,14 @@ public class StructureApi
 		return tag;
 	}
 	
+	/**
+	 * Generates a structure from the given NBTTag into a world
+	 * @param w - the world
+	 * @param x - x pos
+	 * @param y - y pos
+	 * @param z - z pos
+	 * @param structureTag - the valid StructureNBTTag
+	 */
 	@SuppressWarnings("unchecked")
 	public static void nbtStructureIntoWorld(World w, int x, int y, int z, NBTTagCompound structureTag)
 	{
@@ -239,6 +269,7 @@ public class StructureApi
 		structure = null;
 	}
 
+	//Internal
 	@SuppressWarnings("unchecked")
 	public static boolean areNBTTagsEqual(NBTTagCompound tag1, NBTTagCompound tag2)
 	{
@@ -262,6 +293,7 @@ public class StructureApi
 		return true;
 	}
 	
+	//Internal
 	public static boolean compareTagsPrimitive(NBTBase base1, NBTBase base2)
 	{
 		byte id1 = base1.getId();
@@ -382,6 +414,12 @@ public class StructureApi
 		}
 	}
 	
+	/**
+	 * loads a .json format string from a given resourcelocation
+	 * @param modid - the id of your mod
+	 * @param filename - the path to the file in your assets dir. The file must be within the structure folder and needs to have a .str extension!
+	 * @return
+	 */
 	public static String structureFromFile(String modid, String filename)
 	{
 		InputStream is = Core.class.getResourceAsStream("/assets/"+modid+"/structure/"+filename+".str");

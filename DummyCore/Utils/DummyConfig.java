@@ -1,7 +1,7 @@
 package DummyCore.Utils;
 
 import net.minecraftforge.common.config.Configuration;
-
+//Internal
 public class DummyConfig implements IDummyConfig{
 
 	public int MultiItemUID;

@@ -44,6 +44,11 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Loader;
 
+/**
+ * Internal. Undocumented. Creates a MainMenu GUI from the given NBTTagCompound
+ * @author modbder
+ *
+ */
 public class GuiMainMenuNBT extends GuiMainMenu implements IMainMenu{
 	
 	public static final Hashtable<Integer,NBTTagCompound> idToTagMapping = new Hashtable<Integer,NBTTagCompound>();

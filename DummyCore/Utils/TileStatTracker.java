@@ -3,6 +3,11 @@ package DummyCore.Utils;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 
+/**
+ * A tile stat tracker is an utility which can determine if the tileentity nbt was changed and, therefore, it needs syncing
+ * @author modbder
+ *
+ */
 public class TileStatTracker 	
 {
 	public TileEntity trackedTile;

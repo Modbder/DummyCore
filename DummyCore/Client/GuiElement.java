@@ -3,16 +3,39 @@ package DummyCore.Client;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.util.ResourceLocation;
 
+/**
+ * A GuiElement is an additional object that renders for GuiCommon. One GuiCommon can hold up to N GuiElements, where N is positive infinity?
+ * @author modbder
+ *
+ */
 public abstract class GuiElement {
 	int zLevel = 0;
 	
+	/**
+	 * @return The texture to draw your element with
+	 */
 	public abstract ResourceLocation getElementTexture();
 
+	/**
+	 * Do your rendering here
+	 * @param posX - the X position on the GuiCommon
+	 * @param posY - the Y position on the GuiCommon
+	 */
 	public abstract void draw(int posX, int posY);
 	
+	/**
+	 * Gets the X position of THIS object on the parent
+	 * @return The X position of THIS object on the parent
+	 */
 	public abstract int getX();
 	
+	/**
+	 * Gets the Y position of THIS object on the parent
+	 * @return The Y position of THIS object on the parent
+	 */
 	public abstract int getY();
+	
+	//Generic GUI functions 
 	
     public void drawTexturedModalRect(int p_73729_1_, int p_73729_2_, int p_73729_3_, int p_73729_4_, int p_73729_5_, int p_73729_6_)
     {

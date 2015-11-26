@@ -6,6 +6,11 @@ import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+/**
+ * Just a simple way to get MC's Timer object
+ * @author modbder
+ *
+ */
 public class TimerHijack {
 	
 	public static final String mcpName = "timer";

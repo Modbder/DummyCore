@@ -4,6 +4,11 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
+/**
+ * Unfinished. Undocumented. Do not use
+ * @author modbder
+ *
+ */
 public class ReflectionProvider {
 	
 	public static final ReflectionProvider instance = new ReflectionProvider();

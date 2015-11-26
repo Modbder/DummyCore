@@ -4,6 +4,11 @@ import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
 
+/**
+ * Internal. A command to switch dimensions
+ * @author modbder
+ *
+ */
 public class CommandTransfer extends CommandBase {
 
 	@Override

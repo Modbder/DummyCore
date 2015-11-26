@@ -9,6 +9,11 @@ import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.LoaderState;
 import net.minecraftforge.fml.common.ModContainer;
 
+/**
+ * A simple DCMod object. Holds some information about a mod. Not intended to use outside of DummyCore, but can be used.
+ * @author modbder
+ *
+ */
 public class DCMod{
 
 	public Object modInstance;

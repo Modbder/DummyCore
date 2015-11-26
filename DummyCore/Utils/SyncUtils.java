@@ -3,6 +3,11 @@ package DummyCore.Utils;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Internal. Undocumented.
+ * @author modbder
+ *
+ */
 public class SyncUtils {
 	
 	public static List<String> needsSyncing_Global = new ArrayList<String>();

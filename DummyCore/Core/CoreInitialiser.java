@@ -37,6 +37,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.relauncher.Side;
 
 /**
+ * Internal. The mod itself. Undocumented.
  * @author Modbder
  * @version From DummyCore 1.0
  */

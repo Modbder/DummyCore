@@ -12,11 +12,21 @@ import DummyCore.Utils.IDummyConfig;
 import DummyCore.Utils.LoadingUtils;
 import DummyCore.Utils.Notifier;
 
+/**
+ * The main class for all registration in DC
+ * @author modbder
+ *
+ */
 public class Core {
 	
 	public static final ArrayList<DCMod> registeredMods = new ArrayList<DCMod>();
 	public static File mcDir;
 	
+	/**
+	 * Checks if the class is a valid DCMod
+	 * @param mod - the class to check
+	 * @return true if the class is registered as a DCMod, false otherwise
+	 */
 	public static boolean isModRegistered(Class<?> mod)
 	{
 		for(DCMod dcm : registeredMods)
@@ -26,6 +36,11 @@ public class Core {
 		return false;
 	}
 	
+	/**
+	 * Gets the DCMod object for class
+	 * @param c - the class to get the mod from
+	 * @return null if no mod for the given class is present, instanceof DCMod otherwise
+	 */
 	public static DCMod getModFromClass(Class<?> c)
 	{
 		for(DCMod dcm : registeredMods)
@@ -35,6 +50,7 @@ public class Core {
 		return null;
 	}
 	
+	//Internal
 	private static void registerMod(Class<?> c, String name, boolean addCreativeTabs)
 	{
 		if(!isModRegistered(c))
@@ -52,6 +68,7 @@ public class Core {
 		}
 	}
 
+	//Internal
 	private static void registerConfigurationFileForMod(Class<?> c, String path)
 	{
 		try
@@ -83,11 +100,11 @@ public class Core {
 	}
 	
 	/**
-	 * Use this in you Pre-Initialization functions. This will register your mod in the DummyCore system and automatically create all config and .lang files.
+	 * Use this in you Pre-Initialization functions. This will register your mod in the DummyCore system and automatically create all config files.
 	 * From DummyCore v1.1 you no longer need to use IMCEvent to register all blocks and items.
-	 * @param c - class file of your mod. MUST be registered from the mod itself. Use getClass().
-	 * @param modname - this name will be used to name CreativeTabs, config and .lang files.
-	 * @param configPath - the path to your configuration file. You can use FMLPreInitialisationEvent.getModConfigurationDirectory().getAbsolutePath() to get your path.
+	 * @param c - class file of your mod. Use getClass().
+	 * @param modname - this name will be used to name CreativeTabs and config files.
+	 * @param configPath - the path to your configuration file. You can use FMLPreInitializationEvent.getModConfigurationDirectory().getAbsolutePath() to get your path.
 	 * @param config - the initialized! object, that implements IDummyConfig.
 	 * @version From DummyCore 1.0. 
 	 * @Warning From DummyCore 1.1 no longer the function registerConfigurationHandler must be called.
@@ -99,11 +116,11 @@ public class Core {
 	}
 	
 	/**
-	 * Use this in you Pre-Initialization functions. This will register your mod in the DummyCore system and automatically create all config and .lang files.
+	 * Use this in you Pre-Initialization functions. This will register your mod in the DummyCore system and automatically create all config files.
 	 * From DummyCore v1.1 you no longer need to use IMCEvent to register all blocks and items.
-	 * @param c - class file of your mod. MUST be registered from the mod itself. Use getClass().
-	 * @param modname - this name will be used to name CreativeTabs, config and .lang files.
-	 * @param configPath - the path to your configuration file. You can use FMLPreInitialisationEvent.getModConfigurationDirectory().getAbsolutePath() to get your path.
+	 * @param c - class file of your mod. Use getClass().
+	 * @param modname - this name will be used to name CreativeTabs and config files.
+	 * @param configPath - the path to your configuration file. You can use FMLPreInitializationEvent.getModConfigurationDirectory().getAbsolutePath() to get your path.
 	 * @param config - the initialized! object, that implements IDummyConfig.
 	 * @param addCreativeTabs if the custom creative tabs for your mod should be created.
 	 * @version From DummyCore 2.0. 
@@ -153,6 +170,7 @@ public class Core {
 		}
 	}
 	
+	//Internal
 	public static void loadConfigForMod(Class<?> c)
 	{
 		if(!isModRegistered(c))

@@ -1,5 +1,10 @@
 package DummyCore.Utils;
 
+/**
+ * The same as Pair,but a triple
+ * @author modbder
+ *
+ */
 public class Triple<T1, T2, T3> {
 	
 	public T1 obj1;

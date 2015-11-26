@@ -6,6 +6,11 @@ import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.util.ResourceLocation;
 
+/**
+ * Internal. The button for changing the main menu.
+ * @author modbder
+ *
+ */
 public class GuiButton_ChangeGUI extends GuiButton{
 
 	public GuiButton_ChangeGUI(int p_i1021_1_, int p_i1021_2_, int p_i1021_3_,int p_i1021_4_, int p_i1021_5_, String p_i1021_6_) {

@@ -26,6 +26,14 @@ public class UnformedItemStack {
 		
 	}
 	
+	public UnformedItemStack(String...lst )
+	{
+		for(String s : lst)
+			possibleStacks.addAll(OreDictionary.getOres(s));
+			
+		sort();
+	}
+	
 	public UnformedItemStack(ItemStack is)
 	{
 		possibleStacks.add(is);
@@ -38,9 +46,19 @@ public class UnformedItemStack {
 		sort();
 	}
 	
-	public UnformedItemStack(List<ItemStack> lst)
+	public UnformedItemStack(List<?> lst)
 	{
-		possibleStacks.addAll(lst);
+		for(Object obj1 : lst)
+		{
+			if(obj1 instanceof ItemStack)
+			{
+				possibleStacks.add((ItemStack)obj1);
+			}
+			else if(obj1 instanceof String)
+			{
+				possibleStacks.addAll(OreDictionary.getOres((String)obj1));
+			}
+		}
 		sort();
 	}
 	
@@ -62,15 +80,29 @@ public class UnformedItemStack {
 		sort();
 	}
 	
-	@SuppressWarnings("unchecked")
 	public UnformedItemStack(Object obj)
 	{
+		if(obj instanceof String[])
+			for(String s : (String[])obj)
+				possibleStacks.addAll(OreDictionary.getOres(s));
 		if(obj instanceof ItemStack)
 			possibleStacks.add((ItemStack)obj);
 		if(obj instanceof String)
 			possibleStacks.addAll(OreDictionary.getOres((String)obj));
 		if(obj instanceof List<?>)
-			possibleStacks.addAll((List<ItemStack>)obj);
+		{
+			for(Object obj1 : (List<?>)obj)
+			{
+				if(obj1 instanceof ItemStack)
+				{
+					possibleStacks.add((ItemStack)obj1);
+				}
+				else if(obj1 instanceof String)
+				{
+					possibleStacks.addAll(OreDictionary.getOres((String)obj1));
+				}
+			}
+		}		
 		if(obj instanceof ItemStack[])
 			possibleStacks.addAll(Arrays.asList((ItemStack[])obj));
 		if(obj instanceof Block)
@@ -117,9 +149,10 @@ public class UnformedItemStack {
 		for(int i = 0; i < possibleStacksCopy.size();++i)
 		{
 			ItemStack is = possibleStacksCopy.get(i);
-			if(is != null)possibleStacks.add(is);
+			if(is != null && !possibleStacks.contains(is))possibleStacks.add(is);
 		}
-		possibleStacksCopy.clear();possibleStacksCopy = null;
+		possibleStacksCopy.clear();
+		possibleStacksCopy = null;
 	}
 	
 	public ItemStack getISToDraw(long time)

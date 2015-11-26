@@ -10,6 +10,11 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
 
+/**
+ * This is basically a GuiModList
+ * @author modbder, forge team
+ *
+ */
 public class GuiMenuList extends GuiScreen{
 	
     private GuiScreen mainMenu;

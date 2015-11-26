@@ -28,6 +28,11 @@ import DummyCore.Utils.Notifier;
 
 import com.google.common.collect.Iterators;
 
+/**
+ * This allows you to register your Main Menus using DC
+ * @author modbder
+ *
+ */
 public class MainMenuRegistry {
 	
 	public static List<Class<? extends GuiScreen>> menuList = new ArrayList<Class<? extends GuiScreen>>();
@@ -41,6 +46,10 @@ public class MainMenuRegistry {
 	
 	public static Class<MainMenuRegistry> clazz = MainMenuRegistry.class;
 	
+	/**
+	 * Registers your menu using DC main menu registry system.
+	 * @param menu - the CLASS of your menu. The object will be created when needed. Your class must have an empty constructor(with no params)!
+	 */
 	public static void registerNewGui(Class<? extends GuiScreen> menu)
 	{
 		if(IMainMenu.class.isAssignableFrom(menu))
@@ -53,6 +62,12 @@ public class MainMenuRegistry {
 		}
 	}
 	
+	/**
+	 * Registers your menu using DC main menu registry system.
+	 * @param menu - the CLASS of your menu. The object will be created when needed. Your class must have an empty constructor(with no params)!
+	 * @param name - the name of your menu that will be displayed in the menu list
+	 * @param description - the description of your menu that will be displayed when your menu is selected
+	 */
 	public static void registerNewGui(Class<? extends GuiScreen> menu, String name, String description)
 	{
 		if(IMainMenu.class.isAssignableFrom(menu))
@@ -65,6 +80,10 @@ public class MainMenuRegistry {
 		}
 	}
 	
+	/**
+	 * Internal.
+	 * @param index
+	 */
 	public static void newMainMenu(int index)
 	{
 		try
@@ -83,6 +102,10 @@ public class MainMenuRegistry {
 		}
 	}
 	
+	/**
+	 * Gets the current OBJECT displayed as the main menu
+	 * @return The current OBJECT displayed as the main menu
+	 */
 	public static GuiScreen getGuiDisplayed()
 	{
 		Minecraft mc = Minecraft.getMinecraft();
@@ -101,6 +124,9 @@ public class MainMenuRegistry {
 		}
 	}
 	
+	/**
+	 * Internal. 
+	 */
 	public static void registerMenuConfigs()
 	{
 		Iterator<NBTTagCompound> $i = tagsToMenu.iterator();
@@ -113,6 +139,11 @@ public class MainMenuRegistry {
 		tagsToMenu.clear();
 	}
 	
+	/**
+	 * Internal. Creates a help.txt file for NBT based menu system
+	 * @param dir
+	 * @throws IOException
+	 */
 	public static void createHelpFile(File dir) throws IOException
 	{
 		dir.mkdirs();
@@ -478,6 +509,9 @@ public class MainMenuRegistry {
 		pw.close();
 	}
 	
+	/**
+	 * Internal. Finds all possible NBT based menu entries in the config folder
+	 */
 	public static void initMenuConfigs()
 	{
 		try
@@ -537,6 +571,11 @@ public class MainMenuRegistry {
 		}
 	}
 	
+	/**
+	 * Internal. Validates the NBT to be a valid NBTMainMenu tag
+	 * @param tag
+	 * @return
+	 */
 	public static boolean validateNBT(NBTTagCompound tag)
 	{
 		return tag.hasKey("menuName") && tag.hasKey("menuDesc");

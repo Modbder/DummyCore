@@ -22,7 +22,9 @@ import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.oredict.OreDictionary;
 
 /**
- * @author ljfa-ag
+ * A simple IBlockAccess wrapper to, let's say, render a structure in a book, for example
+ * <br>Most methods are undocumented, since a)They are self-describing, and b)You can always check what they do in vanilla's World class
+ * @author ljfa-ag, modbder
  */
 public class DummyBlockAccess implements IBlockAccess{
 
@@ -37,6 +39,12 @@ public class DummyBlockAccess implements IBlockAccess{
     public Random cycleRandom = new Random();
     public Hashtable<Pair<Block,Integer>,Integer> cachedBlocksAmounts = new Hashtable<Pair<Block,Integer>,Integer>();
 	
+    /**
+     * Creates a DummyBlockAccess with given size
+     * @param sizeX - x Size
+     * @param sizeY - y Size
+     * @param sizeZ - z Size
+     */
     public DummyBlockAccess(int sizeX, int sizeY, int sizeZ)
     {
     	block = new Block[sizeX][sizeY][sizeZ];
@@ -48,6 +56,11 @@ public class DummyBlockAccess implements IBlockAccess{
         defaultWorld = CoreInitialiser.proxy.getClientWorld();
     }
     
+    /**
+     * Creates a DummyBlockAccess object from a given StructureTag
+     * @param structureTag - a valid(StructureAPI) NBTTag
+     * @return a new DummyBlockAccess object
+     */
     @SuppressWarnings("unchecked")
 	public static DummyBlockAccess fromStructureNBT(NBTTagCompound structureTag)
     {
@@ -109,18 +122,33 @@ public class DummyBlockAccess implements IBlockAccess{
 		return dba;
     }
     
+    /**
+     * Sets the cycle timer for blocks metadata as i
+     * @param i - the new time
+     * @return current DummyBlockAccess
+     */
     public DummyBlockAccess setCycleTime(int i)
     {
     	cycleTimer = i;
     	return this;
     }
     
+    /**
+     * Sets a default world over to something esle rather than Minecraft.getMinecraft().theWorld
+     * @param w new world to set to
+     * @return current DummyBlockAccess
+     */
     public DummyBlockAccess setDefaultWorld(World w)
     {
     	defaultWorld = w;
     	return this;
     }
     
+    /**
+     * Sets a default biome to something else rather than OCEAN
+     * @param bgb new biome to set
+     * @return current DummyBlockAccess
+     */
     public DummyBlockAccess setBiomeToRender(BiomeGenBase bgb)
     {
     	dummyBiome = bgb;

@@ -4,6 +4,7 @@ import io.netty.buffer.ByteBuf;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 
+//Internal
 public class DummyPacketIMSG implements IMessage{
 	
 	public String dataStr;

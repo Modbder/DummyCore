@@ -16,7 +16,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 /**
  * @version From DummyCore 1.0
  * @author Modbder
- * Do not change anything here! Used to work with Blocks. 
+ * Internal. Used to work with Blocks. 
  */
 public final class CreativePageBlocks extends CreativeTabs{
 	public int delayTime = 0;

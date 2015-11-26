@@ -14,7 +14,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 /**
  * @version From DummyCore 1.0
  * @author Modbder
- * Do not change anything here! Used to work with Items. 
+ * Internal. Used to work with Items. 
  */
 public final class CreativePageItems extends CreativeTabs{
 	public int delayTime = 0;

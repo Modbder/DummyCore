@@ -8,6 +8,12 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 
+/**
+ * A nifty wrapper around the Container class which allows you to easily create containers for your inventories
+ * <br>This comes with an integrated merging code(shift-click) so you do not have to handle that on your own
+ * @author modbder, pahimar
+ *
+ */
 public abstract class ContainerInventory extends Container{
 
 	public final IInventory inv;
@@ -18,6 +24,11 @@ public abstract class ContainerInventory extends Container{
 	public int pInvOffsetX;
 	public int pInvOffsetZ;
 	
+	/**
+	 * Constructs a new ContainerInventory object from the player's slots and the TileEntity's slots
+	 * @param playerInv - the player inventory
+	 * @param tileInv - the TileEntity. Must implement IInventory
+	 */
 	public ContainerInventory(InventoryPlayer playerInv, TileEntity tileInv)
 	{
 		super();
@@ -30,8 +41,15 @@ public abstract class ContainerInventory extends Container{
 		setupSlots();
 	}
 	
+	/**
+	 * Override this in your classes. This allows you to setup your slots and positions of them.
+	 * <br>At the <b>END</b> of your setup you can call the {@linkplain #setupPlayerInventory()} to automatically create slots for the player's inventory
+	 */
 	public abstract void setupSlots();
 	
+	/**
+	 * Automatically creates the slots for the player's inventory
+	 */
 	public void setupPlayerInventory()
 	{
         for (int i = 0; i < 3; ++i)
@@ -152,26 +170,16 @@ public abstract class ContainerInventory extends Container{
     public static boolean equalsIgnoreStackSize(ItemStack itemStack1, ItemStack itemStack2)
     {
         if (itemStack1 != null && itemStack2 != null)
-        {
-            if (itemStack1.getItem() == itemStack2.getItem())
-            {
+            if (itemStack1.getItem().equals(itemStack2.getItem()))
                 if (itemStack1.getItemDamage() == itemStack2.getItemDamage())
-                {
                     if (itemStack1.hasTagCompound() && itemStack2.hasTagCompound())
                     {
                         if (ItemStack.areItemStackTagsEqual(itemStack1, itemStack2))
-                        {
                             return true;
-                        }
                     }
                     else if (!itemStack1.hasTagCompound() && !itemStack2.hasTagCompound())
-                    {
                         return true;
-                    }
-                }
-            }
-        }
-
+        
         return false;
     }
 }

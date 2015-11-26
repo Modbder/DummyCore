@@ -38,30 +38,9 @@ public class ItemRegistry {
 		{
 			i.setCreativeTab(Core.getItemTabForMod(modClass));
 			itemsList.put(i, Core.getItemTabForMod(modClass).getTabLabel());
+			if(i instanceof IOldItem)
+				OldTextureHandler.addOldItem(Core.getModFromClass(modClass).modid+":"+name, i);
 		}
 		GameRegistry.registerItem(i, name);
-		
-		if(i instanceof IOldItem)
-			OldTextureHandler.addOldItem(Core.getModFromClass(modClass).modid+":"+name, i);
-	}
-	
-	/**
-	 * Use this to register new simple items.
-	 * @version From DummyCore 1.0
-	 * @param i - the item to be registered.
-	 * @param modClass - class file of your mod. If registered from the mod itself, use getClass(), else just put in this field something like YourModClassName.class
-	 */
-	@Deprecated
-	public static void registerItem(Item i, Class<?> modClass)
-	{
-		//Notifier.notifyCustomMod("DummyCore", "[Warning] Mod "+Core.getModName(Core.getIdForMod(modClass))+" tries to register items in an outdated way, may cause errors!");
-		Side s = FMLCommonHandler.instance().getEffectiveSide();
-		if(s == Side.CLIENT)
-		{
-			i.setCreativeTab(Core.getItemTabForMod(modClass));
-			itemsList.put(i, Core.getItemTabForMod(modClass).getTabLabel());
-		}
-	}
-	
-	
+	}	
 }

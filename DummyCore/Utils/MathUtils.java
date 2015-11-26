@@ -11,6 +11,13 @@ import java.util.Random;
  */
 public class MathUtils {
 
+	/**
+	 * Gets a percentage between current and max and returns an int representing that percentage of the textureSize param
+	 * @param current - current value
+	 * @param max - max value
+	 * @param textureSize - the var to bind the percentage to
+	 * @return An int representing the percentage of the textureSize param
+	 */
 	public static int pixelatedTextureSize(int current, int max, int textureSize)
 	{
 		if(current > max)
@@ -20,6 +27,12 @@ public class MathUtils {
     	return (int)n;
 	}
 	
+	/**
+	 * Simply gets a percentage value
+	 * @param current - current value
+	 * @param max - max value
+	 * @return The percentage of current from max
+	 */
 	public static int getPercentage(int current, int max)
 	{
     	float m = (float)current/max*100;
@@ -112,6 +125,12 @@ public class MathUtils {
 		return a;
 	}
 	
+	/**
+	 * Checks if the given array contains a given object
+	 * @param array - the array to search through
+	 * @param searched - the object we are searching for
+	 * @return true if the array already contains the given object, false otherwise
+	 */
 	public static boolean arrayContains(Object[] array, Object searched)
 	{
 		for(int i = 0; i < array.length; ++i)
@@ -122,6 +141,12 @@ public class MathUtils {
 		return false;
 	}
 	
+	/**
+	 * Checks if the given array contains a given int
+	 * @param array - the array to search through
+	 * @param searched - the int we are searching for
+	 * @return true if the array already contains the given int, false otherwise
+	 */
 	public static boolean arrayContains(int[] array, int searched)
 	{
 		for(int i = 0; i < array.length; ++i)
@@ -132,6 +157,12 @@ public class MathUtils {
 		return false;
 	}
 	
+	/**
+	 * Loops through the given array to find the position of the searched param in the array
+	 * @param array - the array to search through
+	 * @param searched - the int we are searching for
+	 * @return Index of the searched param, -1 if the array has no searched param
+	 */
 	public static int getIntInArray(int[] array, int searched)
 	{
 		for(int i = 0; i < array.length; ++i)
@@ -142,6 +173,11 @@ public class MathUtils {
 		return -1;
 	}
 	
+	/**
+	 * Compares the boolean array if all booleans within it are the same
+	 * @param array the array
+	 * @return true if all booleans within the array are the same, false otherwise
+	 */
 	public static boolean isArrayTheSame(boolean[] array)
 	{
 		boolean previous = array[0];

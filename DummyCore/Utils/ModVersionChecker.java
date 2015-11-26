@@ -19,12 +19,22 @@ import DummyCore.Core.Core;
 import DummyCore.Core.CoreInitialiser;
 import DummyCore.Core.DCMod;
 
+/**
+ * Checks thegiven mod for the new version based on the URL given
+ * @author modbder
+ *
+ */
 public class ModVersionChecker {
 	
 	public static final ArrayList<DCMod> vCheckRequesters = new ArrayList<DCMod>();
 	public static final Hashtable<DCMod,String> latestVersions = new Hashtable<DCMod,String>();
 	public static final Hashtable<DCMod,String> modsURIs = new Hashtable<DCMod,String>();
 	
+	/**
+	 * Add a check request for a DCMod. You can do this before the game is initialised
+	 * @param mod - the mod to check
+	 * @param uri - the valid URI to get the check from. Should be a .txt file with 1 string, representing the latest version
+	 */
 	public static void addRequest(Class<?> mod, String uri)
 	{
 		if(Core.isModRegistered(mod))
@@ -36,18 +46,21 @@ public class ModVersionChecker {
 			Notifier.notifyError("[DCVersionChecker]Catched an attempt to add a version check request for a non registered mod!");
 	}
 	
+	//Internal
 	public static void dispatchModChecks()
 	{
 		for(int i = 0; i < vCheckRequesters.size(); ++i)
 			requestModVCheck(vCheckRequesters.get(i));
 	}
 	
+	//Internal
 	public static void requestModVCheck(DCMod mod)
 	{
 		if(vCheckRequesters.contains(mod))
 			new ThreadURICheck(mod,modsURIs.get(mod)).start();
 	}
 	
+	//Internal
 	public static void respondToURICheckSuccess(DCMod mod)
 	{
 		String currentVersion = mod.version;
@@ -94,6 +107,7 @@ public class ModVersionChecker {
 		modsURIs.remove(mod);
 	}
 	
+	//Internal
 	public static void tryNotifyDMOutdatedMod(DCMod mod, String latest, int step)
 	{
 		EntityPlayer player = CoreInitialiser.proxy.getClientPlayer();
@@ -127,7 +141,7 @@ public class ModVersionChecker {
 		}
 	}
 	
-	
+	//Internal
 	public static void tryNotifySimpleOutdatedMod(DCMod mod, String latest)
 	{
 		EntityPlayer player = CoreInitialiser.proxy.getClientPlayer();
@@ -135,6 +149,7 @@ public class ModVersionChecker {
 			player.addChatMessage(new ChatComponentText(String.format("%s is outdated(Your version is %s, latest is %s)! Consider updating!", mod.ufName, mod.version, latest)).setChatStyle(new ChatStyle().setColor(EnumChatFormatting.RED)));
 	}
 	
+	//Internal
 	public static boolean isVersionDMValid(String version)
 	{
 		try{
@@ -147,6 +162,7 @@ public class ModVersionChecker {
 		return false;
 	}
 	
+	//Internal
 	public static String removeButNumbers(String s)
 	{
 		String result = "";
@@ -159,6 +175,7 @@ public class ModVersionChecker {
 		return result;
 	}
 	
+	//Internal
 	public static class ThreadURICheck extends Thread
 	{
 		public String uristr;

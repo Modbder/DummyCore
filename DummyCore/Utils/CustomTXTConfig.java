@@ -9,6 +9,11 @@ import java.util.Hashtable;
 import DummyCore.Core.Core;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 
+/**
+ * Very highly internal
+ * @author modbder
+ *
+ */
 public class CustomTXTConfig {
 	
 	public static final Hashtable<String,String> mappings = new Hashtable<String,String>();

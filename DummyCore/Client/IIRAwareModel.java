@@ -18,6 +18,11 @@ import net.minecraft.util.EnumFacing;
 import net.minecraftforge.client.model.IPerspectiveAwareModel;
 import net.minecraftforge.client.model.ISmartItemModel;
 
+/**
+ * Internal. This is a model for an Item, which uses the IItemRenderer for it's rendering
+ * @author modbder
+ *
+ */
 @SuppressWarnings("deprecation")
 public class IIRAwareModel implements IPerspectiveAwareModel,ISmartItemModel{
 

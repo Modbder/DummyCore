@@ -226,6 +226,7 @@ public class DrawUtils {
         	Minecraft.getMinecraft().renderEngine.getTexture(TextureMap.locationBlocksTexture).restoreLastBlurMipmap();
     }
     
+    //Internal
     public static int getISRenderPasses(ItemStack itemstack, double screenX, double screenY, double screenZ, float partialTicks, IBakedModel model, boolean fancy, float rotationX, float rotationY)
     {
         Item item = itemstack.getItem();
@@ -265,6 +266,17 @@ public class DrawUtils {
     	renderItemStack_Full(stk,posX,posY,posZ,screenPosX,screenPosY,screenPosZ,rotation,0,colorRed,colorGreen,colorBlue,0,0,0,force3DRender);
     }
     
+    /**
+     * May not be properly working now. Draws a gradient rectangle and fills it with the mouse-over information for the given ItemStack
+     * @param stk - the ItemStack object to get info from
+     * @param x - the x position in the GUI
+     * @param y - the y position in the GUI
+     * @param font - the FontRenderer to draw info with
+     * @param zLevel - the Z level of this tooltip in the GUI
+     * @param colorStart - starting color of the gradient rectangle. Is an ARGB hex int!
+     * @param colorEnd - end color of the gradient rectangle. Is an ARGB hex int!
+     * @param colorBorder - a solid color for the border. Is an ARGB hex int!
+     */
     @SuppressWarnings("unchecked")
 	public static void renderItemStackGUIInformation(ItemStack stk, int x, int y, FontRenderer font, double zLevel, int colorStart, int colorEnd, int colorBorder)
     {
@@ -336,6 +348,16 @@ public class DrawUtils {
         GL11.glColor3f(1, 1, 1);
     }
     
+    /**
+     * Draws a gradient rectangle
+     * @param x - the starting x pos
+     * @param y - the starting y pos
+     * @param ex - the end x pos
+     * @param ey - the end y pos
+     * @param colorStart - starting color of the gradient rectangle. Is an ARGB hex int!
+     * @param colorEnd - end color of the gradient rectangle. Is an ARGB hex int!
+     * @param zLevel - the Z level of this drawable in the GUI
+     */
     public static void drawGradientRect(int x, int y, int ex, int ey, int colorStart, int colorEnd, double zLevel)
     {
         float f = (colorStart >> 24 & 255) / 255.0F;
@@ -366,6 +388,12 @@ public class DrawUtils {
         GL11.glEnable(GL11.GL_TEXTURE_2D);
     }
     
+    /**
+     * Gets a state of the button
+     * @param btn - the GuiButtob object to check against
+     * @param mouseOver - is the mouse cursor over the GuiButton?
+     * @return 1 if the button is enabled, but the mouse is not over it, 2 if the button is enabled and the mouse is over it, 0 otherwise
+     */
     public static byte getButtonHoverState(GuiButton btn, boolean mouseOver)
     {
         byte b0 = 1;

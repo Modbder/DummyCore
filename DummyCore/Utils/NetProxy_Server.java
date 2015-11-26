@@ -17,6 +17,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.common.network.IGuiHandler;
 
+//Internal
 public class NetProxy_Server implements IGuiHandler{
 	
 	public void injectOldItemBlockModel(Block b){}

@@ -37,6 +37,7 @@ public class Lightning {
 		curve(curve);
 	}
 	
+	//Internal
 	private void curve(float factor)
 	{
 		float distX = end.x-start.x;
@@ -61,6 +62,7 @@ public class Lightning {
 		}
 	}
 	
+	//Internal
 	private void generateLightningBetween2Points(Coord3D from, Coord3D to,int beginVecIndex, int steps, float curve)
 	{
 		float distX = to.x-from.x;

@@ -33,6 +33,11 @@ import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.model.IPerspectiveAwareModel;
 import net.minecraftforge.client.model.ISmartItemModel;
 
+/**
+ * Internal. A simple model for the item. Undocumented.
+ * @author modbder
+ *
+ */
 @SuppressWarnings("deprecation")
 public class RPAwareModel implements ISmartItemModel, IPerspectiveAwareModel{
 	public Hashtable<EnumFacing,ArrayList<BakedQuad>> faces = new Hashtable<EnumFacing,ArrayList<BakedQuad>>();

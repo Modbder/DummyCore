@@ -8,10 +8,22 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 
+/**
+ * A small helper for some huge vanilla code like LeavesDecay
+ * @author modbder
+ *
+ */
 public class MetadataBasedMethodsHelper {
 
 	static int[] surroundings;
 	
+	/**
+	 * Tick the leaf block in the world. Destroy it if nececarry
+	 * @param worldIn - the world
+	 * @param pos - the position of the leaf
+	 * @param state - the BlockState of the leaf
+	 * @param rand - the random
+	 */
 	public static void leavesDecayTick(World worldIn, BlockPos pos, IBlockState state, Random rand)
 	{
         if (!worldIn.isRemote)
@@ -128,12 +140,23 @@ public class MetadataBasedMethodsHelper {
         }
 	}
 	
+	/**
+	 * Sets a block to air at a given position, also dropping it's content
+	 * @param w - the world
+	 * @param pos - the position
+	 */
 	public static void destroy(World w, BlockPos pos)
 	{
 		w.getBlockState(pos).getBlock().dropBlockAsItem(w, pos, w.getBlockState(pos), 0);
 		w.setBlockToAir(pos);
 	}
 	
+	/**
+	 * Begins a leaf decay for all leaves around the given pos
+	 * @param worldIn - the world
+	 * @param pos - the position
+	 * @param state - the state of the leaf block. 
+	 */
 	public static void breakLeaves(World worldIn, BlockPos pos, IBlockState state)
 	{
         byte b0 = 1;
@@ -155,6 +178,12 @@ public class MetadataBasedMethodsHelper {
                     }
 	}
 	
+	/**
+	 * Begins a leaf decay for all leaves around the given pos
+	 * @param worldIn - the world
+	 * @param pos - the position
+	 * @param state - the state of the log block. 
+	 */
 	@SuppressWarnings("unchecked")
 	public static void breakLog(World worldIn, BlockPos pos, IBlockState state)
 	{

@@ -12,17 +12,34 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 
+/**
+ * A very simple GUI 'abstract' class(not really abstract, but is intended to be)
+ * This allows a modmaker to create a very simple GUI without having to draw it at all
+ * @author modbder
+ *
+ */
 public class GuiCommon extends GuiContainer{
 	
 	public List<GuiElement> elementList = new ArrayList<GuiElement>();
 	public TileEntity genericTile;
+	//TODO change to a custom .png image to support resource packs properly
 	public ResourceLocation guiGenLocation = new ResourceLocation("textures/gui/container/dispenser.png");
 	public ResourceLocation slotLocation = new ResourceLocation("textures/gui/container/dispenser.png");
 
+	/**
+	 * A default constructor. Deprecated. Use the one below
+	 * @param c - the container(inventory) for this GUI
+	 */
 	public GuiCommon(Container c) {
 		super(c);
 	}
 	
+	
+	/**
+	 * The constructor you should use.
+	 * @param c - the container(inventory) for this GUI
+	 * @param tile - the TileEntity for this GUI
+	 */
 	public GuiCommon(Container c, TileEntity tile) {
 		this(c);
 		genericTile = tile;

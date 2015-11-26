@@ -1,5 +1,10 @@
 package DummyCore.Utils;
 
+/**
+ * Extends vanilla's EnumRarity
+ * @author modbder
+ *
+ */
 public enum EnumRarityColor {
 	BROKEN("8","Broken"),
 	COMMON("f","Common"),

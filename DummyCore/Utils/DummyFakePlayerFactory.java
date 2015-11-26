@@ -5,6 +5,11 @@ import java.util.UUID;
 
 import com.mojang.authlib.GameProfile;
 
+/**
+ * Is a standart FakePlayerFactory, so I've reinvented the wheel for no reason.
+ * @author modbder
+ *
+ */
 public class DummyFakePlayerFactory {
 	
 	public static Hashtable<Class<?>, GameProfile> fakeProfiles = new Hashtable<Class<?>, GameProfile>();

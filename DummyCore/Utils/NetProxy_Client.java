@@ -66,6 +66,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.client.FMLClientHandler;
 
+//Internal
 public class NetProxy_Client extends NetProxy_Server{
 	
 	public static final Hashtable<String, ShaderGroup> shaders = new Hashtable<String, ShaderGroup>();

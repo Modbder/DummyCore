@@ -7,7 +7,6 @@ import DummyCore.Client.IconRegister;
 import DummyCore.Client.MainMenuRegistry;
 import DummyCore.Core.CoreInitialiser;
 import DummyCore.Events.DummyEvent_OnClientGUIButtonPress;
-import DummyCore.Events.DummyEvent_OnKeyboardKeyPressed_Server;
 import DummyCore.Events.DummyEvent_OnPacketRecieved;
 import net.minecraft.block.Block;
 import net.minecraft.client.gui.GuiButton;
@@ -179,6 +178,7 @@ public class DummyEventHandler {
 					chunk.setBiomeArray(biome);
 					world.markBlocksDirtyVertical(x, z, 16, 16);
 				}
+				/*
 				if(modData.fieldName.equalsIgnoreCase("mod") && modData.fieldValue.equalsIgnoreCase("dummyCore.buttonpress"))
 				{
 					int id = Integer.parseInt(packetData[1].fieldValue);
@@ -194,6 +194,7 @@ public class DummyEventHandler {
 						MinecraftForge.EVENT_BUS.post(new DummyEvent_OnKeyboardKeyPressed_Server(id, name, player,pressed));
 					}
 				}
+				*/
 				if(modData.fieldName.equalsIgnoreCase("mod") && modData.fieldValue.equalsIgnoreCase("dummyCore.guiButton"))
 				{
 					int id = Integer.parseInt(packetData[1].fieldValue);

@@ -9,6 +9,12 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 import net.minecraftforge.oredict.OreDictionary;
 
+/**
+ * Is pretty much a Tessellator from 1.7 for worldgen
+ * <br>Is not multithread-safe?
+ * @author modbder
+ *
+ */
 public class Generator 
 {
 	public static final Generator instance = new Generator();
@@ -24,11 +30,21 @@ public class Generator
 	
 	public int flag;
 	
+	/**
+	 * Shifts the given ExtendedAABB to roughly be an equal box
+	 * @param genBox - your ExtendedAABB
+	 * @return the new ExtendedAABB
+	 */
 	public static ExtendedAABB centerBB(ExtendedAABB genBox)
 	{
 		return ExtendedAABB.fromBounds(genBox.minX-((genBox.maxX-genBox.minX)/2), genBox.minY-((genBox.maxY-genBox.minY)/2), genBox.minZ-((genBox.maxZ-genBox.minZ)/2), genBox.maxX-((genBox.maxX-genBox.minX)/2), genBox.maxY-((genBox.maxY-genBox.minY)/2), genBox.maxZ-((genBox.maxZ-genBox.minZ)/2));
 	}
 	
+	/**
+	 * if the minX < maxX - switches them places. Repeat for all axis
+	 * @param genBox - your ExtendedAABB
+	 * @return the new ExtendedAABB
+	 */
 	public static ExtendedAABB normaliseBB(ExtendedAABB genBox)
 	{
 		double minX = genBox.minX;
@@ -41,6 +57,11 @@ public class Generator
 		return ExtendedAABB.fromBounds(maxX < minX ? genBox.maxX : genBox.minX, maxY < minY ? genBox.maxY : genBox.minY, maxZ < minZ ? genBox.maxZ : genBox.minZ, maxX < minX ? genBox.minX : genBox.maxX, maxY < minY ? genBox.minY : genBox.maxY, maxZ < minZ ? genBox.minZ : genBox.maxZ);
 	}
 	
+	/**
+	 * Gives you a list with 3d coordinates of all specified blocks in the given rect.
+	 * @param genBox - your rect
+	 * @return an ArrayList with all blocks matching the current settings of the Generator
+	 */
 	public ArrayList<Coord3D> getBlocksOfType(ExtendedAABB genBox)
 	{
 		gen();
@@ -69,18 +90,32 @@ public class Generator
 		return lst;
 	}
 	
+	/**
+	 * Offsets all Generator's functions by a given 3d point
+	 * @param coord - the coord to offset against
+	 */
 	public void setOffset(Coord3D coord)
 	{
 		offset = coord;
 		hasOffset = true;
 	}
 	
+	/**
+	 * Offsets all Generator's functions by a given 3d point
+	 * @param x - x offset
+	 * @param y - y offset
+	 * @param z - z offset
+	 */
 	public void setOffset(int x, int y, int z)
 	{
 		offset = new Coord3D(x,y,z);
 		hasOffset = true;
 	}
 	
+	/**
+	 * Starts your work - locks the Generator. You should do something to your generator ONLY after calling this method.
+	 * @param world - the world to start in. Must be server-side!
+	 */
 	public void startWorldgen(World world)
 	{
 		if(world.isRemote)
@@ -98,6 +133,9 @@ public class Generator
 		flag = 2;
 	}
 	
+	/**
+	 * Ends your generation. Releases the Generator, so it can be used by other code.
+	 */
 	public void endWorldgen()
 	{
 		if(!isWorking)
@@ -112,6 +150,11 @@ public class Generator
 		flag = 0;
 	}
 	
+	/**
+	 * Sets the flag for block placement. 
+	 * @param i - the new flags param
+	 * @see {@linkplain World#setBlockState(BlockPos, net.minecraft.block.state.IBlockState, int)}
+	 */
 	public void setFlag(int i)
 	{
 		gen();
@@ -119,6 +162,10 @@ public class Generator
 		flag = i;
 	}
 	
+	/**
+	 * Checks if the current Generator is locked.
+	 * @return true if the generation is possible, false otherwise
+	 */
 	public boolean gen()
 	{
 		if(!isWorking)
@@ -131,7 +178,10 @@ public class Generator
 	}
 	
 	
-	
+	/**
+	 * De-applies the offset to the given ExtendedAABB, so it is returned into it's normal state
+	 * @param genBox - the Box
+	 */
 	public void restoreBB(ExtendedAABB genBox)
 	{
 		gen();
@@ -147,6 +197,10 @@ public class Generator
 		}	
 	}
 	
+	/**
+	 * Applies the offset for the given box
+	 * @param genBox - the Box
+	 */
 	public void prepareBB(ExtendedAABB genBox)
 	{
 		gen();
@@ -162,6 +216,10 @@ public class Generator
 		}	
 	}
 	
+	/**
+	 * Sets the functional block to the given block. This is the block that will be generated/checked against
+	 * @param b - the block
+	 */
 	public void setBlock(Block b)
 	{
 		gen();
@@ -170,6 +228,10 @@ public class Generator
 		genMetadata = 0;
 	}
 	
+	/**
+	 * Sets the functional metadata to the given int. This is the metadata that will be generated/checked against
+	 * @param i - the metadata
+	 */
 	public void setMeta(int i)
 	{
 		gen();
@@ -177,6 +239,13 @@ public class Generator
 		genMetadata = i;
 	}
 	
+	/**
+	 * Gets all blocks in the given ExtendedAABB which match the Block/Metadata setted by {@linkplain #setBlock(Block)} and {@linkplain #setMeta(int)}
+	 * <br>Then gets a random Block/Metadata pair from the given array and sets the block to those params.
+	 * <br>Each block is only iterated upon once
+	 * @param genBox- the box
+	 * @param pairs - your Block/Metadata pair
+	 */
 	@SuppressWarnings("unchecked")
 	public void randomiseCuboid(ExtendedAABB genBox, Pair<Block,Integer>...pairs)
 	{
@@ -207,6 +276,10 @@ public class Generator
 		restoreBB(genBox);
 	}
 	
+	/**
+	 * Creates a filled sphere with the Block/Metadata setted by {@linkplain #setBlock(Block)} and {@linkplain #setMeta(int)}. The sphere will roughly be centered in the given cuboid
+	 * @param genBox - the box to place in
+	 */
 	public void addFullSphere(ExtendedAABB genBox)
 	{
 		gen();
@@ -271,6 +344,10 @@ public class Generator
 	    restoreBB(genBox);
 	}
 	
+	/**
+	 * Creates a hollow cylinder with the Block/Metadata setted by {@linkplain #setBlock(Block)} and {@linkplain #setMeta(int)}. The cylinder will roughly be centered in the given cuboid
+	 * @param genBox - the box to place in
+	 */
 	public void addHollowCylinder(ExtendedAABB genBox)
 	{
 		gen();
@@ -339,6 +416,10 @@ public class Generator
         restoreBB(genBox);
 	}
 	
+	/**
+	 * Creates a filled cylinder with the Block/Metadata setted by {@linkplain #setBlock(Block)} and {@linkplain #setMeta(int)}. The cylinder will roughly be centered in the given cuboid
+	 * @param genBox - the box to place in
+	 */
 	public void addFullCylinder(ExtendedAABB genBox)
 	{
 		gen();
@@ -407,6 +488,10 @@ public class Generator
         restoreBB(genBox);
 	}
 	
+	/**
+	 * Creates a hollow sphere with the Block/Metadata setted by {@linkplain #setBlock(Block)} and {@linkplain #setMeta(int)}. The sphere will roughly be centered in the given cuboid
+	 * @param genBox - the box to place in
+	 */
 	public void addHollowSphere(ExtendedAABB genBox)
 	{
 		gen();
@@ -471,6 +556,10 @@ public class Generator
 	    restoreBB(genBox);
 	}
 	
+	/**
+	 * Creates a hollow box with the Block/Metadata setted by {@linkplain #setBlock(Block)} and {@linkplain #setMeta(int)}. The box will roughly be centered in the given cuboid
+	 * @param genBox - the box to place in
+	 */
 	public void addWallsCuboid(ExtendedAABB genBox)
 	{
 		gen();
@@ -490,6 +579,13 @@ public class Generator
 	
 	}
 	
+	/**
+	 * Generates a block at the given pos
+	 * @param x - x pos
+	 * @param y - y pos
+	 * @param z - z pos
+	 * @return true if the generation was successful, false otherwise
+	 */
 	public boolean block(int x, int y, int z)
 	{
 		gen();
@@ -497,6 +593,10 @@ public class Generator
 		return worldObj.setBlockState(new BlockPos(x, y, z), setTo.getStateFromMeta(genMetadata), flag);
 	}
 	
+	/**
+	 * Fills a given cuboud with Block/Metadata setted by {@linkplain #setBlock(Block)} and {@linkplain #setMeta(int)}
+	 * @param genBox
+	 */
 	public void addCuboid(ExtendedAABB genBox)
 	{
 		gen();
@@ -514,6 +614,15 @@ public class Generator
 		restoreBB(genBox);
 	}
 	
+	/**
+	 * Fills the region with Block/Metadata setted by {@linkplain #setBlock(Block)} and {@linkplain #setMeta(int)}
+	 * @param x - start x
+	 * @param y - start y
+	 * @param z - start z
+	 * @param eX - end x
+	 * @param eY - end y
+	 * @param eZ - end z
+	 */
 	public void addCuboid(int x, int y, int z, int eX, int eY, int eZ)
 	{
 		gen();
@@ -530,11 +639,13 @@ public class Generator
 		}
 	}
 
+	//Internal
     private static double lengthSq(double x, double y, double z)
     {
         return x * x + y * y + z * z;
     }
 
+    //Internal
     private static double lengthSq(double x, double z)
     {
         return x * x + z * z;

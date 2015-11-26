@@ -5,6 +5,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraftforge.fml.client.GuiScrollingList;
 
+/**
+ * This is basically a GuiModList
+ * @author modbder, forge team
+ *
+ */
 public class GuiSlotMenuList extends GuiScrollingList {
 	
     private GuiMenuList parent;

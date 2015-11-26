@@ -11,6 +11,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 
+//Internal
 @ChannelHandler.Sharable
 public class DummyPacketHandler implements IMessageHandler<DummyPacketIMSG, IMessage> {
 
