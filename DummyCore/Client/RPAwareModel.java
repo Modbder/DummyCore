@@ -7,9 +7,9 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.vecmath.Matrix4f;
-import javax.vecmath.Vector3f;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.lwjgl.util.vector.Vector3f;
 
 import DummyCore.Utils.IOldItem;
 import net.minecraft.client.Minecraft;
@@ -23,6 +23,8 @@ import net.minecraft.client.renderer.block.model.ItemModelGenerator;
 import net.minecraft.client.renderer.block.model.ItemTransformVec3f;
 import net.minecraft.client.renderer.block.model.ModelBlock;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.client.resources.model.ModelRotation;
 import net.minecraft.client.resources.model.SimpleBakedModel;
@@ -30,6 +32,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.client.ForgeHooksClient;
+import net.minecraftforge.client.model.IFlexibleBakedModel;
 import net.minecraftforge.client.model.IPerspectiveAwareModel;
 import net.minecraftforge.client.model.ISmartItemModel;
 
@@ -109,20 +112,20 @@ public class RPAwareModel implements ISmartItemModel, IPerspectiveAwareModel{
 	}
 
 	@Override
-	public Pair<IBakedModel, Matrix4f> handlePerspective(TransformType cameraTransformType) {
+	public Pair<? extends IFlexibleBakedModel, Matrix4f> handlePerspective(TransformType cameraTransformType) {
 		if(RenderAccessLibrary.mHandlers.containsKey(rendered))
-			return Pair.of(IBakedModel.class.cast(this), RenderAccessLibrary.mHandlers.get(rendered).handlePerspective(cameraTransformType, renderedFor));
+			return Pair.of(this, RenderAccessLibrary.mHandlers.get(rendered).handlePerspective(cameraTransformType, renderedFor));
 		if(cameraTransformType == TransformType.FIRST_PERSON)
-			return Pair.of(IBakedModel.class.cast(this), FIRST_PERSON_FIX);
+			return Pair.of(this, FIRST_PERSON_FIX);
 		
 		if(cameraTransformType == TransformType.THIRD_PERSON)
 		{
 			if(interfaced.render3D(renderedFor))
-				return Pair.of(IBakedModel.class.cast(this), THIRD_PERSON_3D);
+				return Pair.of(this, THIRD_PERSON_3D);
 			
-			return Pair.of(IBakedModel.class.cast(this), THIRD_PERSON_2D);
+			return Pair.of(this, THIRD_PERSON_2D);
 		}
-		return Pair.of(IBakedModel.class.cast(this), null);
+		return Pair.of(this, null);
 	}
 	
 	public static final Matrix4f THIRD_PERSON_3D = ForgeHooksClient.getMatrix(new ItemTransformVec3f(new Vector3f(0,1.5F,-0.7F),new Vector3f(0,0.03F,-0.2F),new Vector3f(1,1,1)));
@@ -223,4 +226,9 @@ public class RPAwareModel implements ISmartItemModel, IPerspectiveAwareModel{
 	public static final FaceBakery BAKERY = new FaceBakery();
 	public static final ItemModelGenerator GENERATOR = new ItemModelGenerator();
 	public static final ModelBlock MODEL_GENERATED = ModelBlock.deserialize("{\"elements\":[{  \"from\": [0, 0, 0],   \"to\": [16, 16, 16],   \"faces\": {       \"down\": {\"uv\": [0, 0, 16, 16], \"texture\":\"\"}   }}]}");
+
+	@Override
+	public VertexFormat getFormat() {
+		return DefaultVertexFormats.ITEM;
+	}
 }

@@ -7,9 +7,9 @@ import java.util.List;
 import java.util.Map;
 
 import javax.vecmath.Matrix4f;
-import javax.vecmath.Vector3f;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.lwjgl.util.vector.Vector3f;
 
 import DummyCore.Utils.IOldCubicBlock;
 import net.minecraft.block.Block;
@@ -135,11 +135,11 @@ public class SBRHAwareModel implements ISmartBlockModel, ISmartItemModel, IPosAw
 	}
 
 	@Override
-	public Pair<IBakedModel, Matrix4f> handlePerspective(TransformType cameraTransformType) {
+	public Pair<? extends IFlexibleBakedModel, Matrix4f> handlePerspective(TransformType cameraTransformType) {
 		if(cameraTransformType == TransformType.THIRD_PERSON)
-			return Pair.of(IBakedModel.class.cast(this), OLDBLOCKTHIRDPERSON);
+			return Pair.of(this, OLDBLOCKTHIRDPERSON);
 		
-		return Pair.of(IBakedModel.class.cast(this), null);
+		return Pair.of(this, null);
 	}
 
 	public static final Matrix4f OLDBLOCKTHIRDPERSON = ForgeHooksClient.getMatrix(new ItemTransformVec3f(new Vector3f(3.3F,1,-0.3F), new Vector3f(0F,0.1F,-0.15F), new Vector3f(0.35F, 0.35F, 0.35F)));
