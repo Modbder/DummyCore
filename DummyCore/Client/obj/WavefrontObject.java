@@ -12,6 +12,7 @@ import org.lwjgl.opengl.GL11;
 
 import DummyCore.Client.IModelCustom;
 import DummyCore.Client.ModelFormatException;
+import DummyCore.Utils.TessellatorWrapper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.resources.IResource;
@@ -178,11 +179,11 @@ public class WavefrontObject implements IModelCustom
 
         if (currentGroupObject != null)
         {
-            tessellator.getWorldRenderer().startDrawing(currentGroupObject.glDrawingMode);
+        	TessellatorWrapper.instance.startDrawing(currentGroupObject.glDrawingMode);
         }
         else
         {
-            tessellator.getWorldRenderer().startDrawing(GL11.GL_TRIANGLES);
+        	TessellatorWrapper.instance.startDrawing(GL11.GL_TRIANGLES);
         }
         tessellateAll(tessellator);
 

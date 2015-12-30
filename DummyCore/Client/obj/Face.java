@@ -1,5 +1,6 @@
 package DummyCore.Client.obj;
 
+import DummyCore.Utils.TessellatorWrapper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.util.Vec3;
 import net.minecraftforge.fml.relauncher.Side;
@@ -26,7 +27,7 @@ public class Face
             faceNormal = this.calculateFaceNormal();
         }
 
-        tessellator.getWorldRenderer().setNormal(faceNormal.x, faceNormal.y, faceNormal.z);
+        tessellator.getWorldRenderer().putNormal(faceNormal.x, faceNormal.y, faceNormal.z);
 
         float averageU = 0F;
         float averageV = 0F;
@@ -62,11 +63,11 @@ public class Face
                     offsetV = -offsetV;
                 }
 
-                tessellator.getWorldRenderer().addVertexWithUV(vertices[i].x, vertices[i].y, vertices[i].z, textureCoordinates[i].u + offsetU, textureCoordinates[i].v + offsetV);
+                TessellatorWrapper.instance.addVertexWithUV(vertices[i].x, vertices[i].y, vertices[i].z, textureCoordinates[i].u + offsetU, textureCoordinates[i].v + offsetV);
             }
             else
             {
-                tessellator.getWorldRenderer().addVertex(vertices[i].x, vertices[i].y, vertices[i].z);
+            	TessellatorWrapper.instance.addVertex(vertices[i].x, vertices[i].y, vertices[i].z);
             }
         }
     }

@@ -2,6 +2,7 @@ package DummyCore.Client.obj;
 
 import java.util.ArrayList;
 
+import DummyCore.Utils.TessellatorWrapper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -34,7 +35,7 @@ public class GroupObject
         if (faces.size() > 0)
         {
             Tessellator tessellator = Tessellator.getInstance();
-            tessellator.getWorldRenderer().startDrawing(glDrawingMode);
+            TessellatorWrapper.instance.startDrawing(glDrawingMode);
             render(tessellator);
             tessellator.draw();
         }

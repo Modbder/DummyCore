@@ -22,6 +22,7 @@ import DummyCore.Utils.DummyConfig;
 import DummyCore.Utils.IMainMenu;
 import DummyCore.Utils.Notifier;
 import DummyCore.Utils.Pair;
+import DummyCore.Utils.TessellatorWrapper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.audio.SoundHandler;
@@ -200,12 +201,12 @@ public class GuiMainMenuNBT extends GuiMainMenu implements IMainMenu{
     	if(menuType == 0)
     	{
 	    	mc.renderEngine.bindTexture(menuTexture);
-	    	Tessellator tec = Tessellator.getInstance();
-	    	tec.getWorldRenderer().startDrawingQuads();
-	    	tec.getWorldRenderer().addVertexWithUV(0, 0, zLevel, 0, 0);
-	    	tec.getWorldRenderer().addVertexWithUV(0, mcRes.getScaledHeight_double(), zLevel, 0, 1);
-	    	tec.getWorldRenderer().addVertexWithUV(mcRes.getScaledWidth_double(), mcRes.getScaledHeight_double(), zLevel, 1, 1);
-	    	tec.getWorldRenderer().addVertexWithUV(mcRes.getScaledWidth_double(), 0, zLevel, 1, 0);
+	    	TessellatorWrapper tec = TessellatorWrapper.getInstance();
+	    	tec.startDrawingQuads();
+	    	tec.addVertexWithUV(0, 0, zLevel, 0, 0);
+	    	tec.addVertexWithUV(0, mcRes.getScaledHeight_double(), zLevel, 0, 1);
+	    	tec.addVertexWithUV(mcRes.getScaledWidth_double(), mcRes.getScaledHeight_double(), zLevel, 1, 1);
+	    	tec.addVertexWithUV(mcRes.getScaledWidth_double(), 0, zLevel, 1, 0);
 	    	tec.draw();
     	}
     	if(menuType == 1)
@@ -222,24 +223,24 @@ public class GuiMainMenuNBT extends GuiMainMenu implements IMainMenu{
     	if(menuType == 3)
     	{
 	    	mc.renderEngine.bindTexture(menuTextures.get(textureIndex).getSecond());
-	    	Tessellator tec = Tessellator.getInstance();
-	    	tec.getWorldRenderer().startDrawingQuads();
-	    	tec.getWorldRenderer().addVertexWithUV(0, 0, zLevel, 0, 0);
-	    	tec.getWorldRenderer().addVertexWithUV(0, mcRes.getScaledHeight_double(), zLevel, 0, 1);
-	    	tec.getWorldRenderer().addVertexWithUV(mcRes.getScaledWidth_double(), mcRes.getScaledHeight_double(), zLevel, 1, 1);
-	    	tec.getWorldRenderer().addVertexWithUV(mcRes.getScaledWidth_double(), 0, zLevel, 1, 0);
+	    	TessellatorWrapper tec = TessellatorWrapper.getInstance();
+	    	tec.startDrawingQuads();
+	    	tec.addVertexWithUV(0, 0, zLevel, 0, 0);
+	    	tec.addVertexWithUV(0, mcRes.getScaledHeight_double(), zLevel, 0, 1);
+	    	tec.addVertexWithUV(mcRes.getScaledWidth_double(), mcRes.getScaledHeight_double(), zLevel, 1, 1);
+	    	tec.addVertexWithUV(mcRes.getScaledWidth_double(), 0, zLevel, 1, 0);
 	    	tec.draw();
     	}
     	if(menuType == 4)
     	{
     		int maxTicks = menuTextures.get(textureIndex).getFirst();
 	    	mc.renderEngine.bindTexture(menuTextures.get(textureIndex).getSecond());
-	    	Tessellator tec = Tessellator.getInstance();
-	    	tec.getWorldRenderer().startDrawingQuads();
-	    	tec.getWorldRenderer().addVertexWithUV(0, 0, zLevel, 0, 0);
-	    	tec.getWorldRenderer().addVertexWithUV(0, mcRes.getScaledHeight_double(), zLevel, 0, 1);
-	    	tec.getWorldRenderer().addVertexWithUV(mcRes.getScaledWidth_double(), mcRes.getScaledHeight_double(), zLevel, 1, 1);
-	    	tec.getWorldRenderer().addVertexWithUV(mcRes.getScaledWidth_double(), 0, zLevel, 1, 0);
+	    	TessellatorWrapper tec = TessellatorWrapper.getInstance();
+	    	tec.startDrawingQuads();
+	    	tec.addVertexWithUV(0, 0, zLevel, 0, 0);
+	    	tec.addVertexWithUV(0, mcRes.getScaledHeight_double(), zLevel, 0, 1);
+	    	tec.addVertexWithUV(mcRes.getScaledWidth_double(), mcRes.getScaledHeight_double(), zLevel, 1, 1);
+	    	tec.addVertexWithUV(mcRes.getScaledWidth_double(), 0, zLevel, 1, 0);
 	    	tec.draw();
         	if(tickTime >= maxTicks)
         	{
@@ -251,14 +252,14 @@ public class GuiMainMenuNBT extends GuiMainMenu implements IMainMenu{
     	    	float maxFadeIndex = overlayTimeList.get(textureIndex);
     	    	float currentFadeIndex = (overlayTickTime + partialTicks) / maxFadeIndex;
     	    	zLevel += 10;
-    	    	tec.getWorldRenderer().startDrawingQuads();
-    	    	tec.getWorldRenderer().setColorRGBA_F(1, 1, 1, currentFadeIndex);
-    	    	tec.getWorldRenderer().addVertexWithUV(0, 0, zLevel, 0, 0);
-    	    	tec.getWorldRenderer().addVertexWithUV(0, mcRes.getScaledHeight_double(), zLevel, 0, 1);
-    	    	tec.getWorldRenderer().addVertexWithUV(mcRes.getScaledWidth_double(), mcRes.getScaledHeight_double(), zLevel, 1, 1);
-    	    	tec.getWorldRenderer().addVertexWithUV(mcRes.getScaledWidth_double(), 0, zLevel, 1, 0);
+    	    	tec.startDrawingQuads();
+    	    	tec.setColorRGBA_F(1, 1, 1, currentFadeIndex);
+    	    	tec.addVertexWithUV(0, 0, zLevel, 0, 0);
+    	    	tec.addVertexWithUV(0, mcRes.getScaledHeight_double(), zLevel, 0, 1);
+    	    	tec.addVertexWithUV(mcRes.getScaledWidth_double(), mcRes.getScaledHeight_double(), zLevel, 1, 1);
+    	    	tec.addVertexWithUV(mcRes.getScaledWidth_double(), 0, zLevel, 1, 0);
     	    	tec.draw();
-    	    	tec.getWorldRenderer().setColorRGBA_F(1, 1, 1, 1);
+    	    	tec.setColorRGBA_F(1, 1, 1, 1);
     	    	GL11.glColor4d(1, 1, 1, 1);
     	    	zLevel -= 10;
         		GL11.glDisable(GL11.GL_BLEND);
@@ -339,16 +340,16 @@ public class GuiMainMenuNBT extends GuiMainMenu implements IMainMenu{
     	boolean fog = GL11.glIsEnabled(GL11.GL_FOG);
         GL11.glDisable(GL11.GL_LIGHTING);
         GL11.glDisable(GL11.GL_FOG);
-        Tessellator tessellator = Tessellator.getInstance();
+        TessellatorWrapper tessellator = TessellatorWrapper.getInstance();
         this.mc.getTextureManager().bindTexture(menuTexture);
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
         float f = 32.0F;
-        tessellator.getWorldRenderer().startDrawingQuads();
-        tessellator.getWorldRenderer().setColorOpaque_I(4210752);
-        tessellator.getWorldRenderer().addVertexWithUV(0.0D, this.height, 0.0D, 0.0D, this.height / f + repeat);
-        tessellator.getWorldRenderer().addVertexWithUV(this.width, this.height, 0.0D, this.width / f, this.height / f + repeat);
-        tessellator.getWorldRenderer().addVertexWithUV(this.width, 0.0D, 0.0D, this.width / f, repeat);
-        tessellator.getWorldRenderer().addVertexWithUV(0.0D, 0.0D, 0.0D, 0.0D, repeat);
+        tessellator.startDrawingQuads();
+        tessellator.setColorOpaque_I(4210752);
+        tessellator.addVertexWithUV(0.0D, this.height, 0.0D, 0.0D, this.height / f + repeat);
+        tessellator.addVertexWithUV(this.width, this.height, 0.0D, this.width / f, this.height / f + repeat);
+        tessellator.addVertexWithUV(this.width, 0.0D, 0.0D, this.width / f, repeat);
+        tessellator.addVertexWithUV(0.0D, 0.0D, 0.0D, 0.0D, repeat);
         tessellator.draw();
         if(lighting)
         	GL11.glEnable(GL11.GL_LIGHTING);
@@ -358,7 +359,7 @@ public class GuiMainMenuNBT extends GuiMainMenu implements IMainMenu{
     
     public void drawPanorama(int mouseX, int mouseY, float partialTicks)
     {
-        Tessellator tessellator = Tessellator.getInstance();
+        TessellatorWrapper tessellator = TessellatorWrapper.getInstance();
         GL11.glMatrixMode(GL11.GL_PROJECTION);
         GL11.glPushMatrix();
         GL11.glLoadIdentity();
@@ -406,13 +407,13 @@ public class GuiMainMenuNBT extends GuiMainMenu implements IMainMenu{
                     GL11.glRotated(-90, 1, 0, 0);
 
                 this.mc.getTextureManager().bindTexture(menuTextures.get(l).getSecond());
-                tessellator.getWorldRenderer().startDrawingQuads();
-                tessellator.getWorldRenderer().setColorRGBA_I(0xffffff, 255 / (k + 1));
+                tessellator.startDrawingQuads();
+                tessellator.setColorRGBA_I(0xffffff, 255 / (k + 1));
                 float f4 = 0.0F;
-                tessellator.getWorldRenderer().addVertexWithUV(-1.0D, -1.0D, 1.0D, 0.0F + f4, 0.0F + f4);
-                tessellator.getWorldRenderer().addVertexWithUV(1.0D, -1.0D, 1.0D, 1.0F - f4, 0.0F + f4);
-                tessellator.getWorldRenderer().addVertexWithUV(1.0D, 1.0D, 1.0D, 1.0F - f4, 1.0F - f4);
-                tessellator.getWorldRenderer().addVertexWithUV(-1.0D, 1.0D, 1.0D, 0.0F + f4, 1.0F - f4);
+                tessellator.addVertexWithUV(-1.0D, -1.0D, 1.0D, 0.0F + f4, 0.0F + f4);
+                tessellator.addVertexWithUV(1.0D, -1.0D, 1.0D, 1.0F - f4, 0.0F + f4);
+                tessellator.addVertexWithUV(1.0D, 1.0D, 1.0D, 1.0F - f4, 1.0F - f4);
+                tessellator.addVertexWithUV(-1.0D, 1.0D, 1.0D, 0.0F + f4, 1.0F - f4);
                 tessellator.draw();
                 GL11.glPopMatrix();
             }
@@ -421,7 +422,7 @@ public class GuiMainMenuNBT extends GuiMainMenu implements IMainMenu{
             GL11.glColorMask(true, true, true, false);
         }
 
-        tessellator.getWorldRenderer().setTranslation(0.0D, 0.0D, 0.0D);
+        tessellator.setTranslation(0.0D, 0.0D, 0.0D);
         GL11.glColorMask(true, true, true, true);
         GL11.glMatrixMode(GL11.GL_PROJECTION);
         GL11.glPopMatrix();
@@ -441,21 +442,21 @@ public class GuiMainMenuNBT extends GuiMainMenu implements IMainMenu{
         GL11.glEnable(GL11.GL_BLEND);
         OpenGlHelper.glBlendFunc(770, 771, 1, 0);
         GL11.glColorMask(true, true, true, false);
-        Tessellator tessellator = Tessellator.getInstance();
-        tessellator.getWorldRenderer().startDrawingQuads();
+        TessellatorWrapper tessellator = TessellatorWrapper.getInstance();
+        tessellator.startDrawingQuads();
         GL11.glDisable(GL11.GL_ALPHA_TEST);
         byte b0 = 3;
 
         for (int i = 0; i < b0; ++i)
         {
-            tessellator.getWorldRenderer().setColorRGBA_F(1.0F, 1.0F, 1.0F, 1.0F / (i + 1));
+            tessellator.setColorRGBA_F(1.0F, 1.0F, 1.0F, 1.0F / (i + 1));
             int j = this.width;
             int k = this.height;
             float f1 = (i - b0 / 2) / 256.0F;
-            tessellator.getWorldRenderer().addVertexWithUV(j, k, this.zLevel, 0.0F + f1, 1.0D);
-            tessellator.getWorldRenderer().addVertexWithUV(j, 0.0D, this.zLevel, 1.0F + f1, 1.0D);
-            tessellator.getWorldRenderer().addVertexWithUV(0.0D, 0.0D, this.zLevel, 1.0F + f1, 0.0D);
-            tessellator.getWorldRenderer().addVertexWithUV(0.0D, k, this.zLevel, 0.0F + f1, 0.0D);
+            tessellator.addVertexWithUV(j, k, this.zLevel, 0.0F + f1, 1.0D);
+            tessellator.addVertexWithUV(j, 0.0D, this.zLevel, 1.0F + f1, 1.0D);
+            tessellator.addVertexWithUV(0.0D, 0.0D, this.zLevel, 1.0F + f1, 0.0D);
+            tessellator.addVertexWithUV(0.0D, k, this.zLevel, 0.0F + f1, 0.0D);
         }
 
         tessellator.draw();
@@ -477,18 +478,18 @@ public class GuiMainMenuNBT extends GuiMainMenu implements IMainMenu{
         this.rotateAndBlurSkybox(partialTicks);
         this.mc.getFramebuffer().bindFramebuffer(true);
         GL11.glViewport(0, 0, this.mc.displayWidth, this.mc.displayHeight);
-        Tessellator tessellator = Tessellator.getInstance();
-        tessellator.getWorldRenderer().startDrawingQuads();
+        TessellatorWrapper tessellator = TessellatorWrapper.getInstance();
+        tessellator.startDrawingQuads();
         float f1 = this.width > this.height ? 120.0F / this.width : 120.0F / this.height;
         float f2 = this.height * f1 / 256.0F;
         float f3 = this.width * f1 / 256.0F;
-        tessellator.getWorldRenderer().setColorRGBA_F(1.0F, 1.0F, 1.0F, 1.0F);
+        tessellator.setColorRGBA_F(1.0F, 1.0F, 1.0F, 1.0F);
         int k = this.width;
         int l = this.height;
-        tessellator.getWorldRenderer().addVertexWithUV(0.0D, l, this.zLevel, 0.5F - f2, 0.5F + f3);
-        tessellator.getWorldRenderer().addVertexWithUV(k, l, this.zLevel, 0.5F - f2, 0.5F - f3);
-        tessellator.getWorldRenderer().addVertexWithUV(k, 0.0D, this.zLevel, 0.5F + f2, 0.5F - f3);
-        tessellator.getWorldRenderer().addVertexWithUV(0.0D, 0.0D, this.zLevel, 0.5F + f2, 0.5F + f3);
+        tessellator.addVertexWithUV(0.0D, l, this.zLevel, 0.5F - f2, 0.5F + f3);
+        tessellator.addVertexWithUV(k, l, this.zLevel, 0.5F - f2, 0.5F - f3);
+        tessellator.addVertexWithUV(k, 0.0D, this.zLevel, 0.5F + f2, 0.5F - f3);
+        tessellator.addVertexWithUV(0.0D, 0.0D, this.zLevel, 0.5F + f2, 0.5F + f3);
         tessellator.draw();
     }
     
@@ -504,7 +505,7 @@ public class GuiMainMenuNBT extends GuiMainMenu implements IMainMenu{
 		textureIndex = 0;
 		currentGifFrame = 0;
 		initNBTInfo();
-		mcRes = new ScaledResolution(mc,mc.displayWidth,mc.displayHeight);
+		mcRes = new ScaledResolution(mc);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -730,7 +731,7 @@ public class GuiMainMenuNBT extends GuiMainMenu implements IMainMenu{
 		if(s.equals("|FML|"))
 			s = "FML v"+Loader.instance().getFMLVersionString();
 		if(s.equals("|Forge|"))
-			s = MinecraftForge.getBrandingVersion();
+			s = "";
 		if(s.equals("|FMLBranding|"))
 			s = Loader.instance().getFMLBrandingProperties().containsKey("fmlbranding") ? Loader.instance().getFMLBrandingProperties().get("fmlbranding") : "";
 		if(s.equals("|Mods|"))
@@ -770,13 +771,13 @@ public class GuiMainMenuNBT extends GuiMainMenu implements IMainMenu{
 			if(!gif)
 			{
 				mc.renderEngine.bindTexture(texture);
-				Tessellator tec = Tessellator.getInstance();
-				tec.getWorldRenderer().startDrawingQuads();
+				TessellatorWrapper tec = TessellatorWrapper.getInstance();
+				tec.startDrawingQuads();
 				
-				tec.getWorldRenderer().addVertexWithUV(x, y, zLevel, minU, minV);
-				tec.getWorldRenderer().addVertexWithUV(x, y+sizeY, zLevel, minU, maxV);
-				tec.getWorldRenderer().addVertexWithUV(x+sizeX, y+sizeY, zLevel, maxU, maxV);
-				tec.getWorldRenderer().addVertexWithUV(x+sizeX, y, zLevel, maxU, minV);
+				tec.addVertexWithUV(x, y, zLevel, minU, minV);
+				tec.addVertexWithUV(x, y+sizeY, zLevel, minU, maxV);
+				tec.addVertexWithUV(x+sizeX, y+sizeY, zLevel, maxU, maxV);
+				tec.addVertexWithUV(x+sizeX, y, zLevel, maxU, minV);
 				
 				tec.draw();
 			}else{
@@ -870,8 +871,8 @@ public class GuiMainMenuNBT extends GuiMainMenu implements IMainMenu{
 			Minecraft mc = Minecraft.getMinecraft();
 			
 			mc.renderEngine.bindTexture(texture);
-			Tessellator tec = Tessellator.getInstance();
-			tec.getWorldRenderer().startDrawingQuads();
+			TessellatorWrapper tec = TessellatorWrapper.getInstance();
+			tec.startDrawingQuads();
 			
 			int l = 0xe0e0e0;
 			double offsetY = buttonYOffset;
@@ -890,10 +891,10 @@ public class GuiMainMenuNBT extends GuiMainMenu implements IMainMenu{
 				}
 			}
 			
-			tec.getWorldRenderer().addVertexWithUV(xPosition, yPosition, zLevel, minU, minV+offsetY);
-			tec.getWorldRenderer().addVertexWithUV(xPosition, yPosition+height, zLevel, minU, maxV+offsetY);
-			tec.getWorldRenderer().addVertexWithUV(xPosition+width, yPosition+height, zLevel, maxU, maxV+offsetY);
-			tec.getWorldRenderer().addVertexWithUV(xPosition+width, yPosition, zLevel, maxU, minV+offsetY);
+			tec.addVertexWithUV(xPosition, yPosition, zLevel, minU, minV+offsetY);
+			tec.addVertexWithUV(xPosition, yPosition+height, zLevel, minU, maxV+offsetY);
+			tec.addVertexWithUV(xPosition+width, yPosition+height, zLevel, maxU, maxV+offsetY);
+			tec.addVertexWithUV(xPosition+width, yPosition, zLevel, maxU, minV+offsetY);
 			
 			tec.draw();
 			

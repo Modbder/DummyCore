@@ -15,6 +15,7 @@ import com.google.common.collect.Lists;
 
 import DummyCore.Utils.DrawUtils;
 import DummyCore.Utils.IMainMenu;
+import DummyCore.Utils.TessellatorWrapper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
@@ -106,7 +107,7 @@ public class GuiMainMenuOld extends GuiMainMenu implements IMainMenu{
             this.drawTexturedModalRect(k + 155, b0 + 0, 0, 45, 155, 44);
         }
 
-        tessellator.getWorldRenderer().setColorOpaque_I(-1);
+        //TessellatorWrapper.instance.setColorOpaque_I(-1);
         GL11.glPushMatrix();
         GL11.glTranslatef(this.width / 2 + 90, 70.0F, 0.0F);
         GL11.glRotatef(-20.0F, 0.0F, 0.0F, 1.0F);

@@ -75,13 +75,13 @@ public class DrawUtils {
 		double maxU = icon.getMaxU();
 		double minV = icon.getMinV();
 		double maxV = icon.getMaxV();
-		Tessellator tessellator = Tessellator.getInstance();
-		tessellator.getWorldRenderer().startDrawingQuads();
-		tessellator.getWorldRenderer().addVertexWithUV(x + 0, y + height, zLevel, minU, minV + ((maxV - minV) * height) / 16D);
-		tessellator.getWorldRenderer().addVertexWithUV(x + width, y + height, zLevel, minU + ((maxU - minU) * width) / 16D, minV + ((maxV - minV) * height) / 16D);
-		tessellator.getWorldRenderer().addVertexWithUV(x + width, y + 0, zLevel, minU + ((maxU - minU) * width) / 16D, minV);
-		tessellator.getWorldRenderer().addVertexWithUV(x + 0, y + 0, zLevel, minU, minV);
-		tessellator.draw();
+		TessellatorWrapper tec = TessellatorWrapper.instance;
+		tec.startDrawingQuads();
+		tec.addVertexWithUV(x + 0, y + height, zLevel, minU, minV + ((maxV - minV) * height) / 16D);
+		tec.addVertexWithUV(x + width, y + height, zLevel, minU + ((maxU - minU) * width) / 16D, minV + ((maxV - minV) * height) / 16D);
+		tec.addVertexWithUV(x + width, y + 0, zLevel, minU + ((maxU - minU) * width) / 16D, minV);
+		tec.addVertexWithUV(x + 0, y + 0, zLevel, minU, minV);
+		tec.draw();
 		return true;
     }
     
@@ -128,13 +128,13 @@ public class DrawUtils {
     {
         float f = 0.00390625F; //1/256
         float f1 = 0.00390625F; //1/256
-        Tessellator tessellator = Tessellator.getInstance();
-        tessellator.getWorldRenderer().startDrawingQuads();
-        tessellator.getWorldRenderer().addVertexWithUV(x + 0, y + sizeY, zLevel, (textureX + 0) * f, (textureY + sizeY) * f1);
-        tessellator.getWorldRenderer().addVertexWithUV(x + sizeX, y + sizeY, zLevel, (textureX + sizeX) * f, (textureY + sizeY) * f1);
-        tessellator.getWorldRenderer().addVertexWithUV(x + sizeX, y + 0, zLevel, (textureX + sizeX) * f, (textureY + 0) * f1);
-        tessellator.getWorldRenderer().addVertexWithUV(x + 0, y + 0, zLevel, (textureX + 0) * f, (textureY + 0) * f1);
-        tessellator.draw();
+        TessellatorWrapper tec = TessellatorWrapper.getInstance();
+        tec.startDrawingQuads();
+        tec.addVertexWithUV(x + 0, y + sizeY, zLevel, (textureX + 0) * f, (textureY + sizeY) * f1);
+        tec.addVertexWithUV(x + sizeX, y + sizeY, zLevel, (textureX + sizeX) * f, (textureY + sizeY) * f1);
+        tec.addVertexWithUV(x + sizeX, y + 0, zLevel, (textureX + sizeX) * f, (textureY + 0) * f1);
+        tec.addVertexWithUV(x + 0, y + 0, zLevel, (textureX + 0) * f, (textureY + 0) * f1);
+        tec.draw();
     }
     
     /**
@@ -373,15 +373,15 @@ public class DrawUtils {
         GL11.glDisable(GL11.GL_ALPHA_TEST);
         OpenGlHelper.glBlendFunc(770, 771, 1, 0);
         GL11.glShadeModel(GL11.GL_SMOOTH);
-        Tessellator tessellator = Tessellator.getInstance();
-        tessellator.getWorldRenderer().startDrawingQuads();
-        tessellator.getWorldRenderer().setColorRGBA_F(f1, f2, f3, f);
-        tessellator.getWorldRenderer().addVertex(ex, y, zLevel);
-        tessellator.getWorldRenderer().addVertex(x, y, zLevel);
-        tessellator.getWorldRenderer().setColorRGBA_F(f5, f6, f7, f4);
-        tessellator.getWorldRenderer().addVertex(x, ey, zLevel);
-        tessellator.getWorldRenderer().addVertex(ex, ey, zLevel);
-        tessellator.draw();
+        TessellatorWrapper tec = TessellatorWrapper.getInstance();
+        tec.startDrawingQuads();
+        tec.setColorRGBA_F(f1, f2, f3, f);
+        tec.addVertex(ex, y, zLevel);
+        tec.addVertex(x, y, zLevel);
+        tec.setColorRGBA_F(f5, f6, f7, f4);
+        tec.addVertex(x, ey, zLevel);
+        tec.addVertex(ex, ey, zLevel);
+        tec.draw();
         GL11.glShadeModel(GL11.GL_FLAT);
         GL11.glDisable(GL11.GL_BLEND);
         GL11.glEnable(GL11.GL_ALPHA_TEST);
