@@ -535,7 +535,7 @@ public class MainMenuRegistry {
 						try
 						{
 							String st = IOUtils.toString(fis,"UTF-8");
-							NBTTagCompound tag = JsonToNBT.func_180713_a(st);
+							NBTTagCompound tag = JsonToNBT.getTagFromJson(st);
 							if(validateNBT(tag))
 							{
 								tagsToMenu.add(tag);

@@ -47,6 +47,7 @@ public class DummyEventHandler {
 	public void textureInit(TextureStitchEvent.Pre event)
 	{
 		IconRegister.currentMap = event.map;
+		
 		for(Pair<String,Block> p : OldTextureHandler.oldBlocksToRender)
 			IOldCubicBlock.class.cast(p.getSecond()).registerBlockIcons(IconRegister.instance);
 		for(Pair<String,Item> p : OldTextureHandler.oldItemsToRender)

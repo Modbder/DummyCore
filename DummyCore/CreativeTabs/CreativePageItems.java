@@ -8,6 +8,7 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -45,7 +46,7 @@ public final class CreativePageItems extends CreativeTabs{
     	{
 	    	for(int t = 0; t < Item.itemRegistry.getKeys().size(); ++t)
 	    	{
-	    		Item itm = (Item) Item.itemRegistry.getObject(Item.itemRegistry.getKeys().toArray()[t]);
+	    		Item itm = (Item) Item.getByNameOrId(((ResourceLocation) Item.itemRegistry.getKeys().toArray()[t]).toString());
 	    		if(itm != null && itm.getCreativeTab() == this)
 	    		{
 	    			List<ItemStack> lst = new ArrayList<ItemStack>();

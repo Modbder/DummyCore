@@ -57,7 +57,7 @@ public class GuiMenuList extends GuiScreen{
                 }
             }
         }
-        try{super.actionPerformed(button);}catch(Exception ex){}
+        try{super.actionPerformed(button);}catch(Exception ex){ex.printStackTrace();}
     }
 
     public int drawLine(String line, int offset, int shifty)

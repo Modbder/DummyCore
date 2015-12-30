@@ -75,9 +75,9 @@ public class NetProxy_Client extends NetProxy_Server{
 	//Why vanilla's(or is it forge?) thread checking?
 	public void handlePacketS35(S35PacketUpdateTileEntity packetIn)
 	{
-        if (Minecraft.getMinecraft().theWorld.isBlockLoaded(packetIn.func_179823_a()))
+        if (Minecraft.getMinecraft().theWorld.isBlockLoaded(packetIn.getPos()))
         {
-            TileEntity tileentity = Minecraft.getMinecraft().theWorld.getTileEntity(packetIn.func_179823_a());
+            TileEntity tileentity = Minecraft.getMinecraft().theWorld.getTileEntity(packetIn.getPos());
             
             if(tileentity == null)
             	return;

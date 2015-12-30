@@ -99,7 +99,7 @@ public class DummyDataUtils {
 		{
 			EntityPlayer player = event.entityPlayer;
 			boolean exists = true;
-			File playerFile = getDataFileForPlayer(player.getName());
+			File playerFile = getDataFileForPlayer(player.getCommandSenderName());
 			if(playerFile.isDirectory())
 			{
 				restoreFileFromDir(playerFile);
@@ -115,10 +115,10 @@ public class DummyDataUtils {
 			if(exists)
 			{
 				NBTTagCompound tag = loadNBTFromFile(playerFile);
-				playerConfigs.put(player.getName(), tag);
+				playerConfigs.put(player.getCommandSenderName(), tag);
 			}else
 			{
-				playerConfigs.put(player.getName(), new NBTTagCompound());
+				playerConfigs.put(player.getCommandSenderName(), new NBTTagCompound());
 			}
 		}
 	}
@@ -129,7 +129,7 @@ public class DummyDataUtils {
 		if(!event.entityPlayer.worldObj.isRemote)
 		{
 			EntityPlayer player = event.entityPlayer;
-			File playerFile = getDataFileForPlayer(player.getName());
+			File playerFile = getDataFileForPlayer(player.getCommandSenderName());
 			if(playerFile.isDirectory())
 				restoreFileFromDir(playerFile);
 			
@@ -145,8 +145,8 @@ public class DummyDataUtils {
 	{
 		if(!event.player.worldObj.isRemote)
 		{
-			playerFiles.remove(event.player.getName());
-			playerConfigs.remove(event.player.getName());
+			playerFiles.remove(event.player.getCommandSenderName());
+			playerConfigs.remove(event.player.getCommandSenderName());
 		}
 	}
 	

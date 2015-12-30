@@ -756,7 +756,7 @@ public class MiscUtils {
             {
                 float f2 = base.getHealth();
                 base.setHealth(f2 - amount);
-                base.getCombatTracker().func_94547_a(dam, f2, amount);
+                base.getCombatTracker().trackDamage(dam, f2, amount);
                 base.setAbsorptionAmount(base.getAbsorptionAmount() - amount);
             }
         }
@@ -881,7 +881,7 @@ public class MiscUtils {
 		DummyData id = new DummyData("id",buttonID);
 		DummyData parent = new DummyData("parent",parentClass.getName());
 		DummyData button = new DummyData("button",buttonClass.getName());
-		DummyData player = new DummyData("player",presser.getName());
+		DummyData player = new DummyData("player",presser.getCommandSenderName());
 		DummyData dx = new DummyData("x",bX);
 		DummyData dy = new DummyData("y",bY);
 		DummyData dz = new DummyData("z",bZ);
