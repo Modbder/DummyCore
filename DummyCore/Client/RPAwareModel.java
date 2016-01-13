@@ -102,7 +102,7 @@ public class RPAwareModel implements ISmartItemModel, IPerspectiveAwareModel{
 	}
 
 	@Override
-	public TextureAtlasSprite getTexture() {
+	public TextureAtlasSprite getParticleTexture() {
 		return renderedFor != null ? interfaced.getIconFromItemStack(renderedFor).actualTexture : interfaced.getIconFromDamage(0).actualTexture;
 	}
 

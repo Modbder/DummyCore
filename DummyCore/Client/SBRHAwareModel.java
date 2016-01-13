@@ -100,7 +100,7 @@ public class SBRHAwareModel implements ISmartBlockModel, ISmartItemModel, IPosAw
 	}
 
 	@Override
-	public TextureAtlasSprite getTexture() {
+	public TextureAtlasSprite getParticleTexture() {
 		return iconFromState.actualTexture;
 	}
 	

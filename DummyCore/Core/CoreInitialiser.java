@@ -47,7 +47,7 @@ public class CoreInitialiser{
 	public static final String modname = "DummyCore";
 	public static final String globalVersion = "2";
 	public static final String modVersion = "1";
-	public static final String mcVersion = "1.8.8";
+	public static final String mcVersion = "1.8.9";
 	public static final String modmcVersion = "188";
 	public static final String buildVersion = "7";
 	public static final String buildPostfix = "";
@@ -93,7 +93,6 @@ public class CoreInitialiser{
 	    
 		MinecraftForge.EVENT_BUS.register(new DummyEventHandler());
 		MinecraftForge.EVENT_BUS.register(new DummyDataUtils());
-		FMLCommonHandler.instance().bus().register(new DummyEventHandler());
 		
 		proxy.registerInfo();
 		

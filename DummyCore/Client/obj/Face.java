@@ -27,7 +27,7 @@ public class Face
             faceNormal = this.calculateFaceNormal();
         }
 
-        tessellator.getWorldRenderer().putNormal(faceNormal.x, faceNormal.y, faceNormal.z);
+        //tessellator.getWorldRenderer().putNormal(faceNormal.x, faceNormal.y, faceNormal.z);
 
         float averageU = 0F;
         float averageV = 0F;

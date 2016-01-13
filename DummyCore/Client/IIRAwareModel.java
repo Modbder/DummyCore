@@ -53,7 +53,7 @@ public class IIRAwareModel implements IPerspectiveAwareModel,ISmartItemModel{
 	}
 
 	@Override
-	public TextureAtlasSprite getTexture() {
+	public TextureAtlasSprite getParticleTexture() {
 		return rendered != null ? Icon.fromItem(rendered).actualTexture : Icon.fromItem(registeredFor).actualTexture;
 	}
 
