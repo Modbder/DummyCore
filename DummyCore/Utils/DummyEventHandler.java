@@ -1,6 +1,10 @@
 package DummyCore.Utils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+
+import org.lwjgl.input.Mouse;
 
 import DummyCore.Client.GuiButton_ChangeGUI;
 import DummyCore.Client.IconRegister;
@@ -8,11 +12,20 @@ import DummyCore.Client.MainMenuRegistry;
 import DummyCore.Core.CoreInitialiser;
 import DummyCore.Events.DummyEvent_OnClientGUIButtonPress;
 import DummyCore.Events.DummyEvent_OnPacketRecieved;
+import joptsimple.internal.Strings;
 import net.minecraft.block.Block;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiMainMenu;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.Slot;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.ServerConfigurationManager;
 import net.minecraft.tileentity.TileEntity;
@@ -20,15 +33,18 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
+import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.GuiScreenEvent.InitGuiEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
+import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -46,6 +62,7 @@ public class DummyEventHandler {
 	@SubscribeEvent
 	public void textureInit(TextureStitchEvent.Pre event)
 	{
+		IconRegister.registered.clear();
 		IconRegister.currentMap = event.map;
 		
 		for(Pair<String,Block> p : OldTextureHandler.oldBlocksToRender)
@@ -261,5 +278,218 @@ public class DummyEventHandler {
 		if(event.entity instanceof EntityPlayer && event.world.isRemote)
 			ModVersionChecker.dispatchModChecks();
 	}
+	
+	@SideOnly(Side.CLIENT)
+	@SubscribeEvent
+	public void descriptionAdded(ItemTooltipEvent event)
+	{
+		Item i = event.itemStack.getItem();
 
+			GuiScreen currentScreen = Minecraft.getMinecraft().currentScreen;
+			if(currentScreen instanceof GuiContainer)
+			{
+				
+				ArrayList<IItemDescriptionGraphics> iidLst = null;
+				
+				if(MiscUtils.itemDescriptionGraphics.containsKey(i))
+				{
+					iidLst = MiscUtils.itemDescriptionGraphics.get(i);
+					iidLst.addAll(MiscUtils.globalDescriptionGraphics);
+				}
+				else
+					iidLst = MiscUtils.globalDescriptionGraphics;
+				
+				if(iidLst == null || iidLst.isEmpty())
+					return;
+				
+				ArrayList<IItemDescriptionGraphics> inDesc = new ArrayList<IItemDescriptionGraphics>();
+				for(IItemDescriptionGraphics iig : iidLst)
+					if(iig.doDisplay(event.itemStack, event.entityPlayer) && iig.displayInDescription(event.itemStack, event.entityPlayer))
+						inDesc.add(iig);
+				
+				for(IItemDescriptionGraphics iig : inDesc)
+				{
+					String firstLine = "\uD836\uDE80";
+					for(int i1 = 0; i1 < Math.max(1, iig.getYSize(event.itemStack, event.entityPlayer)/10); ++i1)
+					{
+						int spaces = Math.max(1, iig.getXSize(event.itemStack, event.entityPlayer)/4);
+						String added = Strings.repeat(' ', spaces);
+						if(i1 == 0)
+						{
+							firstLine += added;
+							event.toolTip.add(firstLine);
+						}else
+						{
+							event.toolTip.add(added);
+						}
+					}
+				}
+			}	
+		
+	}
+	
+	@SideOnly(Side.CLIENT)
+	@SubscribeEvent
+	public void guiRenderedEvent(GuiScreenEvent.DrawScreenEvent.Post event)
+	{
+		Minecraft mc = Minecraft.getMinecraft();
+		GuiScreen gui = event.gui;
+		if(gui != null && gui instanceof GuiContainer)
+		{
+			
+			GuiContainer gc = GuiContainer.class.cast(gui);
+			Slot slot = ReflectionHelper.getPrivateValue(GuiContainer.class, gc, new String[]{"theSlot","","field_147006_u","u"});
+			if(slot != null && slot.getHasStack() && mc.thePlayer.inventory.getItemStack() == null)
+			{
+				ItemStack stk = slot.getStack();
+				if(stk != null)
+				{
+					Item i = stk.getItem();
+					ArrayList<IItemDescriptionGraphics> iidLst = null;
+					
+					if(MiscUtils.itemDescriptionGraphics.containsKey(i))
+					{
+						iidLst = MiscUtils.itemDescriptionGraphics.get(i);
+						iidLst.addAll(MiscUtils.globalDescriptionGraphics);
+					}
+					else
+						iidLst = MiscUtils.globalDescriptionGraphics;
+					ArrayList<IItemDescriptionGraphics> inDesc = new ArrayList<IItemDescriptionGraphics>();
+					ArrayList<IItemDescriptionGraphics> aboveDesc = new ArrayList<IItemDescriptionGraphics>();
+					for(IItemDescriptionGraphics iig : iidLst)
+						if(iig.doDisplay(stk, Minecraft.getMinecraft().thePlayer))
+							if(iig.displayInDescription(stk, Minecraft.getMinecraft().thePlayer))
+								inDesc.add(iig);
+							else
+								aboveDesc.add(iig);
+					
+					ScaledResolution res = new ScaledResolution(mc);
+					FontRenderer font = mc.fontRendererObj;
+					int mouseX = Mouse.getX() * res.getScaledWidth() / mc.displayWidth;
+					int mouseY = res.getScaledHeight() - Mouse.getY() * res.getScaledHeight() / mc.displayHeight;
+					
+					List<String> tooltip;
+					try {
+						tooltip = stk.getTooltip(mc.thePlayer, mc.gameSettings.advancedItemTooltips);
+					}catch(Exception e){
+						tooltip = new ArrayList();
+					}
+					
+					ArrayList<Integer> positions = new ArrayList<Integer>();
+					for(int i1 = 0; i1 < tooltip.size(); ++i1)
+					{
+						String s = tooltip.get(i1);
+						if(s.indexOf("\uD836\uDE80") != -1)
+							positions.add(i1);
+					}
+					
+					int width = 0;
+					for(String s : tooltip)
+						width = Math.max(width, font.getStringWidth(s) + 2);
+					int tooltipHeight = (tooltip.size() - 1) * 10 + 5;
+
+					int height = 3;
+					int dx = 11;
+					int dy = 17;
+
+					boolean offscreen = mouseX + width + 19 >= res.getScaledWidth();
+
+					int fixY = res.getScaledHeight() - (mouseY + tooltipHeight);
+					if(fixY < 0)
+						dy -= fixY;
+					
+					GlStateManager.pushMatrix();
+					GlStateManager.translate(0, 0, 255);
+					
+					int indexed = 0;
+					for(IItemDescriptionGraphics iidg : inDesc)
+					{
+						iidg.draw(gc, stk, Minecraft.getMinecraft().thePlayer, mouseX + dx, mouseY - dy - height+(positions.size() == 0 ? 0 : (positions.get(Math.min(indexed,positions.size()-1))+1)*10), mouseX, mouseY, event.renderPartialTicks, offscreen);
+						++indexed;
+					}
+					
+					int iindexed = 1;
+					for(IItemDescriptionGraphics iidg : aboveDesc)
+					{
+						iidg.draw(gc, stk, Minecraft.getMinecraft().thePlayer, mouseX + dx, mouseY - dy - height-iindexed * iidg.getYSize(stk, Minecraft.getMinecraft().thePlayer), mouseX, mouseY, event.renderPartialTicks, offscreen);
+						++iindexed;
+					}
+					
+					GlStateManager.translate(0, 0, -255);
+					GlStateManager.popMatrix();
+				}
+			}
+		}
+	}
+
+	@SideOnly(Side.CLIENT)
+	@SubscribeEvent
+	public void drawHUDEvent(TickEvent.RenderTickEvent event)
+	{
+		if(event.phase == Phase.END && Minecraft.getMinecraft().theWorld != null)
+		{
+			ScaledResolution scaledRes = new ScaledResolution(Minecraft.getMinecraft());
+			GuiScreen gs = Minecraft.getMinecraft().currentScreen;
+			for(IHUDElement ihe : MiscUtils.hudElements)
+			{
+				if(ihe.display() && (gs == null || ihe.displayInGUIs()))
+				{
+					EnumGuiPosition egp = ihe.offsetPoint();
+					int i = 0, j = 0;
+					switch(egp)
+					{
+						case TOPLEFT:
+							break;
+						case TOPRIGHT:
+						{
+							i = scaledRes.getScaledWidth();
+							break;
+						}
+						case BOTLEFT:
+						{
+							j = scaledRes.getScaledHeight();
+							break;
+						}
+						case BOTRIGHT:
+						{
+							i = scaledRes.getScaledWidth();
+							j = scaledRes.getScaledHeight();
+							break;
+						}
+						case CENTER:
+						{
+							i = scaledRes.getScaledWidth()/2;
+							j = scaledRes.getScaledHeight()/2;
+							break;
+						}
+						case BOTCENTER:
+						{
+							i = scaledRes.getScaledWidth()/2;
+							j = scaledRes.getScaledHeight();
+							break;
+						}
+						case TOPCENTER:
+						{
+							i = scaledRes.getScaledWidth()/2;
+							j = 0;
+							break;
+						}
+						case LEFTCENTER:
+						{
+							i = 0;
+							j = scaledRes.getScaledHeight()/2;
+							break;
+						}
+						case RIGHTCENTER:
+						{
+							i = scaledRes.getScaledWidth();
+							j = scaledRes.getScaledHeight()/2;
+							break;
+						}
+					}
+					ihe.draw(i+ihe.getXOffset(), j+ihe.getYOffset(), event.renderTickTime, scaledRes);
+				}
+			}
+		}
+	}
 }

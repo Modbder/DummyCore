@@ -10,12 +10,23 @@ public enum EnumGuiPosition {
 	TOPRIGHT,
 	BOTLEFT,
 	BOTRIGHT,
-	CENTER;
+	CENTER,
+	BOTCENTER,
+	TOPCENTER,
+	LEFTCENTER,
+	RIGHTCENTER;
 	
 	EnumGuiPosition()
 	{
 	}
 	
-	
+	public static EnumGuiPosition byName(String s)
+	{
+		for(EnumGuiPosition pos : values())
+			if(pos.name().equalsIgnoreCase(s))
+				return pos;
+		
+		return null;
+	}
 
 }

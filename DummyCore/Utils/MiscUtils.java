@@ -69,7 +69,9 @@ public class MiscUtils {
 	public static final Hashtable<String, String> registeredServerWorldData = new Hashtable<String, String>();
 	public static final List<BlockPosition> unbreakableBlocks = new ArrayList<BlockPosition>();
 	public static final List<ScheduledServerAction> actions = new ArrayList<ScheduledServerAction>();
-	
+	public static final Hashtable<Item,ArrayList<IItemDescriptionGraphics>> itemDescriptionGraphics = new Hashtable<Item,ArrayList<IItemDescriptionGraphics>>();
+	public static final ArrayList<IItemDescriptionGraphics> globalDescriptionGraphics = new ArrayList<IItemDescriptionGraphics>();
+	public static final ArrayList<IHUDElement> hudElements = new ArrayList<IHUDElement>();
 	//ShaderGroups IDs - 
 		//0 - Pixelated
 		//1 -  Smooth
@@ -881,7 +883,7 @@ public class MiscUtils {
 		DummyData id = new DummyData("id",buttonID);
 		DummyData parent = new DummyData("parent",parentClass.getName());
 		DummyData button = new DummyData("button",buttonClass.getName());
-		DummyData player = new DummyData("player",presser.getCommandSenderName());
+		DummyData player = new DummyData("player",presser.getName());
 		DummyData dx = new DummyData("x",bX);
 		DummyData dy = new DummyData("y",bY);
 		DummyData dz = new DummyData("z",bZ);
@@ -1117,5 +1119,46 @@ public class MiscUtils {
         }
 
         return f;
+    }
+    
+    /**
+     * Adds a handler to draw something graphical upon mousing over an item
+     * @param b - the block to register for
+     * @param iidg - the handler
+     */
+    public static void addItemGraphicsDescription(Block b, IItemDescriptionGraphics iidg)
+    {
+    	if(Item.getItemFromBlock(b) != null)
+    		addItemGraphicsDescription(Item.getItemFromBlock(b),iidg);
+    }
+    
+    /**
+     * Adds a handler to draw something graphical upon mousing over an item
+     * @param iidg - the handler
+     */
+    public static void addGlobalItemGraphicsDescription(IItemDescriptionGraphics iidg)
+    {
+    	globalDescriptionGraphics.add(iidg);
+    }
+    
+    /**
+     * Adds a handler to draw something graphical upon mousing over an item
+     * @param i - the item to register for
+     * @param iidg - the handler
+     */
+    public static void addItemGraphicsDescription(Item i, IItemDescriptionGraphics iidg)
+    {
+    	if(!itemDescriptionGraphics.containsKey(i))
+    		itemDescriptionGraphics.put(i, new ArrayList<IItemDescriptionGraphics>());
+    	itemDescriptionGraphics.get(i).add(iidg);
+    }
+    
+    /**
+     * Adds an element to be displayed on player's HUD
+     * @param ihe - the element to register
+     */
+    public static void addHUDElement(IHUDElement ihe)
+    {
+    	hudElements.add(ihe);
     }
 }
