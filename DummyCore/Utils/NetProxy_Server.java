@@ -7,6 +7,7 @@ import DummyCore.CreativeTabs.CreativePageItems;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.item.Item;
 import net.minecraft.network.INetHandler;
 import net.minecraft.network.NetHandlerPlayServer;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
@@ -52,6 +53,11 @@ public class NetProxy_Server implements IGuiHandler{
 	}
 	
 	public Integer[] createPossibleMetadataCacheFromBlock(Block b)
+	{
+		return new Integer[]{0};
+	}
+	
+	public Integer[] createPossibleMetadataCacheFromItem(Item i)
 	{
 		return new Integer[]{0};
 	}

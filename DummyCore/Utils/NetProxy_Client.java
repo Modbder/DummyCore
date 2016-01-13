@@ -71,6 +71,7 @@ public class NetProxy_Client extends NetProxy_Server{
 	
 	public static final Hashtable<String, ShaderGroup> shaders = new Hashtable<String, ShaderGroup>();
 	public static final Hashtable<Block,Integer[]> cachedMeta = new Hashtable<Block,Integer[]>();
+	public static final Hashtable<Item,Integer[]> cachedMetaI = new Hashtable<Item,Integer[]>();
 	
 	//Why vanilla's(or is it forge?) thread checking?
 	public void handlePacketS35(S35PacketUpdateTileEntity packetIn)
@@ -169,6 +170,28 @@ public class NetProxy_Client extends NetProxy_Server{
 		}
 		
 		cachedMeta.put(b, retInt);
+		return retInt;
+	}
+	
+	public Integer[] createPossibleMetadataCacheFromItem(Item i)
+	{
+		if(cachedMetaI.containsKey(i))
+			return cachedMetaI.get(i);
+		
+		ArrayList<ItemStack> dummyTabsTrick = new ArrayList<ItemStack>();
+		i.getSubItems(i, i.getCreativeTab(), dummyTabsTrick);
+		Integer[] retInt = new Integer[dummyTabsTrick.size()];
+		int count = 0;
+		for(ItemStack is : dummyTabsTrick)
+		{
+			if(is != null && is.getItem() == i)
+			{
+				retInt[count] = is.getItemDamage();
+				++count;
+			}
+		}
+		
+		cachedMetaI.put(i, retInt);
 		return retInt;
 	}
 	
