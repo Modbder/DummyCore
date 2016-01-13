@@ -16,6 +16,7 @@ public class ModelBakeryOven {
 	public int shadeColor = -1;
 	public int uselessInt = 0;
 	public EnumFacing workedWith;
+	public boolean swapRB;
 	
 	public static final ModelBakeryOven instance = new ModelBakeryOven();
 	
@@ -29,15 +30,25 @@ public class ModelBakeryOven {
 	}
 	
 	/**
+	 * Starts the drawing for the given face and without any custom color
+	 * @param face - the face to draw on
+	 */
+	public void start(EnumFacing face, int shadeColor)
+	{
+		this.start(face,shadeColor,false);
+	}
+	
+	/**
 	 * Starts the drawing for the given face and with custom color
 	 * @param face - the face to draw on
 	 * @param shadeColor - the color to draw with
 	 */
-	public void start(EnumFacing face, int shadeColor)
+	public void start(EnumFacing face, int shadeColor, boolean swapRB)
 	{
 		workedWith = face;
 		quad = 0;
 		this.shadeColor = shadeColor;
+		this.swapRB = swapRB;
 		data = new int[28];
 	}
 	
@@ -76,6 +87,28 @@ public class ModelBakeryOven {
         int i = MathHelper.clamp_int((int)(f * 255.0F), 0, 255);
         return -16777216 | i << 16 | i << 8 | i;
     }
+    
+    /**
+	 * Internal. For some reason R and B are swapped in the hex representing the color.
+	 * @param face
+	 * @return
+     */
+    public int getFaceSwappedColor(EnumFacing face, int color)
+    {
+    	if(color == 0xffffff)
+    		return 0xffffff;
+    	
+    	if(color == 0xffffffff)
+    		return 0xffffffff;
+    	
+    	int hA = (color & 0xFF000000) >> 24;
+        if(hA == 0)
+        	hA = 255;
+    	int hB = (color & 0xFF0000) >> 16;
+        int hG = (color & 0xFF00) >> 8;
+        int hR = (color & 0xFF);
+    	return (hA << 24) + (hR << 16) + (hG << 8) + hB;
+    }
 	
     /**
      * Adds a vertex with UV(the same format as Tesselator) to the vertex data
@@ -92,7 +125,7 @@ public class ModelBakeryOven {
 		data[l] = Float.floatToRawIntBits((float) x);
 		data[l+1] = Float.floatToRawIntBits((float) y);
 		data[l+2] = Float.floatToRawIntBits((float) z);
-		data[l+3] = shadeColor == -1 ? getFaceShadeColor(workedWith) : shadeColor;
+		data[l+3] = shadeColor == -1 ? getFaceShadeColor(workedWith) : swapRB ? getFaceSwappedColor(workedWith,shadeColor) : shadeColor;
 		data[l+4] = Float.floatToRawIntBits((float) u);
 		data[l+5] = Float.floatToRawIntBits((float) v);
 		data[l+6] = uselessInt;
