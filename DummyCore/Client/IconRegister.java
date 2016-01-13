@@ -1,5 +1,7 @@
 package DummyCore.Client;
 
+import java.util.Hashtable;
+
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.util.ResourceLocation;
 
@@ -12,6 +14,7 @@ public class IconRegister{
 	
 	public static final IconRegister instance = new IconRegister();
 	public static TextureMap currentMap;
+	public static final Hashtable<String,Icon> registered = new Hashtable<String,Icon>();
 	
 	public Icon registerBlockIcon(String path)
 	{
@@ -23,7 +26,9 @@ public class IconRegister{
 	public Icon registerBlockIcon(String domain, String path)
 	{
 		path = "blocks/" + path;
-		return new Icon(currentMap.registerSprite(new ResourceLocation(domain,path)));
+		if(!registered.containsKey(domain+":"+path))
+			registered.put(domain+":"+path, new Icon(currentMap.registerSprite(new ResourceLocation(domain,path))));
+		return registered.get(domain+":"+path);
 	}
 	
 	public Icon registerItemIcon(String path)
@@ -36,7 +41,9 @@ public class IconRegister{
 	public Icon registerItemIcon(String domain, String path)
 	{
 		path = "items/" + path;
-		return new Icon(currentMap.registerSprite(new ResourceLocation(domain,path)));
+		if(!registered.containsKey(domain+":"+path))
+			registered.put(domain+":"+path, new Icon(currentMap.registerSprite(new ResourceLocation(domain,path))));
+		return registered.get(domain+":"+path);
 	}
 
 }
