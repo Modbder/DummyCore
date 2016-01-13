@@ -38,7 +38,8 @@ public class DummyBlockAccess implements IBlockAccess{
     public int cycleTimer = 60;
     public Random cycleRandom = new Random();
     public Hashtable<Pair<Block,Integer>,Integer> cachedBlocksAmounts = new Hashtable<Pair<Block,Integer>,Integer>();
-	
+	public int maxX, minX, maxY, minY, maxZ, minZ;
+    
     /**
      * Creates a DummyBlockAccess with given size
      * @param sizeX - x Size
@@ -53,6 +54,12 @@ public class DummyBlockAccess implements IBlockAccess{
         xSize = sizeX;
         ySize = sizeY;
         zSize = sizeZ;
+        maxX = xSize;
+        minX = 0;
+        maxY = ySize;
+        minY = 0;
+        maxZ = zSize;
+        minZ = 0;
         defaultWorld = CoreInitialiser.proxy.getClientWorld();
     }
     
@@ -156,7 +163,7 @@ public class DummyBlockAccess implements IBlockAccess{
     }
     
     public boolean isInRange(int x, int y, int z) {
-        return 0 <= x && x < xSize && 0 <= y && y < ySize && 0 <= z && z < zSize;
+        return 0 <= x && x < xSize && 0 <= y && y < ySize && 0 <= z && z < zSize && x >= minX && x <= maxX && y >= minY && y <= maxY && z >= minZ && z <= maxZ;
     }
     
     public void setBlock(int x, int y, int z, Block b)
@@ -262,7 +269,7 @@ public class DummyBlockAccess implements IBlockAccess{
 
 	@Override
 	public IBlockState getBlockState(BlockPos pos) {
-		return isInRange(pos.getX(),pos.getY(),pos.getZ()) ? getBlock(pos.getX(),pos.getY(),pos.getZ()).getActualState(getBlock(pos.getX(),pos.getY(),pos.getZ()).getStateFromMeta(getBlockMetadata(pos.getX(),pos.getY(),pos.getZ())), this, pos) : null;
+		return isInRange(pos.getX(),pos.getY(),pos.getZ()) ? getBlock(pos.getX(),pos.getY(),pos.getZ()).getActualState(getBlock(pos.getX(),pos.getY(),pos.getZ()).getStateFromMeta(getBlockMetadata(pos.getX(),pos.getY(),pos.getZ())), this, pos) : Blocks.air.getDefaultState();
 	}
 
 	@Override
