@@ -112,6 +112,26 @@ public class UnformedItemStack {
 		sort();
 	}
 	
+	public boolean matches(UnformedItemStack uis)
+	{
+		if(uis.possibleStacks.size() == this.possibleStacks.size())
+		{
+			forThis:for(int i = 0; i < possibleStacks.size(); ++i)
+			{
+				ItemStack is = possibleStacks.get(i);
+				for(int j = 0; j < uis.possibleStacks.size(); ++j)
+				{
+					ItemStack is1 =  uis.possibleStacks.get(i);
+					if(MiscUtils.compareItemStacks(is, is1))
+						continue forThis;
+				}
+				return false;
+			}
+			return true;
+		}
+		return false;
+	}
+	
 	public boolean itemStackMatches(ItemStack is)
 	{
 		if(is == null)
