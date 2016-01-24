@@ -49,6 +49,10 @@ public class DCASMManager implements IClassTransformer{
 			return handleItemModelMesher(name,basicClass);
 		if(ASMManager.strictCompareByEnvironment(name, "net.minecraft.client.renderer.tileentity.TileEntityItemStackRenderer", "net.minecraft.client.renderer.tileentity.TileEntityItemStackRenderer"))
 			return handleTileEntityItemStackRenderer(name,basicClass);	
+		if(ASMManager.strictCompareByEnvironment(name, "net.minecraftforge.client.model.ModelLoader", "net.minecraftforge.client.model.ModelLoader"))
+			return handleModelLoader(name,basicClass);	
+		if(ASMManager.strictCompareByEnvironment(name, "net.minecraft.item.ItemPotion", "net.minecraft.item.ItemPotion"))
+			return handlePotionColor(name,basicClass);	
 		
 		if(basicClass != null) //If the class we are loading exists
 		{			
@@ -60,6 +64,102 @@ public class DCASMManager implements IClassTransformer{
 		
 		}		
 		return basicClass;
+	}
+	
+	public byte[] handlePotionColor(String name,byte[] basicClass)
+	{
+		Notifier.notifyCustomMod("DCASM", "Transforming "+name);
+		Notifier.notifyCustomMod("DCASM", "Initial byte[] count: "+basicClass.length);
+		byte[] basic = basicClass.clone();
+		try
+		{
+			ClassNode classNode = new ClassNode();
+			ClassReader classReader = new ClassReader(basicClass);
+			classReader.accept(classNode, ClassReader.EXPAND_FRAMES);
+			ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+			
+			MethodNode mn = ASMManager.getMethod(classNode, "getColorFromItemStack", "func_82790_a!&!a", "(Lnet/minecraft/item/ItemStack;I)I", "(Lnet/minecraft/item/ItemStack;I)I!&!(Lzx;I)I");
+			
+			InsnList newInstructions = new InsnList();
+			newInstructions.add(new LabelNode());
+			newInstructions.add(new VarInsnNode(Opcodes.ALOAD, 1));
+			newInstructions.add(new VarInsnNode(Opcodes.ILOAD, 2));
+			newInstructions.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "DummyCore/Utils/MiscUtils", "getPotionColor", "(Lnet/minecraft/item/ItemStack;I)I", false));
+			newInstructions.add(new InsnNode(Opcodes.IRETURN));
+			newInstructions.add(new LabelNode());
+			
+			mn.instructions.clear();
+			mn.instructions.add(newInstructions);
+			
+			classNode.accept(cw);
+			byte[] bArray = cw.toByteArray();
+			
+			Notifier.notifyCustomMod("DCASM", "Finished Transforming "+name);
+			Notifier.notifyCustomMod("DCASM", "Final byte[] count: "+bArray.length);
+			
+			return bArray;
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			LoadingUtils.makeACrash("[DCASM]Fatal errors occured patching "+name+"! This modification is marked as OPTIONAL, thus the loading can continue normally.", e, false);
+			return basic;
+		}
+	}
+	
+	/**
+	 * Removes missing texture errors
+	 */
+	public byte[] handleModelLoader(String name,byte[] basicClass)
+	{
+		Notifier.notifyCustomMod("DCASM", "Transforming "+name);
+		Notifier.notifyCustomMod("DCASM", "Initial byte[] count: "+basicClass.length);
+		byte[] basic = basicClass.clone();
+		try
+		{
+			ClassNode classNode = new ClassNode();
+			ClassReader classReader = new ClassReader(basicClass);
+			classReader.accept(classNode, ClassReader.EXPAND_FRAMES);
+			ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+			
+			MethodNode mn = ASMManager.getMethod(classNode, "onPostBakeEvent", "onPostBakeEvent", "(Lnet/minecraft/util/IRegistry;)V", "(Lnet/minecraft/util/IRegistry;)V!&!(Ldb;)V");
+			
+			AbstractInsnNode insertAfter = null;
+			for(int i = 0; i < mn.instructions.size(); ++i)
+			{
+				AbstractInsnNode ain = mn.instructions.get(i);
+				if(ain instanceof FieldInsnNode)
+				{
+					FieldInsnNode fin = (FieldInsnNode) ain;
+					if(fin.getOpcode() == Opcodes.GETFIELD && fin.owner.equalsIgnoreCase("net/minecraftforge/client/model/ModelLoader") && fin.name.equalsIgnoreCase("missingVariants") && fin.desc.equalsIgnoreCase("Ljava/util/Set;"))
+					{
+						insertAfter = fin;
+						break;
+					}
+				}
+			}
+			
+			InsnList insert = new InsnList();
+			insert.add(new MethodInsnNode(Opcodes.INVOKEINTERFACE, "java/util/Set", "clear", "()V", true));
+			insert.add(new LabelNode());
+			insert.add(new VarInsnNode(Opcodes.ALOAD,0));
+			insert.add(new FieldInsnNode(Opcodes.GETFIELD,"net/minecraftforge/client/model/ModelLoader","missingVariants","Ljava/util/Set;"));
+			mn.instructions.insert(insertAfter, insert);
+			
+			classNode.accept(cw);
+			byte[] bArray = cw.toByteArray();
+			
+			Notifier.notifyCustomMod("DCASM", "Finished Transforming "+name);
+			Notifier.notifyCustomMod("DCASM", "Final byte[] count: "+bArray.length);
+			
+			return bArray;
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			LoadingUtils.makeACrash("[DCASM]Fatal errors occured patching "+name+"! This modification is marked as OPTIONAL, thus the loading can continue normally.", e, false);
+			return basic;
+		}
 	}
 	
 	/**
@@ -77,7 +177,7 @@ public class DCASMManager implements IClassTransformer{
 			classReader.accept(classNode, ClassReader.EXPAND_FRAMES);
 			ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 
-			MethodNode mn = ASMManager.getMethod(classNode, "renderByItem", "func_179022_a!&!a", "(Lnet/minecraft/item/ItemStack;)V", "(Lnet/minecraft/item/ItemStack;)V!&!(Lamj;)V");
+			MethodNode mn = ASMManager.getMethod(classNode, "renderByItem", "func_179022_a!&!a", "(Lnet/minecraft/item/ItemStack;)V", "(Lnet/minecraft/item/ItemStack;)V!&!(Lzx;)V");
 			
 			LabelNode iflabel = new LabelNode();
 			InsnList lst = new InsnList();
@@ -101,6 +201,7 @@ public class DCASMManager implements IClassTransformer{
 		}
 		catch(Exception e)
 		{
+			e.printStackTrace();
 			LoadingUtils.makeACrash("[DCASM]Fatal errors occured patching "+name+"! This modification is marked as REQUIRED, thus the loading cannot continue.", e, true);
 			return basic;
 		}
@@ -121,7 +222,7 @@ public class DCASMManager implements IClassTransformer{
 			classReader.accept(classNode, ClassReader.EXPAND_FRAMES);
 			ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 			
-			MethodNode mn = ASMManager.getMethod(classNode, "getItemModel", "func_178089_a!&!a", "(Lnet/minecraft/item/ItemStack;)Lnet/minecraft/client/resources/model/IBakedModel;", "(Lnet/minecraft/item/ItemStack;)Lnet/minecraft/client/resources/model/IBakedModel;!&!(Lamj;)Lcxe;");
+			MethodNode mn = ASMManager.getMethod(classNode, "getItemModel", "func_178089_a!&!a", "(Lnet/minecraft/item/ItemStack;)Lnet/minecraft/client/resources/model/IBakedModel;", "(Lnet/minecraft/item/ItemStack;)Lnet/minecraft/client/resources/model/IBakedModel;!&!(Lzx;)Lboq;");
 			
 			AbstractInsnNode insertAfter = null;
 			for(int i = 0; i < mn.instructions.size(); ++i)
@@ -153,6 +254,7 @@ public class DCASMManager implements IClassTransformer{
 		}
 		catch(Exception e)
 		{
+			e.printStackTrace();
 			LoadingUtils.makeACrash("[DCASM]Fatal errors occured patching "+name+"! This modification is marked as REQUIRED, thus the loading cannot continue.", e, true);
 			return basic;
 		}
@@ -173,7 +275,7 @@ public class DCASMManager implements IClassTransformer{
 			classReader.accept(classNode, ClassReader.EXPAND_FRAMES);
 			ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 			
-			MethodNode mn = ASMManager.getMethod(classNode, "getModelFromBlockState", "func_175022_a!&!a", "(Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/util/BlockPos;)Lnet/minecraft/client/resources/model/IBakedModel;", "(Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/util/BlockPos;)Lnet/minecraft/client/resources/model/IBakedModel;!&!(Lbec;Lard;Ldt;)Lcxe;");
+			MethodNode mn = ASMManager.getMethod(classNode, "getModelFromBlockState", "func_175022_a!&!a", "(Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/util/BlockPos;)Lnet/minecraft/client/resources/model/IBakedModel;", "(Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/util/BlockPos;)Lnet/minecraft/client/resources/model/IBakedModel;!&!(Lalz;Ladq;Lcj;)Lboq;");
 			
 			InsnList lst = new InsnList();
 			
@@ -194,6 +296,7 @@ public class DCASMManager implements IClassTransformer{
 		}
 		catch(Exception e)
 		{
+			e.printStackTrace();
 			LoadingUtils.makeACrash("[DCASM]Fatal errors occured patching "+name+"! This modification is marked as REQUIRED, thus the loading cannot continue.", e, true);
 			return basic;
 		}
@@ -234,6 +337,7 @@ public class DCASMManager implements IClassTransformer{
 		}
 		catch(Exception e)
 		{
+			e.printStackTrace();
 			LoadingUtils.makeACrash("[DCASM]Fatal errors occured patching "+name+"! This modification is marked as REQUIRED, thus the loading cannot continue.", e, true);
 			return basic;
 		}
