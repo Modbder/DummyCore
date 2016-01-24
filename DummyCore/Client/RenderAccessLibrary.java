@@ -13,7 +13,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.IBlockAccess;
-import net.minecraftforge.common.util.EnumHelper;
 import net.minecraftforge.fml.common.Loader;
 
 @SuppressWarnings("deprecation")
@@ -69,6 +68,8 @@ public class RenderAccessLibrary {
 	public static final Hashtable<Integer,ArrayList<ISimpleBlockRenderingHandler>> renderers = new Hashtable<Integer,ArrayList<ISimpleBlockRenderingHandler>>();
 	public static final Hashtable<Item,ArrayList<IItemRenderer>> irenderers = new Hashtable<Item,ArrayList<IItemRenderer>>();
 	public static final Hashtable<Item,IModelMatrixHandler> mHandlers = new Hashtable<Item,IModelMatrixHandler>();
+	
+	public static ItemStack currentlyRenderedIS;
 	
 	/**
 	 * Registers a specified OBJECT as a ModelMatrixHandler. If one already exists for the given item - overrides it.
@@ -152,11 +153,13 @@ public class RenderAccessLibrary {
 	 */
 	public static IBakedModel createDynamicalModelForIS(SBRHAwareModel offendor, ItemStack stk)
 	{
+		currentlyRenderedIS = stk;
 		SBRHAwareModel returned = offendor.copy();
 		
 		DynamicModelBakery dmb = new DynamicModelBakery(returned);
 		dmb.doBakeModelForIS(stk);
 		
+		currentlyRenderedIS = null;
 		return returned;
 	}
 	
@@ -180,12 +183,6 @@ public class RenderAccessLibrary {
 	
 	//Internal!
 	public static TransformType currentIIRTransform;
-	public static TransformType lastCalledWith;
-	public static TransformType ENTITY = EnumHelper.addEnum(new Class[][]{{TransformType.class}},TransformType.class, "DC.HOOK.ENTITY", new Object[0]);
-	/**
-	 * A very dirty hack for adding the ENTITY transformation option. Sorry Lex.
-	 */
-	public static long lastMillsForTransformCalls;
 	
 	/**
 	 * Renders the given ItemStack
@@ -193,10 +190,6 @@ public class RenderAccessLibrary {
 	 */
 	public static void handleISRendering(ItemStack is)
 	{
-		if(System.currentTimeMillis() - lastMillsForTransformCalls > 10L)
-			if(currentIIRTransform == lastCalledWith)
-				currentIIRTransform = ENTITY;
-		
 		if(is == null || is.getItem() == null)
 			return;
 		
@@ -211,8 +204,6 @@ public class RenderAccessLibrary {
 		for(IItemRenderer iir : iirs)
 			if(iir.handleRenderType(is, currentIIRTransform))
 				iir.renderItem(currentIIRTransform, is);
-		
-		lastCalledWith = currentIIRTransform;
 	}
 	
 	/**
@@ -224,7 +215,6 @@ public class RenderAccessLibrary {
 	public static Matrix4f handleTransformationFor(ItemStack is, TransformType tt)
 	{
 		currentIIRTransform = tt;
-		lastMillsForTransformCalls = System.currentTimeMillis();
 		
 		if(is == null || is.getItem() == null)
 			return null;
