@@ -26,6 +26,8 @@ public class IconRegister{
 	public Icon registerBlockIcon(String domain, String path)
 	{
 		path = "blocks/" + path;
+		if(currentMap.getTextureExtry(domain+":"+path) != null)
+			return new Icon(currentMap.getTextureExtry(domain+":"+path));
 		if(!registered.containsKey(domain+":"+path))
 			registered.put(domain+":"+path, new Icon(currentMap.registerSprite(new ResourceLocation(domain,path))));
 		return registered.get(domain+":"+path);
@@ -41,6 +43,8 @@ public class IconRegister{
 	public Icon registerItemIcon(String domain, String path)
 	{
 		path = "items/" + path;
+		if(currentMap.getTextureExtry(domain+":"+path) != null)
+			return new Icon(currentMap.getTextureExtry(domain+":"+path));
 		if(!registered.containsKey(domain+":"+path))
 			registered.put(domain+":"+path, new Icon(currentMap.registerSprite(new ResourceLocation(domain,path))));
 		return registered.get(domain+":"+path);
