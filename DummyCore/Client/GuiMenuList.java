@@ -30,7 +30,6 @@ public class GuiMenuList extends GuiScreen{
     /**
      * Adds the buttons (and other controls) to the screen in question.
      */
-    @SuppressWarnings("unchecked")
     @Override
     public void initGui()
     {
@@ -55,6 +54,8 @@ public class GuiMenuList extends GuiScreen{
                     this.mc.displayGuiScreen(this.mainMenu);
                     return;
                 }
+			default:
+				break;
             }
         }
         try{super.actionPerformed(button);}catch(Exception ex){ex.printStackTrace();}

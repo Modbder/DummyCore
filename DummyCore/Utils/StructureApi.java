@@ -51,6 +51,7 @@ public class StructureApi
 	 * @param blocks an array of blocks
 	 * @return a formed StructureNBTTag
 	 */
+	@SuppressWarnings("deprecation")
 	public static NBTTagCompound createStructureTagIgnoreMetadata(World w,ExtendedAABB aabb, boolean whitelist, Block... blocks)
 	{
 		NBTTagCompound tag = new NBTTagCompound();
@@ -138,6 +139,7 @@ public class StructureApi
 	 * @param blocks an array of blocks
 	 * @return a formed StructureNBTTag respecting metadata
 	 */
+	@SuppressWarnings("deprecation")
 	public static NBTTagCompound createStructureTag(World w,ExtendedAABB aabb, boolean whitelist, Block... blocks)
 	{
 		NBTTagCompound tag = new NBTTagCompound();
@@ -218,7 +220,6 @@ public class StructureApi
 	 * @param z - z pos
 	 * @param structureTag - the valid StructureNBTTag
 	 */
-	@SuppressWarnings("unchecked")
 	public static void nbtStructureIntoWorld(World w, int x, int y, int z, NBTTagCompound structureTag)
 	{
 		Set<String> keySet = structureTag.getKeySet();
@@ -270,13 +271,14 @@ public class StructureApi
 	}
 
 	//Internal
-	@SuppressWarnings("unchecked")
 	public static boolean areNBTTagsEqual(NBTTagCompound tag1, NBTTagCompound tag2)
 	{
 		if(tag1.hasNoTags() || tag2.hasNoTags())
 			return false;
 		
 		Set<String> keys = tag1.getKeySet();
+		int sF = keys.size();
+		int sS = tag2.getKeySet().size();
 		Iterator<String> $i = keys.iterator();
 		
 		while($i.hasNext())
@@ -290,7 +292,7 @@ public class StructureApi
 				return false;
 		}
 		
-		return true;
+		return sF == sS;
 	}
 	
 	//Internal

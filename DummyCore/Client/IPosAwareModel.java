@@ -11,7 +11,6 @@ import net.minecraft.world.IBlockAccess;
  * @Description
  * A version of IBakedModel that can be changed based on it's position in the world
  */
-@SuppressWarnings("deprecation")
 public interface IPosAwareModel extends IBakedModel{
 	
 	/**

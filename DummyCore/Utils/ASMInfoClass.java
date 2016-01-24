@@ -5,6 +5,7 @@ package DummyCore.Utils;
  * @author modbder
  * @Description This class is a helper for me.
  */
+@SuppressWarnings("unused")
 final class ASMInfoClass {
 
 	private class ASMClassStructure

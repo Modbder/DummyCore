@@ -33,7 +33,6 @@ import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -41,7 +40,6 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
 import net.minecraftforge.client.ForgeHooksClient;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Loader;
 
@@ -128,8 +126,7 @@ public class GuiMainMenuNBT extends GuiMainMenu implements IMainMenu{
         }
     }
 	
-    @SuppressWarnings("unchecked")
-	public void confirmClicked(boolean yes, int id)
+    public void confirmClicked(boolean yes, int id)
     {
     	super.confirmClicked(yes, id);
     	for(GuiButton btn : (List<GuiButton>)this.buttonList)
@@ -193,8 +190,7 @@ public class GuiMainMenuNBT extends GuiMainMenu implements IMainMenu{
         }
     }
     
-    @SuppressWarnings("unchecked")
-	public void drawScreen(int mouseX, int mouseY, float partialTicks)
+    public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
     	GL11.glPushMatrix();
     	GL11.glEnable(GL11.GL_ALPHA_TEST);
@@ -508,7 +504,6 @@ public class GuiMainMenuNBT extends GuiMainMenu implements IMainMenu{
 		mcRes = new ScaledResolution(mc);
 	}
 	
-	@SuppressWarnings("unchecked")
 	public void initNBTInfo()
 	{
 		objects.clear();

@@ -184,7 +184,6 @@ public class MetadataBasedMethodsHelper {
 	 * @param pos - the position
 	 * @param state - the state of the log block. 
 	 */
-	@SuppressWarnings("unchecked")
 	public static void breakLog(World worldIn, BlockPos pos, IBlockState state)
 	{
         byte b0 = 4;

@@ -136,6 +136,8 @@ public class ModVersionChecker {
 					steppedString = String.format("%s has a new version available(Your version is %s, latest is %s)!", mod.ufName, mod.version, latest);
 					break;
 				}
+			default:
+				break;
 			}
 			player.addChatMessage(new ChatComponentText(steppedString).setChatStyle(new ChatStyle().setColor(EnumChatFormatting.RED)));
 		}

@@ -13,7 +13,6 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.item.Item;
@@ -22,7 +21,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-@SuppressWarnings("deprecation")
 public class DrawUtils {
 	
 	public static Hashtable<String,ResourceLocation> locTable = new Hashtable<String,ResourceLocation>();
@@ -277,8 +275,7 @@ public class DrawUtils {
      * @param colorEnd - end color of the gradient rectangle. Is an ARGB hex int!
      * @param colorBorder - a solid color for the border. Is an ARGB hex int!
      */
-    @SuppressWarnings("unchecked")
-	public static void renderItemStackGUIInformation(ItemStack stk, int x, int y, FontRenderer font, double zLevel, int colorStart, int colorEnd, int colorBorder)
+    public static void renderItemStackGUIInformation(ItemStack stk, int x, int y, FontRenderer font, double zLevel, int colorStart, int colorEnd, int colorBorder)
     {
     	List<String> lst = stk.getTooltip(Minecraft.getMinecraft().thePlayer, Minecraft.getMinecraft().gameSettings.advancedItemTooltips);
         if (!lst.isEmpty())

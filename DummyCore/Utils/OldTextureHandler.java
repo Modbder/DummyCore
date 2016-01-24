@@ -25,7 +25,6 @@ import net.minecraft.world.IBlockAccess;
  * @author modbder
  *
  */
-@SuppressWarnings("deprecation")
 public class OldTextureHandler {
 
 	public static final ArrayList<Pair<String,Block>> oldBlocksToRender = new ArrayList<Pair<String,Block>>();

@@ -8,7 +8,6 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.UUID;
 
-import DummyCore.Client.Icon;
 import DummyCore.Core.CoreInitialiser;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -26,6 +25,8 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemBlock;
+import net.minecraft.item.ItemPotion;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -33,6 +34,7 @@ import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
+import net.minecraft.potion.PotionHelper;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
@@ -45,6 +47,7 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.common.network.NetworkRegistry.TargetPoint;
+import net.minecraftforge.fml.common.registry.GameData;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -97,16 +100,6 @@ public class MiscUtils {
 		//21 - Small blur
 		//22 - List Index End
 	public static final ResourceLocation[] defaultShaders = new ResourceLocation[] {new ResourceLocation("shaders/post/notch.json"), new ResourceLocation("shaders/post/fxaa.json"), new ResourceLocation("shaders/post/art.json"), new ResourceLocation("shaders/post/bumpy.json"), new ResourceLocation("shaders/post/blobs2.json"), new ResourceLocation("shaders/post/pencil.json"), new ResourceLocation("shaders/post/color_convolve.json"), new ResourceLocation("shaders/post/deconverge.json"), new ResourceLocation("shaders/post/flip.json"), new ResourceLocation("shaders/post/invert.json"), new ResourceLocation("shaders/post/ntsc.json"), new ResourceLocation("shaders/post/outline.json"), new ResourceLocation("shaders/post/phosphor.json"), new ResourceLocation("shaders/post/scan_pincushion.json"), new ResourceLocation("shaders/post/sobel.json"), new ResourceLocation("shaders/post/bits.json"), new ResourceLocation("shaders/post/desaturate.json"), new ResourceLocation("shaders/post/green.json"), new ResourceLocation("shaders/post/blur.json"), new ResourceLocation("shaders/post/wobble.json"), new ResourceLocation("shaders/post/blobs.json"), new ResourceLocation("shaders/post/antialias.json")};
-
-	/**
-	 * <b>Deprecated!</b> Use DrawUtils from now!
-	 */
-	@Deprecated
-	@SideOnly(Side.CLIENT)
-	public static void bindTexture(String mod, String texture)
-	{
-		DrawUtils.bindTexture(mod, texture);
-	}
 	
 	/**
 	 * Creates a new NBTTagCompound for the given ItemStack
@@ -133,6 +126,34 @@ public class MiscUtils {
 	{
 		createNBTTag(stack);
 		return stack.getTagCompound();
+	}
+	
+	public static void handleIInventoryPossibleNameUponPlacement(World world, BlockPos pos, ItemStack stack)
+	{
+        if (stack.hasDisplayName())
+        {
+            TileEntity tile = world.getTileEntity(pos);
+            if (tile instanceof IInventory)
+            {
+            	try
+            	{
+            		Class<? extends TileEntity> clazz = tile.getClass();
+            		Method setCustomName = clazz.getDeclaredMethod("setCustomInventoryName", String.class);
+            		if(setCustomName != null)
+            			setCustomName.invoke(tile, stack.getDisplayName());
+            		
+            	}catch(Exception ex)
+            	{
+            		ex.printStackTrace();
+            	}
+            }
+        }
+	}
+	
+	public static void dropItemsOnBlockBreak(World world, BlockPos pos)
+	{
+		IBlockState state = world.getBlockState(pos);
+		dropItemsOnBlockBreak(world,pos.getX(),pos.getY(),pos.getZ(),state.getBlock(),state.getBlock().getMetaFromState(state));
 	}
 	
 	/**
@@ -194,15 +215,6 @@ public class MiscUtils {
 			ex.printStackTrace();
 			return;
 		}
-	}
-	
-	/**
-	 * Deprecated. Use {@link OreDictUtils#oreDictionaryContains(String)}
-	 */
-	@Deprecated
-	public static boolean oreDictionaryContains(String oreName)
-	{
-		return OreDictUtils.oreDictionaryContains(oreName);
 	}
 	
 	/**
@@ -271,7 +283,7 @@ public class MiscUtils {
 	 * @param dimId - the ID of the dimension to look the players. 
 	 * @param distance - the distance at which the players will get found.
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "rawtypes" })
 	public static void sendPacketToAllAround(World w,Packet pkt, int x, int y, int z, int dimId, double distance)
 	{
 		List<EntityPlayer> playerLst = w.getEntitiesWithinAABB(EntityPlayer.class, AxisAlignedBB.fromBounds(x-0.5D, y-0.5D, z-0.5D, x+0.5D, y+0.5D, z+0.5D).expand(distance, distance, distance));
@@ -306,7 +318,7 @@ public class MiscUtils {
 	 * @param w - the worldObj that we are operating in
 	 * @param distance - the distance at which the players will get found.
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "rawtypes" })
 	public static void sendPacketToAll(World w,Packet pkt)
 	{
 		List<EntityPlayer> playerLst = w.playerEntities;
@@ -333,7 +345,7 @@ public class MiscUtils {
 	 * @param pkt - the packet to send
 	 * @param dimId - the ID of the dimension to look the players. 
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "rawtypes" })
 	public static void sendPacketToAllInDim(World w,Packet pkt, int dimId)
 	{
 		List<EntityPlayer> playerLst = w.playerEntities;
@@ -361,6 +373,7 @@ public class MiscUtils {
 	 * @param pkt - the packet to send
 	 * @param player - the player to whom we are sending the packet.
 	 */
+	@SuppressWarnings("rawtypes")
 	public static void sendPacketToPlayer(World w,Packet pkt,EntityPlayer player)
 	{
 		if(player instanceof EntityPlayerMP)
@@ -371,62 +384,11 @@ public class MiscUtils {
 			Notifier.notifyDebug("Trying to send packet "+pkt+" to player "+player+"||"+player.getDisplayName()+" on Client side, probably a bug, ending the packet send try");
 		}
 	}
-	
-	/**
-	 * <b>Deprecated!</b> Use DrawUtils from now!
-	 */
-	@Deprecated
-    @SideOnly(Side.CLIENT)
-    public static boolean drawScaledTexturedRect_Items(int x, int y, Icon icon, int width, int height, float zLevel)
-    {
-    	return DrawUtils.drawScaledTexturedRect_Items(x, y, icon, width, height, zLevel);
-    }
-	
-	/**
-	 * <b>Deprecated!</b> Use DrawUtils from now!
-	 */
-	@Deprecated
-    @SideOnly(Side.CLIENT)
-    public static boolean drawScaledTexturedRect(int x, int y, Icon icon, int width, int height, float zLevel)
-    {
-		return DrawUtils.drawScaledTexturedRect(x, y, icon, width, height, zLevel);
-    }
-
-	/**
-	 * <b>Deprecated!</b> Use DrawUtils from now!
-	 */
-	@Deprecated
-    @SideOnly(Side.CLIENT)
-    public static void drawTexture(int x, int y, Icon icon, int width, int height, float zLevel)
-    {
-		DrawUtils.drawTexture(x, y, icon, width, height, zLevel);
-    }
     
-	/**
-	 * <b>Deprecated!</b> Use DrawUtils from now!
-	 */
 	@Deprecated
-    @SideOnly(Side.CLIENT)
-    public static void drawTexture_Items(int x, int y, Icon icon, int width, int height, float zLevel)
-    {
-		DrawUtils.drawTexture_Items(x, y, icon, width, height, zLevel);
-    }
-    
-    /**
-     * Used to check if the given class actually has the named method. Used when working with APIs of different mods(actually not)
-     * @param c - the class
-     * @param mName - the name of the method
-     * @param classes - actual parameters of the method
-     * @return true if the given method exist, false if not
-     */
     public static boolean classHasMethod(Class<?> c, String mName, Class<?>... classes)
     {
-    	try {
-			Method m = c.getMethod(mName, classes);
-			return m != null;
-		} catch (Exception e) {
-			return false;
-		}
+    	return PrimitiveUtils.classHasMethod(c, mName, classes);
     }
     
 	/**
@@ -581,16 +543,6 @@ public class MiscUtils {
 		}
 	}
 	
-
-	/**
-	 * Deprecated. Use {@link OreDictUtils#oreDictionaryCompare(ItemStack, ItemStack)}
-	 */
-	@Deprecated
-	public static boolean oreDictionaryCompare(ItemStack stk, ItemStack stk1)
-	{
-		return OreDictUtils.oreDictionaryCompare(stk, stk1);
-	}
-	
 	/**
 	 * Adds a specific action for the server to execute after some time
 	 * @param ssa
@@ -602,35 +554,6 @@ public class MiscUtils {
 		
 		actions.add(ssa);
 	}
-	
-	/**
-	 * <b>Deprecated!</b> Use DrawUtils from now!
-	 */
-	@Deprecated
-    public static void drawTexturedModalRect(int p_73729_1_, int p_73729_2_, int p_73729_3_, int p_73729_4_, int p_73729_5_, int p_73729_6_, int zLevel)
-    {
-		DrawUtils.drawTexturedModalRect(p_73729_1_, p_73729_2_, p_73729_3_, p_73729_4_, p_73729_5_, p_73729_6_, zLevel);
-    }
-    
-	/**
-	 * <b>Deprecated!</b> Use DrawUtils from now!
-	 */
-	@Deprecated
-    @SideOnly(Side.CLIENT)
-    public static void renderItemStack_Full(ItemStack stk,double posX, double posY, double posZ, double screenPosX, double screenPosY, double screenPosZ, float rotation, float rotationZ, float colorRed, float colorGreen, float colorBlue, float offsetX, float offsetY, float offsetZ)
-    {
-		DrawUtils.renderItemStack_Full(stk, posX, posY, posZ, screenPosX, screenPosY, screenPosZ, rotation, rotationZ, colorRed, colorGreen, colorBlue, offsetX, offsetY, offsetZ, false);
-    }
-    
-	/**
-	 * <b>Deprecated!</b> Use DrawUtils from now!
-	 */
-	@Deprecated
-    @SideOnly(Side.CLIENT)
-    public static void renderItemStack(ItemStack stk,double posX, double posY, double posZ, double screenPosX, double screenPosY, double screenPosZ, float rotation, float colorRed, float colorGreen, float colorBlue, int renderPass, int itemsAmount)
-    {
-		DrawUtils.renderItemStack(stk, posX, posY, posZ, screenPosX, screenPosY, screenPosZ, rotation, colorRed, colorGreen, colorBlue, renderPass, itemsAmount, false);
-    }
     
     /**
      * Clones the given Entity, including it's full NBTTag
@@ -795,6 +718,7 @@ public class MiscUtils {
      * @param byAmount - how much to extends for
      * @return the first free index in the new potionArray.
      */
+    @Deprecated
     public static int extendPotionArray(int byAmount)
     {
     	int potionOffset = Potion.potionTypes.length;
@@ -967,21 +891,10 @@ public class MiscUtils {
     	CoreInitialiser.proxy.initShaders(shaders);
     }
     
-    /**
-     * Checks if the class with the given name exists
-     * @param className - the name to check for
-     * @return true if the class exists, false otherwise
-     */
+    @Deprecated
     public static boolean classExists(String className)
     {
-    	try
-    	{
-    		return Class.forName(className) != null;
-    	}
-    	catch(ClassNotFoundException cnfe)
-    	{
-    		return false;
-    	}
+    	return PrimitiveUtils.classExists(className);
     }
     
     /**
@@ -1038,25 +951,10 @@ public class MiscUtils {
 		return null;
 	}
 	
-	/**
-	 * Checks if 2 strings are equal and null || empty
-	 * @param par1 - the first string
-	 * @param par2 - the second string
-	 * @return True if both strings are empty or null, false otherwise
-	 */
+	@Deprecated
 	public static boolean checkSameAndNullStrings(String par1, String par2)
 	{
-		if(par1 == par2)
-		{
-			if(par1 == null && par2 == null)
-				return true;
-			else
-				if(par1 != null && par2 != null)
-					if(par1.isEmpty() && par2.isEmpty())
-						return true;
-		}
-		
-		return false;
+		return PrimitiveUtils.checkSameAndNullStrings(par1, par2);
 	}
 	
 	/**
@@ -1160,5 +1058,100 @@ public class MiscUtils {
     public static void addHUDElement(IHUDElement ihe)
     {
     	hudElements.add(ihe);
+    }
+    
+    /**
+     * Internal. A fix for MC's potion colors being messed up. Through ASM I made the original ItemPotion's function call this method instead of it's getColorForRenderPass
+     * <BR>This method is much more NBT friendly and allows modmakers to have their custom colors properly displayed
+     * @param potion - the potion's ItemStack
+     * @param pass - the render pass
+     * @return - a correct, NBT sensitive color
+     */
+    public static int getPotionColor(ItemStack potion, int pass)
+    {
+    	if(pass == 1)
+    		return 0xffffff;
+    	
+    	if(potion.hasTagCompound())
+    	{
+    		NBTTagCompound tag = potion.getTagCompound();
+    		if(tag.hasKey("CustomPotionEffects", 9))
+    		{
+    			ArrayList<Integer> colors = new ArrayList<Integer>();
+    			ItemPotion ip = (ItemPotion) potion.getItem();
+    			List<PotionEffect> pots = ip.getEffects(potion);
+    			for(PotionEffect pe : pots)
+    			{
+    				if((Potion.potionTypes.length > pe.getPotionID() && pe.getPotionID() >= 0 && Potion.potionTypes[pe.getPotionID()] != null))
+    						colors.add(Potion.potionTypes[pe.getPotionID()].getLiquidColor());
+    			}
+    			
+    			int cAm = colors.size();
+    			
+    			double aCR = 0;
+    			double aCG = 0;
+    			double aCB = 0;
+    			
+    			for(int i = 0; i < cAm; ++i)
+    			{
+    				int aColor = colors.get(i).intValue();
+    				aCR += ((double)((aColor & 0xFF0000) >> 16) / 0xff) / cAm;
+    				aCG = ((double)((aColor & 0xFF00) >> 8) / 0xff) / cAm;
+    				aCB = ((double)((aColor & 0xFF)) / 0xff) / cAm;
+    			}
+
+    			return ((int)(aCR * 0xff) << 16) + ((int)(aCG * 0xff) << 8) + ((int)(aCB * 0xff));
+    			
+    		}else
+    			return PotionHelper.getLiquidColor(potion.getItemDamage(), false);
+    	}else
+    		return PotionHelper.getLiquidColor(potion.getItemDamage(), false);
+    }
+    
+    @Deprecated
+    public static <T>ArrayList<T> listOf(T[] array)
+    {
+    	return PrimitiveUtils.listOf(array);
+    }
+    
+    @Deprecated
+    public static <T>boolean checkArray(T[] array, T object)
+    {
+    	return PrimitiveUtils.checkArray(array, object);
+    }
+    
+    public static void writeBlockPosToNBT(NBTTagCompound tag, BlockPos toWrite, String key)
+    {
+    	if(toWrite != null)
+    		tag.setIntArray(key, new int[]{toWrite.getX(),toWrite.getY(),toWrite.getZ()});
+    }
+    
+    public static BlockPos readBlockPosFromNBT(NBTTagCompound tag, String key)
+    {
+    	BlockPos ret = BlockPos.ORIGIN;
+    	if(tag.hasKey(key, 11))
+    	{
+    		int[] t = tag.getIntArray(key);
+    		ret = new BlockPos(t[0],t[1],t[2]);
+    	}
+    	return ret;
+    }
+    
+    public static ResourceLocation getUniqueIdentifierFor(Object obj)
+    {
+    	if(obj instanceof Block || obj instanceof Item || obj instanceof ItemStack)
+    	{
+    		if(obj instanceof Block)
+    			return GameData.getBlockRegistry().getNameForObject((Block) obj);
+    		if(obj instanceof Item)
+    			if(obj instanceof ItemBlock)
+    				return GameData.getBlockRegistry().getNameForObject(Block.getBlockFromItem((Item) obj));
+    			else
+    				return GameData.getItemRegistry().getNameForObject((Item) obj);
+    		if(obj instanceof ItemStack)
+    			return getUniqueIdentifierFor(((ItemStack) obj).getItem());
+    	}
+    	
+    	return null;
     }
 }

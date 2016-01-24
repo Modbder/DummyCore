@@ -74,13 +74,13 @@ public class RPAwareModel implements ISmartItemModel, IPerspectiveAwareModel{
 		return rpam;
 	}
 
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public List getFaceQuads(EnumFacing face) {
 		return faces.get(face);
 	}
 
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public List getGeneralQuads() {
 		return quads;
@@ -169,7 +169,6 @@ public class RPAwareModel implements ISmartItemModel, IPerspectiveAwareModel{
 		return rpAModel;
 	}
 	
-	@SuppressWarnings("unchecked")
 	public void append(IBakedModel ibm0, IBakedModel ibm1)
 	{
 		if(ibm0 == null || ibm1 == null)
@@ -180,7 +179,7 @@ public class RPAwareModel implements ISmartItemModel, IPerspectiveAwareModel{
 			ibm0.getFaceQuads(ef).addAll(ibm1.getFaceQuads(ef));
 	}
 	
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@SuppressWarnings({ "rawtypes" })
 	public IBakedModel simplyFillDefaultISQuads(int pass)
 	{
 		try

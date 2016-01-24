@@ -34,6 +34,7 @@ public class GIFImage
 	 * Creates a new .gif image from the given ResourceLocation
 	 * @param texture
 	 */
+	@SuppressWarnings("resource")
 	public GIFImage(ResourceLocation texture)
 	{
 		InputStream is = null;

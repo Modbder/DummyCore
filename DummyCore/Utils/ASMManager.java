@@ -167,9 +167,9 @@ public class ASMManager {
 		String fieldName = null;
 		String fieldDesc = null;
 		
-		if(!MiscUtils.checkSameAndNullStrings(deobfName,obfName))
+		if(!PrimitiveUtils.checkSameAndNullStrings(deobfName,obfName))
 			fieldName = chooseByEnvironment(deobfName,obfName);
-		if(!MiscUtils.checkSameAndNullStrings(deobfDesc,obfDesc))
+		if(!PrimitiveUtils.checkSameAndNullStrings(deobfDesc,obfDesc))
 			fieldDesc = chooseByEnvironment(deobfDesc,obfDesc);
 		
 		String additionalFN = "";
@@ -190,7 +190,7 @@ public class ASMManager {
 			additionalFD = sstr[1];
 		}
 		
-		if(MiscUtils.checkSameAndNullStrings(fieldName, fieldDesc))
+		if(PrimitiveUtils.checkSameAndNullStrings(fieldName, fieldDesc))
 			return null;
 		
 		for(FieldNode fn : cn.fields)
@@ -330,9 +330,9 @@ public class ASMManager {
 	{
 		String methodName = null;
 		String methodDesc = null;
-		if(!MiscUtils.checkSameAndNullStrings(deobfName,obfName))
+		if(!PrimitiveUtils.checkSameAndNullStrings(deobfName,obfName))
 			methodName = chooseByEnvironment(deobfName,obfName);
-		if(!MiscUtils.checkSameAndNullStrings(deobfDesc,obfDesc))
+		if(!PrimitiveUtils.checkSameAndNullStrings(deobfDesc,obfDesc))
 			methodDesc = chooseByEnvironment(deobfDesc,obfDesc);
 		
 		String additionalMN = "";
@@ -351,7 +351,7 @@ public class ASMManager {
 			additionalMD = sstr[1];
 		}
 		
-		if(MiscUtils.checkSameAndNullStrings(methodName, methodDesc))
+		if(PrimitiveUtils.checkSameAndNullStrings(methodName, methodDesc))
 			return null;
 		for(MethodNode mn : cn.methods)
 			if((methodName == null || methodName.equals(mn.name) || additionalMN.equals(mn.name)) && (methodDesc == null || methodDesc.equals(mn.desc) || additionalMD.equals(mn.desc)))

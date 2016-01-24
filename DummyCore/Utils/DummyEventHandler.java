@@ -101,7 +101,6 @@ public class DummyEventHandler {
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
 	public void onMainMenuGUISetup(InitGuiEvent.Post event)
@@ -372,7 +371,7 @@ public class DummyEventHandler {
 					try {
 						tooltip = stk.getTooltip(mc.thePlayer, mc.gameSettings.advancedItemTooltips);
 					}catch(Exception e){
-						tooltip = new ArrayList();
+						tooltip = new ArrayList<String>();
 					}
 					
 					ArrayList<Integer> positions = new ArrayList<Integer>();
@@ -486,6 +485,8 @@ public class DummyEventHandler {
 							j = scaledRes.getScaledHeight()/2;
 							break;
 						}
+					default:
+						break;
 					}
 					ihe.draw(i+ihe.getXOffset(), j+ihe.getYOffset(), event.renderTickTime, scaledRes);
 				}

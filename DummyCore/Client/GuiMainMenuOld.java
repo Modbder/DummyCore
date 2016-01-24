@@ -15,14 +15,12 @@ import com.google.common.collect.Lists;
 
 import DummyCore.Utils.DrawUtils;
 import DummyCore.Utils.IMainMenu;
-import DummyCore.Utils.TessellatorWrapper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiLabel;
 import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.ForgeHooksClient;
@@ -93,7 +91,6 @@ public class GuiMainMenuOld extends GuiMainMenu implements IMainMenu{
 	@Override
     public void drawScreen(int p_73863_1_, int p_73863_2_, float p_73863_3_)
     {
-        Tessellator tessellator = Tessellator.getInstance();
         short short1 = 274;
         int k = this.width / 2 - short1 / 2;
         byte b0 = 30;

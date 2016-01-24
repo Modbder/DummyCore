@@ -16,7 +16,7 @@ public class GuiSlotMenuList extends GuiScrollingList {
 
     public GuiSlotMenuList(GuiMenuList parent, int listWidth)
     {
-        super(Minecraft.getMinecraft(), listWidth, parent.height, 32, parent.height - 66 + 4, 10, 35);
+        super(Minecraft.getMinecraft(), listWidth, parent.height, 32, parent.height - 66 + 4, 10, 35,Minecraft.getMinecraft().displayWidth,Minecraft.getMinecraft().displayHeight);
         this.parent=parent;
     }
 

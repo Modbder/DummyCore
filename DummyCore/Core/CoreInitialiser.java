@@ -16,9 +16,9 @@ import DummyCore.Utils.DummyPacketIMSG;
 import DummyCore.Utils.DummyPacketIMSG_Tile;
 import DummyCore.Utils.DummyTilePacketHandler;
 import DummyCore.Utils.LoadingUtils;
-import DummyCore.Utils.MiscUtils;
 import DummyCore.Utils.ModVersionChecker;
 import DummyCore.Utils.NetProxy_Server;
+import DummyCore.Utils.PrimitiveUtils;
 import net.minecraft.command.CommandHandler;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.common.MinecraftForge;
@@ -46,10 +46,10 @@ public class CoreInitialiser{
 	public static final String modid = "DummyCore";
 	public static final String modname = "DummyCore";
 	public static final String globalVersion = "2";
-	public static final String modVersion = "1";
+	public static final String modVersion = "2";
 	public static final String mcVersion = "1.8.9";
-	public static final String modmcVersion = "188";
-	public static final String buildVersion = "7";
+	public static final String modmcVersion = "189";
+	public static final String buildVersion = "0";
 	public static final String buildPostfix = "";
 	public static final String version = globalVersion+'.'+modVersion+'.'+modmcVersion+'.'+buildVersion+'.'+buildPostfix;
 	
@@ -108,13 +108,13 @@ public class CoreInitialiser{
 			LoadingUtils.knownBigASMModifiers.add("Easy Colored Lights");
 		if(Loader.isModLoaded("thaumicinfusion"))
 			LoadingUtils.knownBigASMModifiers.add("Thaumic Infusion");
-		if(MiscUtils.classExists("api.player.forge.PlayerAPIPlugin"))
+		if(PrimitiveUtils.classExists("api.player.forge.PlayerAPIPlugin"))
 			LoadingUtils.knownBigASMModifiers.add("Player API");
-		if(MiscUtils.classExists("cofh.tweak.CoFHTweaks"))
+		if(PrimitiveUtils.classExists("cofh.tweak.CoFHTweaks"))
 			LoadingUtils.knownBigASMModifiers.add("CoFH Tweaks");
 		if(Loader.isModLoaded("CoFHCore"))
 			LoadingUtils.knownBigASMModifiers.add("CoFHCore");
-		if(MiscUtils.classExists("codechicken.core.asm.CodeChickenCoreModContainer"))
+		if(PrimitiveUtils.classExists("codechicken.core.asm.CodeChickenCoreModContainer"))
 			LoadingUtils.knownBigASMModifiers.add("CodeChickenCore");
 		
 		FMLCommonHandler.instance().registerCrashCallable(new DCCrashCallable());

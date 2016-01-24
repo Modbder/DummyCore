@@ -64,7 +64,7 @@ public class GuiCommon extends GuiContainer{
 		{
 			GuiElement element = elementList.get(i);
 			Minecraft.getMinecraft().renderEngine.bindTexture(element.getElementTexture());
-			element.draw(k+element.getX(),l+element.getY());
+			element.draw(k+element.getX(),l+element.getY(),i1,i2);
 			GL11.glColor3f(1, 1, 1);
 		}
 		GL11.glColor3f(1, 1, 1);
