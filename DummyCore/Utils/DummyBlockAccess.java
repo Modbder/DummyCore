@@ -9,15 +9,27 @@ import java.util.Stack;
 import DummyCore.Core.CoreInitialiser;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.multiplayer.ChunkProviderClient;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.profiler.Profiler;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldProvider;
+import net.minecraft.world.WorldSettings;
 import net.minecraft.world.WorldType;
 import net.minecraft.world.biome.BiomeGenBase;
+import net.minecraft.world.biome.WorldChunkManager;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.IChunkProvider;
+import net.minecraft.world.storage.ISaveHandler;
+import net.minecraft.world.storage.WorldInfo;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.oredict.OreDictionary;
 
@@ -39,6 +51,7 @@ public class DummyBlockAccess implements IBlockAccess{
     public Random cycleRandom = new Random();
     public Hashtable<Pair<Block,Integer>,Integer> cachedBlocksAmounts = new Hashtable<Pair<Block,Integer>,Integer>();
 	public int maxX, minX, maxY, minY, maxZ, minZ;
+	public WorldWrapper wrapper;
     
     /**
      * Creates a DummyBlockAccess with given size
@@ -48,6 +61,7 @@ public class DummyBlockAccess implements IBlockAccess{
      */
     public DummyBlockAccess(int sizeX, int sizeY, int sizeZ)
     {
+    	wrapper = new WorldWrapper(this);
     	block = new Block[sizeX][sizeY][sizeZ];
         meta = new byte[sizeX][sizeY][sizeZ];
         tile = new TileEntity[sizeX][sizeY][sizeZ];
@@ -68,8 +82,7 @@ public class DummyBlockAccess implements IBlockAccess{
      * @param structureTag - a valid(StructureAPI) NBTTag
      * @return a new DummyBlockAccess object
      */
-    @SuppressWarnings("unchecked")
-	public static DummyBlockAccess fromStructureNBT(NBTTagCompound structureTag)
+    public static DummyBlockAccess fromStructureNBT(NBTTagCompound structureTag)
     {
     	int minX = 0, minY = 0, minZ = 0, maxX = 0, maxY = 0, maxZ = 0;
 		Set<String> keySet = structureTag.getKeySet();
@@ -163,7 +176,7 @@ public class DummyBlockAccess implements IBlockAccess{
     }
     
     public boolean isInRange(int x, int y, int z) {
-        return 0 <= x && x < xSize && 0 <= y && y < ySize && 0 <= z && z < zSize && x >= minX && x <= maxX && y >= minY && y <= maxY && z >= minZ && z <= maxZ;
+        return 0 <= x && x < xSize && 0 <= y && y < ySize && 0 <= z && z < zSize && x >= minX && x < maxX && y >= minY && y < maxY && z >= minZ && z < maxZ;
     }
     
     public void setBlock(int x, int y, int z, Block b)
@@ -297,4 +310,124 @@ public class DummyBlockAccess implements IBlockAccess{
 		return isSideSolid(pos.getX(),pos.getY(),pos.getZ(),side,_default);
 	}
 
+	public static class WorldWrapper extends World
+	{
+		public DummyBlockAccess access;
+		
+		public WorldWrapper(DummyBlockAccess dba)
+		{
+			super(null,null,CoreInitialiser.proxy.getWorldForDim(0).provider,null,true);
+			access = dba;
+		}
+		
+		protected WorldWrapper(ISaveHandler saveHandlerIn, WorldInfo info, WorldProvider providerIn,Profiler profilerIn, boolean client) {
+			super(saveHandlerIn, info, providerIn, profilerIn, client);
+		}
+		
+	    public BiomeGenBase getBiomeGenForCoords(final BlockPos pos)
+	    {
+	    	return access.getBiomeGenForCoords(pos);
+	    }
+	    
+	    public BiomeGenBase getBiomeGenForCoordsBody(final BlockPos pos)
+	    {
+	    	return access.getBiomeGenForCoords(pos);
+	    }
+	    
+	    public WorldChunkManager getWorldChunkManager()
+	    {
+	    	return CoreInitialiser.proxy.getWorldForDim(0).getWorldChunkManager();
+	    }
+	    
+	    protected IChunkProvider createChunkProvider()
+	    {
+	    	return new ChunkProviderClient(CoreInitialiser.proxy.getWorldForDim(0));
+	    }
+	    
+	    public void initialize(WorldSettings settings){}
+	    
+	    public void setInitialSpawnLocation(){}
+	    
+	    public Block getGroundAboveSeaLevel(BlockPos pos){
+	        BlockPos blockpos;
+
+	        for (blockpos = new BlockPos(pos.getX(), this.getSeaLevel(), pos.getZ()); !access.isAirBlock(blockpos.up()); blockpos = blockpos.up())
+	        {
+	            ;
+	        }
+
+	        return access.getBlockState(blockpos).getBlock();
+	    }
+	    
+	    public boolean isAirBlock(BlockPos pos)
+	    {
+	    	return access.isAirBlock(pos);
+	    }
+	    
+	    public boolean isBlockLoaded(BlockPos pos, boolean allowEmpty)
+	    {
+	    	return access.isInRange(pos.getX(), pos.getY(), pos.getZ());
+	    }
+	    
+	    protected boolean isChunkLoaded(int x, int z, boolean allowEmpty)
+	    {
+	    	return access.isInRange(x*16, 0, z*16);
+	    }
+	    
+	    public Chunk getChunkFromChunkCoords(int chunkX, int chunkZ)
+	    {
+	    	return CoreInitialiser.proxy.getWorldForDim(0).getChunkFromChunkCoords(chunkX, chunkZ);
+	    }
+	    
+	    public boolean setBlockState(BlockPos pos, IBlockState newState, int flags)
+	    {
+	    	access.setBlock(pos.getX(), pos.getY(), pos.getZ(), newState.getBlock(), newState.getBlock().getMetaFromState(newState));
+	    	return true;
+	    }
+	    
+	    public void markAndNotifyBlock(BlockPos pos, Chunk chunk, IBlockState old, IBlockState new_, int flags){}
+	    
+	    public boolean setBlockToAir(BlockPos pos)
+	    {
+	    	access.setBlock(pos.getX(), pos.getY(), pos.getZ(), Blocks.air);
+	    	return true;
+	    }
+	    
+	    public void markBlocksDirtyVertical(int x1, int z1, int x2, int z2){}
+	    
+	    public void notifyBlockOfStateChange(BlockPos pos, final Block blockIn){}
+	    
+	    public int getLightFromNeighborsFor(EnumSkyBlock type, BlockPos pos){return 15;}
+	    
+	    public float getLightBrightness(BlockPos pos){return 1F;}
+	    
+	    public IBlockState getBlockState(BlockPos pos)
+	    {
+	    	return access.getBlockState(pos);
+	    }
+	    
+	    public boolean isDaytime(){return true;}
+	    
+	    public void playSoundAtEntity(Entity entityIn, String name, float volume, float pitch){}
+	    
+	    public void playSoundToNearExcept(EntityPlayer player, String name, float volume, float pitch){}
+	    
+	    public boolean spawnEntityInWorld(Entity entityIn){return true;}
+	    
+	    public String getProviderName(){return "DBWW";}
+	    
+	    public TileEntity getTileEntity(BlockPos pos){return access.getTileEntity(pos);}
+	    
+	    public void setTileEntity(BlockPos pos, TileEntity tileEntityIn)
+	    {
+	    	if(access.getTileEntity(pos) != tileEntityIn)
+	    		access.setTileEntity(pos.getX(), pos.getY(), pos.getZ(), tileEntityIn);
+	    	tileEntityIn.setWorldObj(this);
+	    	tileEntityIn.setPos(pos);
+	    }
+	    
+	    public void removeTileEntity(BlockPos pos){access.setTileEntity(pos.getX(), pos.getY(), pos.getZ(), null);}
+	    
+	    protected int getRenderDistanceChunks(){return 8;}
+	}
 }
