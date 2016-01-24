@@ -14,6 +14,7 @@ import org.lwjgl.util.vector.Vector3f;
 import DummyCore.Utils.IOldCubicBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
@@ -101,7 +102,8 @@ public class SBRHAwareModel implements ISmartBlockModel, ISmartItemModel, IPosAw
 
 	@Override
 	public TextureAtlasSprite getParticleTexture() {
-		return iconFromState.actualTexture;
+		
+		try{if(iconFromState == null) iconFromState = this.interfaced.getIcon(0, rendered.getMetaFromState(blockState));return iconFromState.actualTexture;}catch(Exception e){return Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelManager().getMissingModel().getParticleTexture();}
 	}
 	
 	@Override
