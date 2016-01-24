@@ -92,7 +92,6 @@ public class Lightning {
 	 */
 	public void render(double x, double y, double z, float partialTicks)
 	{
-		renderTicksExisted += partialTicks/1F;
 		if(renderTicksExisted >= this.lightningVecsStart.length)
 			renderTicksExisted = this.lightningVecsStart.length;
         GL11.glPushMatrix();
@@ -125,7 +124,6 @@ public class Lightning {
 		GL11.glAlphaFunc(GL11.GL_GREATER, 0.1F);
 		GL11.glEnable(GL11.GL_BLEND);
 		GL11.glShadeModel(GL11.GL_SMOOTH);
-		GL11.glEnable(GL11.GL_CULL_FACE);
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
         GL11.glDisable(GL11.GL_ALPHA_TEST);
         GL11.glBegin(1);
@@ -143,7 +141,6 @@ public class Lightning {
         GL11.glShadeModel(GL11.GL_FLAT);
         GL11.glDisable(GL11.GL_BLEND);
         GL11.glEnable(GL11.GL_ALPHA_TEST);
-        GL11.glDisable(GL11.GL_CULL_FACE);
         GL11.glPopMatrix();
 	}
 
