@@ -193,4 +193,18 @@ public class MathUtils {
 		}
 		return true;
 	}
+	
+	@SafeVarargs
+	public static <T extends Comparable<T>>T max(T...is)
+	{
+		T mI = is.length == 0 ? null : is[0];
+		
+		for(T i : is)
+			if(i.compareTo(mI) > 0)
+				mI = i;
+		
+		return mI;
+	}
+	
+	
 }
