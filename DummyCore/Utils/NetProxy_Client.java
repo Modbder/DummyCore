@@ -64,6 +64,7 @@ import net.minecraft.tileentity.TileEntitySkull;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.FMLClientHandler;
 
 //Internal
@@ -216,6 +217,8 @@ public class NetProxy_Client extends NetProxy_Server{
 		RenderAccessLibrary.registerRenderingHandler(new RenderAllFacesWithHorizontalOffset());
 		RenderAccessLibrary.registerRenderingHandler(new RenderConnectedToBlock());
 		RenderAccessLibrary.registerRenderingHandler(new RenderAnvil());
+		
+		MinecraftForge.EVENT_BUS.register(new DCParticleEngine());
 	}
 	
 	@Override
