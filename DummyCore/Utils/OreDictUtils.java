@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.oredict.OreDictionary;
+import static DummyCore.Utils.OreDictUtils.CommonOres.*;
 
 /**
  * Some OreDict utils are here
@@ -94,6 +95,44 @@ public class OreDictUtils {
 		{
 			return names != null && names.length > 0 ? Arrays.asList(names).toString() : super.toString();
 		}
+		
+		public CommonOreRarity getRarity()
+		{
+			return CommonOreRarity.byOre(this);
+		}
+	}
+	
+	public static enum CommonOreRarity
+	{
+		COMMON(COAL),
+		NORMAL(COPPER,TIN,ZINC,IRON,NICKEL,LEAD,GALENA,ALUMINIUM,AMBER,SULFUR,SALTPETER),
+		UNCOMMON(SILVER,GOLD,CINNABAR,QUARTZ,MALACHITE,OSMIUM,REDSTONE,NICKOLITE,TESLATITE),
+		SCATTERED(URANIUM,APATITE,LAPIS,HEMATITE,CHIMERITE,SILICON),
+		RARE(PLUTONIUM,PERIDOT,AGATE,JASPER,TOURMALINE,TURQUOISE,BLUETOPAZ),
+		EXCEPTIONAL(DIAMOND,SAPPHIRE,EMERALD,RUBY,AMETHYST,MOONSTONE,TUNGSTEN,COBALT,ARDITE),
+		IMPOSSIBLE(IRIDIUM,SUNSTONE,PLATINUM,MYTHRIL);
+		
+		CommonOreRarity(CommonOres... ore)
+		{
+			theOre = ore;
+		}
+		
+		public final CommonOres[] theOre;
+		
+		public static CommonOres[] byRarity(CommonOreRarity rarity)
+		{
+			return rarity.theOre;
+		}
+		
+		public static CommonOreRarity byOre(CommonOres ore)
+		{
+			for(CommonOreRarity cor : CommonOreRarity.values())
+				for(CommonOres ores : cor.theOre)
+					if(ores.equals(ore))
+						return cor;
+			
+			return null;
+		}
 	}
 	
 	/**
@@ -108,6 +147,19 @@ public class OreDictUtils {
 			if(!OreDictionary.getOres(oreName).isEmpty())
 				
 				return true;
+		return false;
+	}
+	
+	public static boolean compareIS(ItemStack is, String oreName)
+	{
+		if(is != null && oreDictionaryContains(oreName))
+		{
+			int[] ids = OreDictionary.getOreIDs(is);
+			if(ids != null && ids.length > 0)
+				for(int i : ids)
+					if(OreDictionary.getOreName(i).equalsIgnoreCase(oreName))
+						return true;
+		}
 		return false;
 	}
 	
