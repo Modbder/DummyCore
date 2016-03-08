@@ -146,6 +146,13 @@ public class DCASMManager implements IClassTransformer{
 			insert.add(new FieldInsnNode(Opcodes.GETFIELD,"net/minecraftforge/client/model/ModelLoader","missingVariants","Ljava/util/Set;"));
 			mn.instructions.insert(insertAfter, insert);
 			
+			mn = ASMManager.getMethod(classNode, "storeException", "storeException", "(Lnet/minecraft/util/ResourceLocation;Ljava/lang/Exception;)V", "(Lnet/minecraft/util/ResourceLocation;Ljava/lang/Exception;)V!&!(Ljy;Ljava/lang/Exception;)V");
+			
+			mn.instructions.clear();
+			mn.instructions.insert(new LabelNode());
+			mn.instructions.insert(new InsnNode(Opcodes.RETURN));
+			mn.instructions.insert(new LabelNode());
+			
 			classNode.accept(cw);
 			byte[] bArray = cw.toByteArray();
 			
