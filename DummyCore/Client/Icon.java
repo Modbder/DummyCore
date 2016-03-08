@@ -1,6 +1,7 @@
 package DummyCore.Client;
 
 import DummyCore.Utils.IOldCubicBlock;
+import DummyCore.Utils.IOldItem;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -60,6 +61,8 @@ public class Icon {
 	{
 		if(itm instanceof ItemBlock && ItemBlock.class.cast(itm).getBlock() instanceof IOldCubicBlock)
 			return IOldCubicBlock.class.cast(ItemBlock.class.cast(itm).getBlock()).getIcon(0, meta);
+		if(itm instanceof IOldItem)
+			return IOldItem.class.cast(itm).getIconFromDamage(meta);
 		return new Icon(Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getParticleIcon(itm, meta));
 	}
 	
