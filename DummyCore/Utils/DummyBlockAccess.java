@@ -131,9 +131,9 @@ public class DummyBlockAccess implements IBlockAccess{
 			DummyBlockPosition pos = dbp.pop();
 			String bid = pos.blockID;
 			Block b = GameRegistry.findBlock(bid.substring(0,bid.indexOf(':')), bid.substring(bid.indexOf(':')+1));
-			if(b.hasTileEntity(b.getStateFromMeta(pos.meta)))
+			if(b.hasTileEntity(b.getStateFromMeta(pos.meta == OreDictionary.WILDCARD_VALUE || pos.meta == -1 ? 0 : pos.meta)))
 			{
-				TileEntity tile = b.createTileEntity(dba.defaultWorld, b.getStateFromMeta(pos.meta));
+				TileEntity tile = b.createTileEntity(dba.defaultWorld, b.getStateFromMeta(pos.meta == OreDictionary.WILDCARD_VALUE || pos.meta == -1 ? 0 : pos.meta));
 				dba.setTileEntity(pos.x - minX, pos.y - minY, pos.z - minZ, tile);
 			}
 			dba.setBlock(pos.x - minX, pos.y - minY, pos.z - minZ, b, pos.meta);
@@ -228,7 +228,7 @@ public class DummyBlockAccess implements IBlockAccess{
 			return getMetadataFromWildcardForBlock(b);
 		}
 		
-		cycleRandom.setSeed(defaultWorld.getSeed() + defaultWorld.getWorldTime()/cycleTimer);
+		cycleRandom.setSeed((long) (Math.PI * (defaultWorld.getSeed() + defaultWorld.getWorldTime()/cycleTimer)*1000));
 		Integer[] i = cachedMetas.get(b);
 		return i[cycleRandom.nextInt(i.length)];
 	}
