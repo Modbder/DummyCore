@@ -106,6 +106,11 @@ public class ExtendedAABB {
         return new ExtendedAABB(d0, d1, d2, d3, d4, d5);
     }
     
+    public static ExtendedAABB fromPos(BlockPos pos1, BlockPos pos2)
+    {
+    	return fromBounds(pos1.getX(),pos1.getY(),pos1.getZ(),pos2.getX(),pos2.getY(),pos2.getZ());
+    }	
+    
     public static ExtendedAABB fromBounds(double x1, double y1, double z1, double x2, double y2, double z2)
     {
         double d6 = Math.min(x1, x2);
