@@ -8,9 +8,19 @@ package DummyCore.Utils;
  */
 public class DummyColor {
 	
-	private byte[] color = new byte[3];
+	private int[] color = new int[3];
 	
-	public DummyColor(byte red, byte green, byte blue)
+	public DummyColor(int hex)
+	{
+		int r = (int) ((double)((hex & 0xFF0000) >> 16) / 0xff * 255);
+		int g = (int) ((double)((hex & 0xFF00) >> 8) / 0xff * 255);
+		int b = (int) ((double)((hex & 0xFF)) / 0xff * 255);
+		color[0] = r;
+		color[1] = g;
+		color[2] = b;
+	}
+	
+	public DummyColor(int red, int green, int blue)
 	{
 		color[0] = red;
 		color[1] = green;
@@ -30,6 +40,36 @@ public class DummyColor {
 	public int getBlue()
 	{
 		return color[2];
+	}
+	
+	public float getRedF()
+	{
+		return (float)color[0]/255F;
+	}
+	
+	public float getGreenF()
+	{
+		return (float)color[1]/255F;
+	}
+	
+	public float getBlueF()
+	{
+		return (float)color[2]/255F;
+	}
+	
+	public double getRedD()
+	{
+		return getRedF();
+	}
+	
+	public double getGreenD()
+	{
+		return getGreenF();
+	}
+	
+	public double getBlueD()
+	{
+		return getBlueF();
 	}
 	
 	public int getColorInHex()
