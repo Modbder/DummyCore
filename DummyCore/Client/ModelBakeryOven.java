@@ -17,8 +17,10 @@ public class ModelBakeryOven {
 	public int uselessInt = 0;
 	public EnumFacing workedWith;
 	public boolean swapRB;
+	public short millisWaited;
 	
 	public static final ModelBakeryOven instance = new ModelBakeryOven();
+	public static Thread caller;
 	
 	/**
 	 * Starts the drawing for the given face and without any custom color
@@ -45,6 +47,32 @@ public class ModelBakeryOven {
 	 */
 	public void start(EnumFacing face, int shadeColor, boolean swapRB)
 	{
+		/*
+		 * So, the ModelbakeryOven's instance is a static final var, meaning that multiple threads can cause concurrent actions over it
+		 * That is fine, since the Oven's function is pure math, and takes very little nanos to process
+		 * However, if there are a lot of complex objects rendering at the same time(just a lot of blocks rendered by DC in one place)...
+		 * Well, due to concurrency there can be glitches.
+		 * So this implementation makes sure there is no concurrency. It basically locks the oven until one thread finishes using it before allowing other thread
+		 * Since it locks the thread for 1 milli it is still very fast, even when it caches concurrency.
+		 * However, we have to make sure that it is not locked due to a bad programming error...
+		 * Since who knows what could happen...
+		 * Well, I think that if it takes more than a second for a thread to generate math...
+		 * It is either a very bad error, or an extremely complex math
+		 * Either way if that happens - I just crash the game
+		 * Since that means that generating a model of a block took at least a full second!
+		 */
+		//===========================================================================================================//
+		if(caller == null || caller == Thread.currentThread()){
+			caller = Thread.currentThread();
+		}else{
+			while(caller != null){
+				try{Thread.sleep(1L);}catch(Exception e){e.printStackTrace();}
+				++millisWaited;
+				if(millisWaited > 1000L)
+					throw new IllegalStateException("Something took too much time using the ModelBakeryOven!");
+			}
+		}
+		//===========================================================================================================//
 		workedWith = face;
 		quad = 0;
 		this.shadeColor = shadeColor;
@@ -141,6 +169,8 @@ public class ModelBakeryOven {
 	{
 		int[] vertexData = data.clone();
 		ForgeHooksClient.fillNormal(vertexData, workedWith);
+		caller = null;
+		millisWaited = 0;
 		return vertexData;
 	}
 }
