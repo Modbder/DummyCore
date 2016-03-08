@@ -36,8 +36,11 @@ public class ItemRegistry {
 		Side s = FMLCommonHandler.instance().getEffectiveSide();
 		if(s == Side.CLIENT)
 		{
-			i.setCreativeTab(Core.getItemTabForMod(modClass));
-			itemsList.put(i, Core.getItemTabForMod(modClass).getTabLabel());
+			if(Core.getItemTabForMod(modClass) != null)
+			{
+				i.setCreativeTab(Core.getItemTabForMod(modClass));
+				itemsList.put(i, Core.getItemTabForMod(modClass).getTabLabel());
+			}
 			if(i instanceof IOldItem)
 				OldTextureHandler.addOldItem(Core.getModFromClass(modClass).modid+":"+name, i);
 		}

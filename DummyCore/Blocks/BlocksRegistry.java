@@ -45,8 +45,11 @@ public class BlocksRegistry {
 		Side s = FMLCommonHandler.instance().getEffectiveSide();
 		if(s == Side.CLIENT)
 		{
-			b.setCreativeTab(Core.getBlockTabForMod(modClass));
-			blocksList.put(b, Core.getBlockTabForMod(modClass).getTabLabel());
+			if(Core.getBlockTabForMod(modClass) != null)
+			{
+				b.setCreativeTab(Core.getBlockTabForMod(modClass));
+				blocksList.put(b, Core.getBlockTabForMod(modClass).getTabLabel());
+			}
 			
 			if(b instanceof IOldCubicBlock)
 				OldTextureHandler.addOldBlock(Core.getModFromClass(modClass).modid+":"+name, b);
