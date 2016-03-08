@@ -169,6 +169,9 @@ public class MiscUtils {
 		//Was causing too much issues, had to add a try/catch statement...
 		try
 		{
+			if(!(par1World.getTileEntity(new BlockPos(par2, par3, par4)) instanceof IInventory))
+				return;
+			
 			IInventory inv = (IInventory)par1World.getTileEntity(new BlockPos(par2, par3, par4));
 	
 	        if (inv != null)
@@ -1153,5 +1156,12 @@ public class MiscUtils {
     	}
     	
     	return null;
+    }
+    
+    public static BlockPos fromIntArray(int[] array)
+    {
+    	if(array.length != 3)
+    		return BlockPos.ORIGIN;
+    	return new BlockPos(array[0],array[1],array[2]);
     }
 }
